@@ -1,4 +1,4 @@
-KHAAD Setu
+### KHAAD Setu
 
 Cross platform app built with Flutter for Indian farmers, mainly targeting small and marginal farmers doing organic farming or shifting towards it. This was my attempt at solving a real problem instead of building another todo app for my resume lol.
 
