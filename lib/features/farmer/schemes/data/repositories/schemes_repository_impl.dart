@@ -1,12 +1,12 @@
 import '../../domain/entities/gov_scheme.dart';
 import '../../domain/entities/scheme_application.dart';
 import '../../domain/repositories/schemes_repository.dart';
-import '../datasources/schemes_fake_data_source.dart';
+import '../datasources/schemes_local_data_source.dart';
 
 class SchemesRepositoryImpl implements SchemesRepository {
   const SchemesRepositoryImpl(this._dataSource);
 
-  final SchemesFakeDataSource _dataSource;
+  final SchemesLocalDataSource _dataSource;
 
   @override
   Future<List<GovScheme>> getSchemes() => _dataSource.fetchSchemes();

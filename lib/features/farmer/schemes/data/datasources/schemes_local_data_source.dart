@@ -1,9 +1,18 @@
+import 'package:drift/drift.dart';
+
+import '../../../../../core/database/app_database.dart';
 import '../../domain/entities/gov_scheme.dart';
 import '../../domain/entities/scheme_application.dart';
 
-/// Stands in for a remote schemes-directory API. Holds application status
-/// in memory so [applyToScheme] actually changes what a later read sees.
-class SchemesFakeDataSource {
+/// The scheme directory is static seed data — nothing mutates it. Applying
+/// to a scheme is the real, user-driven operation, backed by the shared
+/// [AppDatabase] so it survives a restart. Replaces the earlier in-memory
+/// `SchemesFakeDataSource` behind the same method signatures.
+class SchemesLocalDataSource {
+  SchemesLocalDataSource(this._db);
+
+  final AppDatabase _db;
+
   static final List<GovScheme> _schemes = [
     GovScheme(
       id: 'scheme-pmkisan',
@@ -82,15 +91,25 @@ class SchemesFakeDataSource {
     ),
   ];
 
-  final Map<String, SchemeApplication> _applications = {
-    // Seeded so the application-status screen has something to show
-    // immediately, without depending on tapping "Apply" first.
-    'scheme-fasalbima': SchemeApplication(
-      schemeId: 'scheme-fasalbima',
-      status: ApplicationStatus.underReview,
-      appliedDate: DateTime.now().subtract(const Duration(days: 6)),
-    ),
-  };
+  bool _seeded = false;
+
+  Future<void> _ensureSeeded() async {
+    if (_seeded) return;
+    final hasRows = await _db
+        .select(_db.schemeApplicationsTable)
+        .get()
+        .then((rows) => rows.isNotEmpty);
+    if (!hasRows) {
+      // So the application-status screen has something to show
+      // immediately, without depending on tapping "Apply" first.
+      await _upsert(SchemeApplication(
+        schemeId: 'scheme-fasalbima',
+        status: ApplicationStatus.underReview,
+        appliedDate: DateTime.now().subtract(const Duration(days: 6)),
+      ));
+    }
+    _seeded = true;
+  }
 
   Future<List<GovScheme>> fetchSchemes() async {
     await Future.delayed(const Duration(milliseconds: 700));
@@ -103,19 +122,47 @@ class SchemesFakeDataSource {
   }
 
   Future<SchemeApplication> fetchApplicationStatus(String schemeId) async {
-    await Future.delayed(const Duration(milliseconds: 300));
-    return _applications[schemeId] ??
-        SchemeApplication(schemeId: schemeId, status: ApplicationStatus.notApplied, appliedDate: null);
+    await _ensureSeeded();
+    final row = await (_db.select(_db.schemeApplicationsTable)
+          ..where((t) => t.schemeId.equals(schemeId)))
+        .getSingleOrNull();
+    if (row == null) {
+      return SchemeApplication(
+        schemeId: schemeId,
+        status: ApplicationStatus.notApplied,
+        appliedDate: null,
+      );
+    }
+    return _toApplication(row);
   }
 
   Future<SchemeApplication> applyToScheme(String schemeId) async {
+    await _ensureSeeded();
     await Future.delayed(const Duration(milliseconds: 900));
     final application = SchemeApplication(
       schemeId: schemeId,
       status: ApplicationStatus.submitted,
       appliedDate: DateTime.now(),
     );
-    _applications[schemeId] = application;
+    await _upsert(application);
     return application;
+  }
+
+  Future<void> _upsert(SchemeApplication application) {
+    return _db.into(_db.schemeApplicationsTable).insertOnConflictUpdate(
+          SchemeApplicationsTableCompanion.insert(
+            schemeId: application.schemeId,
+            status: application.status.name,
+            appliedDate: Value(application.appliedDate),
+          ),
+        );
+  }
+
+  SchemeApplication _toApplication(SchemeApplicationRow row) {
+    return SchemeApplication(
+      schemeId: row.schemeId,
+      status: ApplicationStatus.values.byName(row.status),
+      appliedDate: row.appliedDate,
+    );
   }
 }
