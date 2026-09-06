@@ -127,14 +127,19 @@ class _DetailBody extends ConsumerWidget {
         Text('Reviews (${product.reviewCount})', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
         reviewsAsync.when(
-          data: (reviews) => Column(
-            children: [
-              for (final review in reviews) ...[
-                ReviewCard(review: review),
-                AppSpacing.gapSm,
-              ],
-            ],
-          ),
+          data: (reviews) => reviews.isEmpty
+              ? Text(
+                  'No reviews yet.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+                )
+              : Column(
+                  children: [
+                    for (final review in reviews) ...[
+                      ReviewCard(review: review),
+                      AppSpacing.gapSm,
+                    ],
+                  ],
+                ),
           loading: () => const AppLoadingIndicator(),
           error: (err, _) => AppErrorView(message: '$err'),
         ),

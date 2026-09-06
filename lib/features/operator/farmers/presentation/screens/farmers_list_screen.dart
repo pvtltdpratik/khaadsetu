@@ -62,7 +62,7 @@ class _FarmersListScreenState extends ConsumerState<FarmersListScreen> {
                   if (filtered.isEmpty) {
                     return Center(
                       child: Text(
-                        'No farmers need follow-up right now',
+                        _followUpOnly ? 'No farmers need follow-up right now' : 'No farmers yet',
                         style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted),
                       ),
                     );

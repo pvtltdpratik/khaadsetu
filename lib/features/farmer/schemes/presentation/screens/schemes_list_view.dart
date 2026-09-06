@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
+import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
@@ -25,15 +26,22 @@ class SchemesListView extends ConsumerWidget {
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: Breakpoints.maxContentWidth),
         child: schemesAsync.when(
-          data: (schemes) => ListView.separated(
-            padding: context.pagePadding,
-            itemCount: schemes.length,
-            separatorBuilder: (_, _) => AppSpacing.gapSm,
-            itemBuilder: (context, i) => _SchemeTile(
-              scheme: schemes[i],
-              onTap: () => context.push(RoutePaths.farmerCommunityScheme(schemes[i].id)),
-            ),
-          ),
+          data: (schemes) => schemes.isEmpty
+              ? Center(
+                  child: Text(
+                    'No schemes available right now',
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted),
+                  ),
+                )
+              : ListView.separated(
+                  padding: context.pagePadding,
+                  itemCount: schemes.length,
+                  separatorBuilder: (_, _) => AppSpacing.gapSm,
+                  itemBuilder: (context, i) => _SchemeTile(
+                    scheme: schemes[i],
+                    onTap: () => context.push(RoutePaths.farmerCommunityScheme(schemes[i].id)),
+                  ),
+                ),
           loading: () => const AppLoadingIndicator(),
           error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(schemesProvider)),
         ),

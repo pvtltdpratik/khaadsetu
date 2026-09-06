@@ -99,14 +99,19 @@ class _PostBody extends ConsumerWidget {
         Text('Replies (${post.replyCount})', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
         repliesAsync.when(
-          data: (replies) => Column(
-            children: [
-              for (final reply in replies) ...[
-                ForumReplyCard(reply: reply),
-                AppSpacing.gapSm,
-              ],
-            ],
-          ),
+          data: (replies) => replies.isEmpty
+              ? Text(
+                  'No replies yet — be the first to respond.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+                )
+              : Column(
+                  children: [
+                    for (final reply in replies) ...[
+                      ForumReplyCard(reply: reply),
+                      AppSpacing.gapSm,
+                    ],
+                  ],
+                ),
           loading: () => const AppLoadingIndicator(),
           error: (err, _) => AppErrorView(message: '$err'),
         ),
