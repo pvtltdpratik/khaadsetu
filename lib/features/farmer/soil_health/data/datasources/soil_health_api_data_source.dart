@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:typed_data';
 
@@ -37,7 +38,9 @@ class SoilHealthApiDataSource {
   }
 
   Future<List<SoilScanResult>> fetchHistory(String deviceId) async {
-    final response = await _client.get(_historyUri(deviceId)).timeout(const Duration(seconds: 20));
+    final response = await _guardConnection(
+      () => _client.get(_historyUri(deviceId)).timeout(const Duration(seconds: 20)),
+    );
     _checkStatus(response);
     final decoded = jsonDecode(response.body);
     // Assumes the backend returns a plain JSON array of scan objects, per
@@ -48,10 +51,33 @@ class SoilHealthApiDataSource {
   }
 
   Future<http.Response> _send(http.MultipartRequest request) async {
-    final streamed = await _client.send(request).timeout(const Duration(seconds: 30));
-    final response = await http.Response.fromStream(streamed);
+    final response = await _guardConnection(() async {
+      final streamed = await _client.send(request).timeout(const Duration(seconds: 30));
+      return http.Response.fromStream(streamed);
+    });
     _checkStatus(response);
     return response;
+  }
+
+  /// Wraps low-level network failures (connection refused, DNS failure,
+  /// timeout) — which surface as a raw `ClientException`/`TimeoutException`
+  /// unhelpful to a non-technical user — into one clear message pointing at
+  /// the likely cause, instead of leaking a stack-trace-looking string into
+  /// the UI's error state.
+  Future<http.Response> _guardConnection(Future<http.Response> Function() request) async {
+    try {
+      return await request();
+    } on http.ClientException {
+      throw SoilHealthApiException(
+        "Couldn't reach the soil analysis server at ${ApiConfig.soilSenseBaseUrl}. "
+        'Make sure it\'s running, and if you\'re on a phone rather than in the '
+        'browser, check the API_BASE_URL override in core/network/api_config.dart.',
+      );
+    } on TimeoutException {
+      throw SoilHealthApiException(
+        'The soil analysis server took too long to respond. Please try again.',
+      );
+    }
   }
 
   void _checkStatus(http.Response response) {

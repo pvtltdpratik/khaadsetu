@@ -146,18 +146,24 @@ class _ResultBody extends StatelessWidget {
         AppSpacing.gapLg,
         Text('Recommendations', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
-        for (final recommendation in result.recommendations)
-          Padding(
-            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Icon(Icons.circle, size: 6, color: colors.textMuted),
-                const SizedBox(width: AppSpacing.sm),
-                Expanded(child: Text(recommendation, style: Theme.of(context).textTheme.bodyMedium)),
-              ],
+        if (result.recommendations.isEmpty)
+          Text(
+            'No specific recommendations for this scan.',
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+          )
+        else
+          for (final recommendation in result.recommendations)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.circle, size: 6, color: colors.textMuted),
+                  const SizedBox(width: AppSpacing.sm),
+                  Expanded(child: Text(recommendation, style: Theme.of(context).textTheme.bodyMedium)),
+                ],
+              ),
             ),
-          ),
         AppSpacing.gapLg,
         ResponsiveRow(
           spacing: AppSpacing.sm,
