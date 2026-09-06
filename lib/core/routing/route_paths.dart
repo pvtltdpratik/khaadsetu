@@ -30,6 +30,14 @@ class RoutePaths {
 
   static const farmerCommunity = '/farmer/community';
 
+  static const farmerCommunityPostPattern = '/farmer/community/post/:postId';
+  static String farmerCommunityPost(String postId) =>
+      '/farmer/community/post/$postId';
+
+  static const farmerCommunitySchemePattern = '/farmer/community/scheme/:schemeId';
+  static String farmerCommunityScheme(String schemeId) =>
+      '/farmer/community/scheme/$schemeId';
+
   // Village Center Operator App route group.
   static const operatorHome = '/operator';
 }

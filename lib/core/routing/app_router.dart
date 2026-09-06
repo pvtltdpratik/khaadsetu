@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,8 +10,10 @@ import '../../features/farmer/soil_health/presentation/screens/soil_scan_result_
 import '../../features/farmer/marketplace/presentation/screens/marketplace_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_comparison_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_detail_screen.dart';
+import '../../features/farmer/community/presentation/screens/community_feed_screen.dart';
+import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
+import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/presentation/screens/operator_placeholder_screen.dart';
-import '../widgets/coming_soon_view.dart';
 import 'route_paths.dart';
 
 /// App-wide router. Farmer and Operator routes are kept as separate groups
@@ -99,11 +100,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.farmerCommunity,
-                builder: (context, state) => const ComingSoonView(
-                  icon: Icons.groups_outlined,
-                  title: 'Community & schemes arrive in Phase 5',
-                  subtitle: 'Forum feed, and government scheme matching.',
-                ),
+                builder: (context, state) => const CommunityFeedScreen(),
+                routes: [
+                  // Relative segments — must stay in sync with the absolute
+                  // constants in route_paths.dart used for navigation.
+                  GoRoute(
+                    path: 'post/:postId',
+                    builder: (context, state) => PostDetailScreen(
+                      postId: state.pathParameters['postId']!,
+                    ),
+                  ),
+                  GoRoute(
+                    path: 'scheme/:schemeId',
+                    builder: (context, state) => SchemeDetailScreen(
+                      schemeId: state.pathParameters['schemeId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
