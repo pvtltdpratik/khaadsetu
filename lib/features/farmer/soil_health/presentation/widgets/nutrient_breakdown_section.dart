@@ -56,7 +56,7 @@ class _NutrientCard extends StatelessWidget {
                 Text(_labelFor(reading.type), style: Theme.of(context).textTheme.labelMedium),
                 const SizedBox(height: AppSpacing.xxs),
                 Text(
-                  '${reading.valueKgPerHectare.round()} kg/ha',
+                  '${reading.valuePercent.round()}%',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],

@@ -102,12 +102,17 @@ class _ResultBody extends StatelessWidget {
               children: [
                 Row(
                   children: [
-                    Expanded(child: _StatTile(label: 'Soil pH', value: result.phLevel.toStringAsFixed(1))),
+                    Expanded(
+                      child: _StatTile(
+                        label: 'Soil moisture',
+                        value: '${result.soilMoisturePercent.round()}%',
+                      ),
+                    ),
                     AppSpacing.gapSm,
                     Expanded(
                       child: _StatTile(
-                        label: 'Organic matter',
-                        value: '${result.organicMatterPercent.toStringAsFixed(1)}%',
+                        label: 'Disease confidence',
+                        value: '${result.diseaseConfidencePercent.round()}%',
                       ),
                     ),
                   ],
@@ -124,9 +129,9 @@ class _ResultBody extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text('Recommendation', style: Theme.of(context).textTheme.titleSmall),
+                      Text('Disease indicators', style: Theme.of(context).textTheme.titleSmall),
                       const SizedBox(height: AppSpacing.xs),
-                      Text(result.recommendation, style: Theme.of(context).textTheme.bodyMedium),
+                      Text(result.disease, style: Theme.of(context).textTheme.bodyMedium),
                     ],
                   ),
                 ),
@@ -138,6 +143,21 @@ class _ResultBody extends StatelessWidget {
         Text('Nutrient breakdown', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
         NutrientBreakdownSection(nutrients: result.nutrients),
+        AppSpacing.gapLg,
+        Text('Recommendations', style: Theme.of(context).textTheme.titleMedium),
+        AppSpacing.gapSm,
+        for (final recommendation in result.recommendations)
+          Padding(
+            padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(Icons.circle, size: 6, color: colors.textMuted),
+                const SizedBox(width: AppSpacing.sm),
+                Expanded(child: Text(recommendation, style: Theme.of(context).textTheme.bodyMedium)),
+              ],
+            ),
+          ),
         AppSpacing.gapLg,
         ResponsiveRow(
           spacing: AppSpacing.sm,

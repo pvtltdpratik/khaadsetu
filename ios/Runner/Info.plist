@@ -26,6 +26,19 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- For the soil-scan capture flow (image_picker). -->
+	<key>NSCameraUsageDescription</key>
+	<string>Used to take a photo of soil for analysis.</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Used to choose a soil photo from your library for analysis.</string>
+	<!-- Dev-only: the Soil Sense backend runs over plain HTTP on your local
+	     network while developing. Remove this (and use HTTPS) for a real
+	     deployed backend. -->
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
