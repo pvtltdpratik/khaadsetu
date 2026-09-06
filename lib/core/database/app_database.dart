@@ -2,6 +2,8 @@ import 'package:drift/drift.dart';
 import 'package:drift_flutter/drift_flutter.dart';
 
 import 'tables/orders_table.dart';
+import 'tables/restock_requests_table.dart';
+import 'tables/scheme_applications_table.dart';
 
 part 'app_database.g.dart';
 
@@ -11,18 +13,28 @@ part 'app_database.g.dart';
 ///
 /// To add a feature's table: define a `Table` subclass under `tables/`,
 /// list it in `@DriftDatabase(tables: [...])` below, bump [schemaVersion],
-/// and add a migration step in [migration]. See
+/// and add an `onUpgrade` step in [migration] that creates just the new
+/// table(s) — anyone who already has an older database on disk needs that
+/// step; a fresh install only ever hits `onCreate`. See
 /// `features/operator/orders/data/datasources/orders_local_data_source.dart`
 /// for the full read/write pattern against a table.
-@DriftDatabase(tables: [OrdersTable])
+@DriftDatabase(tables: [OrdersTable, RestockRequestsTable, SchemeApplicationsTable])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
 
   @override
-  MigrationStrategy get migration => MigrationStrategy();
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) => m.createAll(),
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.createTable(restockRequestsTable);
+            await m.createTable(schemeApplicationsTable);
+          }
+        },
+      );
 }
 
 QueryExecutor _openConnection() {
