@@ -1,32 +1,32 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../data/datasources/soil_health_fake_data_source.dart';
+import '../../../../../core/device/device_id_provider.dart';
+import '../../data/datasources/soil_health_api_data_source.dart';
 import '../../data/repositories/soil_health_repository_impl.dart';
 import '../../domain/entities/soil_health_summary.dart';
 import '../../domain/entities/soil_scan_result.dart';
 import '../../domain/repositories/soil_health_repository.dart';
 
-/// Plain (non-`autoDispose`) `Provider`, so this stays a single instance for
-/// the app's lifetime — the fake data source's in-memory scan history
-/// persists across navigation instead of resetting on every read.
-final soilHealthRepositoryProvider = Provider<SoilHealthRepository>((ref) {
-  return SoilHealthRepositoryImpl(SoilHealthFakeDataSource());
+/// Async because building the repository needs the device id first (itself
+/// async — see `deviceIdProvider`). Everything downstream just awaits
+/// `.future` once, same as any other dependency.
+final soilHealthRepositoryProvider = FutureProvider<SoilHealthRepository>((ref) async {
+  final deviceId = await ref.watch(deviceIdProvider.future);
+  return SoilHealthRepositoryImpl(SoilHealthApiDataSource(), deviceId: deviceId);
 });
 
-/// Latest soil health summary for the home screen. `autoDispose` so
-/// invalidating it (e.g. after a new scan) refetches instead of serving a
-/// stale cached value.
-final soilHealthSummaryProvider =
-    FutureProvider.autoDispose<SoilHealthSummary>((ref) {
-  return ref.watch(soilHealthRepositoryProvider).getLatestSummary();
+final soilHealthSummaryProvider = FutureProvider.autoDispose<SoilHealthSummary>((ref) async {
+  final repository = await ref.watch(soilHealthRepositoryProvider.future);
+  return repository.getLatestSummary();
 });
 
-final soilScanHistoryProvider =
-    FutureProvider.autoDispose<List<SoilScanResult>>((ref) {
-  return ref.watch(soilHealthRepositoryProvider).getScanHistory();
+final soilScanHistoryProvider = FutureProvider.autoDispose<List<SoilScanResult>>((ref) async {
+  final repository = await ref.watch(soilHealthRepositoryProvider.future);
+  return repository.getScanHistory();
 });
 
 final soilScanResultProvider =
-    FutureProvider.autoDispose.family<SoilScanResult, String>((ref, scanId) {
-  return ref.watch(soilHealthRepositoryProvider).getScanById(scanId);
+    FutureProvider.autoDispose.family<SoilScanResult, String>((ref, scanId) async {
+  final repository = await ref.watch(soilHealthRepositoryProvider.future);
+  return repository.getScanById(scanId);
 });

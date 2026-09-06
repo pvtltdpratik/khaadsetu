@@ -11,7 +11,7 @@ import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../soil_health/domain/entities/nutrient_reading.dart';
 import '../../domain/entities/product.dart';
 import '../providers/marketplace_providers.dart';
-import '../widgets/price_format.dart';
+import '../../../../../core/utils/price_format.dart';
 import '../widgets/product_placeholder_image.dart';
 import '../widgets/star_rating.dart';
 

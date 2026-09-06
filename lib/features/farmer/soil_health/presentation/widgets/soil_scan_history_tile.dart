@@ -40,7 +40,7 @@ class SoilScanHistoryTile extends StatelessWidget {
                     Text(_formatDate(result.scannedAt), style: Theme.of(context).textTheme.titleSmall),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      result.recommendation,
+                      result.recommendations.isNotEmpty ? result.recommendations.first : '',
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),

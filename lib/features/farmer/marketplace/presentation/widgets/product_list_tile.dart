@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/product.dart';
-import 'price_format.dart';
+import '../../../../../core/utils/price_format.dart';
 import 'product_placeholder_image.dart';
 import 'soil_match_badge.dart';
 import 'star_rating.dart';

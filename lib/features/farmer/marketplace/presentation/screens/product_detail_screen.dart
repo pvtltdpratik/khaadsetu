@@ -12,7 +12,7 @@ import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../domain/entities/product.dart';
 import '../providers/marketplace_providers.dart';
 import '../widgets/npk_composition_chart.dart';
-import '../widgets/price_format.dart';
+import '../../../../../core/utils/price_format.dart';
 import '../widgets/product_category_style.dart';
 import '../widgets/product_placeholder_image.dart';
 import '../widgets/review_card.dart';
@@ -127,14 +127,19 @@ class _DetailBody extends ConsumerWidget {
         Text('Reviews (${product.reviewCount})', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
         reviewsAsync.when(
-          data: (reviews) => Column(
-            children: [
-              for (final review in reviews) ...[
-                ReviewCard(review: review),
-                AppSpacing.gapSm,
-              ],
-            ],
-          ),
+          data: (reviews) => reviews.isEmpty
+              ? Text(
+                  'No reviews yet.',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+                )
+              : Column(
+                  children: [
+                    for (final review in reviews) ...[
+                      ReviewCard(review: review),
+                      AppSpacing.gapSm,
+                    ],
+                  ],
+                ),
           loading: () => const AppLoadingIndicator(),
           error: (err, _) => AppErrorView(message: '$err'),
         ),
