@@ -38,7 +38,6 @@ class RoutePaths {
   static String farmerCommunityScheme(String schemeId) =>
       '/farmer/community/scheme/$schemeId';
 
-  // Village Center Operator App route group.
   // Village Center Operator App route group. `operatorRoot` exists only to
   // redirect into the shell's initial branch, matching `farmerRoot`.
   static const operatorRoot = '/operator';
@@ -51,6 +50,11 @@ class RoutePaths {
       '/operator/orders/$orderId';
 
   static const operatorInventory = '/operator/inventory';
+
   static const operatorFarmers = '/operator/farmers';
+  static const operatorFarmerDetailPattern = '/operator/farmers/:farmerId';
+  static String operatorFarmerDetail(String farmerId) =>
+      '/operator/farmers/$farmerId';
+
   static const operatorEarnings = '/operator/earnings';
 }
