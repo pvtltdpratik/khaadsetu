@@ -7,6 +7,7 @@ class FarmerFakeDataSource {
       name: 'Ramesh Patil',
       village: 'Shirur, Pune',
       unreadNotificationCount: 3,
+      landHoldingHectares: 1.5,
     );
   }
 }
