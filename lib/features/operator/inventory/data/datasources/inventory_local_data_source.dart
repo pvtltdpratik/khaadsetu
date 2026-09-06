@@ -14,36 +14,20 @@ class InventoryLocalDataSource {
 
   static const List<InventoryItem> _items = [
     InventoryItem(
-      id: 'inv-urea',
-      name: 'Urea Prill 46%',
-      unit: 'bag',
-      unitPrice: 350,
-      currentStock: 8,
-      lowStockThreshold: 10,
-    ),
-    InventoryItem(
-      id: 'inv-dap',
-      name: 'DAP 18-46-0',
-      unit: 'bag',
-      unitPrice: 1450,
-      currentStock: 25,
-      lowStockThreshold: 10,
-    ),
-    InventoryItem(
-      id: 'inv-npk',
-      name: 'NPK 10-26-26 Complex',
-      unit: 'bag',
-      unitPrice: 1325,
-      currentStock: 5,
-      lowStockThreshold: 8,
-    ),
-    InventoryItem(
       id: 'inv-vermicompost',
       name: 'Vermicompost',
       unit: 'bag',
       unitPrice: 450,
       currentStock: 40,
       lowStockThreshold: 15,
+    ),
+    InventoryItem(
+      id: 'inv-neemcake',
+      name: 'Neem Cake',
+      unit: 'bag',
+      unitPrice: 600,
+      currentStock: 5,
+      lowStockThreshold: 8,
     ),
     InventoryItem(
       id: 'inv-biopesticide',
@@ -66,8 +50,8 @@ class InventoryLocalDataSource {
     if (!hasRows) {
       await _insert(RestockRequest(
         id: 'restock-1',
-        itemId: 'inv-urea',
-        itemName: 'Urea Prill 46%',
+        itemId: 'inv-neemcake',
+        itemName: 'Neem Cake',
         requestedQuantity: 30,
         status: RestockRequestStatus.approved,
         requestedDate: DateTime.now().subtract(const Duration(days: 2)),

@@ -147,7 +147,7 @@ class OrdersLocalDataSource {
           type: OrderType.appOrder,
           status: OrderStatus.pending,
           items: const [
-            OrderLineItem(productName: 'Urea Prill 46%', quantity: 2, unitPrice: 350),
+            OrderLineItem(productName: 'Neem Cake', quantity: 2, unitPrice: 600),
           ],
           createdAt: DateTime.now().subtract(const Duration(hours: 2)),
           pickupOtp: '4821',
@@ -158,7 +158,7 @@ class OrdersLocalDataSource {
           type: OrderType.appOrder,
           status: OrderStatus.pending,
           items: const [
-            OrderLineItem(productName: 'DAP 18-46-0', quantity: 1, unitPrice: 1450),
+            OrderLineItem(productName: 'Vermicompost', quantity: 1, unitPrice: 450),
             OrderLineItem(productName: 'Bio-Pesticide Spray', quantity: 1, unitPrice: 320),
           ],
           createdAt: DateTime.now().subtract(const Duration(hours: 1)),
@@ -170,7 +170,7 @@ class OrdersLocalDataSource {
           type: OrderType.appOrder,
           status: OrderStatus.readyForPickup,
           items: const [
-            OrderLineItem(productName: 'NPK 10-26-26 Complex', quantity: 1, unitPrice: 1325),
+            OrderLineItem(productName: 'Neem Cake', quantity: 1, unitPrice: 600),
           ],
           createdAt: DateTime.now().subtract(const Duration(hours: 4)),
           pickupOtp: '2246',
@@ -192,7 +192,7 @@ class OrdersLocalDataSource {
           type: OrderType.walkIn,
           status: OrderStatus.completed,
           items: const [
-            OrderLineItem(productName: 'Urea Prill 46%', quantity: 1, unitPrice: 350),
+            OrderLineItem(productName: 'Vermicompost', quantity: 1, unitPrice: 450),
           ],
           createdAt: DateTime.now().subtract(const Duration(hours: 3)),
           pickupOtp: null,

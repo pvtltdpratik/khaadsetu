@@ -31,6 +31,9 @@
 	<string>Used to take a photo of soil for analysis.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
 	<string>Used to choose a soil photo from your library for analysis.</string>
+	<!-- For the weather forecast's "use my current location" (geolocator). -->
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Used to show the weather forecast for your current location.</string>
 	<!-- Dev-only: the Soil Sense backend runs over plain HTTP on your local
 	     network while developing. Remove this (and use HTTPS) for a real
 	     deployed backend. -->

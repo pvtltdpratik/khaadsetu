@@ -6,70 +6,6 @@ import '../../domain/entities/product_review.dart';
 class MarketplaceFakeDataSource {
   static final List<Product> _products = [
     const Product(
-      id: 'p-urea',
-      name: 'Urea Prill 46%',
-      brand: 'KrishiGrow',
-      category: ProductCategory.fertilizer,
-      priceInRupees: 350,
-      unitLabel: '45 kg bag',
-      rating: 4.3,
-      reviewCount: 128,
-      description: 'Fast-acting nitrogen source for vegetative growth. Best '
-          'applied in split doses and watered in soon after spreading.',
-      nutrientFocus: [NutrientType.nitrogen],
-      npkPercentages: {NutrientType.nitrogen: 46},
-    ),
-    const Product(
-      id: 'p-dap',
-      name: 'DAP 18-46-0',
-      brand: 'BhoomiCare',
-      category: ProductCategory.fertilizer,
-      priceInRupees: 1450,
-      unitLabel: '50 kg bag',
-      rating: 4.5,
-      reviewCount: 96,
-      description: 'Diammonium phosphate for strong root and flower '
-          'development. A good base dose at sowing time.',
-      nutrientFocus: [NutrientType.phosphorus, NutrientType.nitrogen],
-      npkPercentages: {NutrientType.nitrogen: 18, NutrientType.phosphorus: 46},
-    ),
-    const Product(
-      id: 'p-mop',
-      name: 'MOP (Potash) 60%',
-      brand: 'AgroVeda',
-      category: ProductCategory.fertilizer,
-      priceInRupees: 1150,
-      unitLabel: '50 kg bag',
-      rating: 4.2,
-      reviewCount: 74,
-      description: 'Muriate of potash improves fruit quality and disease '
-          'resistance. Apply ahead of the flowering stage.',
-      nutrientFocus: [NutrientType.potassium],
-      npkPercentages: {NutrientType.potassium: 60},
-    ),
-    const Product(
-      id: 'p-npk',
-      name: 'NPK 10-26-26 Complex',
-      brand: 'SafalKheti',
-      category: ProductCategory.fertilizer,
-      priceInRupees: 1325,
-      unitLabel: '50 kg bag',
-      rating: 4.6,
-      reviewCount: 210,
-      description: 'Balanced complex fertilizer covering all three major '
-          'nutrients in one application — convenient for a general top-up.',
-      nutrientFocus: [
-        NutrientType.nitrogen,
-        NutrientType.phosphorus,
-        NutrientType.potassium,
-      ],
-      npkPercentages: {
-        NutrientType.nitrogen: 10,
-        NutrientType.phosphorus: 26,
-        NutrientType.potassium: 26,
-      },
-    ),
-    const Product(
       id: 'p-vermicompost',
       name: 'Vermicompost',
       brand: 'HaritBhoomi',
@@ -101,20 +37,6 @@ class MarketplaceFakeDataSource {
           'properties. Works well mixed into soil before sowing.',
       nutrientFocus: [NutrientType.nitrogen],
       npkPercentages: {NutrientType.nitrogen: 2},
-    ),
-    const Product(
-      id: 'p-zincsulphate',
-      name: 'Zinc Sulphate',
-      brand: 'AgriPure',
-      category: ProductCategory.fertilizer,
-      priceInRupees: 280,
-      unitLabel: '10 kg bag',
-      rating: 4.0,
-      reviewCount: 40,
-      description: 'Corrects zinc deficiency, a common gap in soils that '
-          'have been heavily cropped for several seasons.',
-      nutrientFocus: [],
-      npkPercentages: {},
     ),
     const Product(
       id: 'p-wheatseed',

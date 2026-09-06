@@ -49,18 +49,27 @@ class InventoryScreen extends ConsumerWidget {
               error: (_, _) => const SizedBox.shrink(),
             ),
             itemsAsync.when(
-              data: (items) => GridView.builder(
-                shrinkWrap: true,
-                physics: const NeverScrollableScrollPhysics(),
-                itemCount: items.length,
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: context.responsive(mobile: 1, tablet: 2),
-                  crossAxisSpacing: AppSpacing.sm,
-                  mainAxisSpacing: AppSpacing.sm,
-                  childAspectRatio: context.responsive(mobile: 3.0, tablet: 2.4),
-                ),
-                itemBuilder: (context, i) => _InventoryTile(item: items[i]),
-              ),
+              data: (items) => context.breakpoint.isTabletUp
+                  ? GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      itemCount: items.length,
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        crossAxisSpacing: AppSpacing.sm,
+                        mainAxisSpacing: AppSpacing.sm,
+                        childAspectRatio: 2.4,
+                      ),
+                      itemBuilder: (context, i) => _InventoryTile(item: items[i]),
+                    )
+                  : Column(
+                      children: [
+                        for (final item in items) ...[
+                          _InventoryTile(item: item),
+                          AppSpacing.gapSm,
+                        ],
+                      ],
+                    ),
               loading: () => const AppLoadingIndicator(),
               error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(inventoryItemsProvider)),
             ),
