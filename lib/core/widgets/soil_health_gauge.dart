@@ -5,6 +5,35 @@ import 'package:flutter/material.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
+/// Score band a soil health reading falls into. Shared by [SoilHealthGauge]
+/// and any other widget (e.g. the home summary card) that needs to describe
+/// a score in words/color without re-guessing the cutoffs.
+enum SoilHealthBand {
+  needsAttention,
+  fair,
+  healthy;
+
+  /// Null score (no scan yet) has no band.
+  static SoilHealthBand? fromScore(double? score) {
+    if (score == null) return null;
+    if (score < 40) return SoilHealthBand.needsAttention;
+    if (score < 70) return SoilHealthBand.fair;
+    return SoilHealthBand.healthy;
+  }
+
+  String get label => switch (this) {
+        SoilHealthBand.needsAttention => 'Needs attention',
+        SoilHealthBand.fair => 'Fair',
+        SoilHealthBand.healthy => 'Healthy',
+      };
+
+  Color color(AppColorTokens colors) => switch (this) {
+        SoilHealthBand.needsAttention => colors.danger,
+        SoilHealthBand.fair => colors.warning,
+        SoilHealthBand.healthy => colors.success,
+      };
+}
+
 /// Circular ring gauge for a 0-100 soil health score, color-banded
 /// red/yellow/green. Pass [score] as null for the empty/"no scan yet" state
 /// — used on the Phase 2 home summary before a farmer has scanned, and swapped
@@ -79,10 +108,8 @@ class SoilHealthGauge extends StatelessWidget {
   }
 
   Color _colorForScore(double? score, AppColorTokens colors) {
-    if (score == null) return colors.textMuted;
-    if (score < 40) return colors.danger;
-    if (score < 70) return colors.warning;
-    return colors.success;
+    final band = SoilHealthBand.fromScore(score);
+    return band == null ? colors.textMuted : band.color(colors);
   }
 }
 
