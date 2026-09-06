@@ -129,3 +129,29 @@ class ResponsiveGrid extends StatelessWidget {
     );
   }
 }
+
+/// Bottom sheet on mobile, centered dialog on tablet/desktop — the natural
+/// input surface changes with the screen, even for the same content.
+Future<T?> showAdaptiveModal<T>({
+  required BuildContext context,
+  required WidgetBuilder builder,
+  bool isScrollControlled = true,
+}) {
+  if (context.breakpoint.isTabletUp) {
+    return showDialog<T>(
+      context: context,
+      builder: (context) => Dialog(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: Breakpoints.maxDialogWidth),
+          child: builder(context),
+        ),
+      ),
+    );
+  }
+  return showModalBottomSheet<T>(
+    context: context,
+    isScrollControlled: isScrollControlled,
+    useSafeArea: true,
+    builder: builder,
+  );
+}

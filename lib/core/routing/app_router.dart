@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -14,12 +13,15 @@ import '../../features/farmer/marketplace/presentation/screens/product_detail_sc
 import '../../features/farmer/community/presentation/screens/community_feed_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
+import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
+import '../../features/operator/farmers/presentation/screens/farmer_detail_screen.dart';
+import '../../features/operator/farmers/presentation/screens/farmers_list_screen.dart';
+import '../../features/operator/inventory/presentation/screens/inventory_screen.dart';
 import '../../features/operator/orders/presentation/screens/order_detail_screen.dart';
 import '../../features/operator/orders/presentation/screens/orders_list_screen.dart';
 import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.dart';
 import '../../features/operator/presentation/operator_shell.dart';
 import '../../features/operator/presentation/screens/operator_dashboard_screen.dart';
-import '../widgets/coming_soon_view.dart';
 import 'route_paths.dart';
 
 /// App-wide router. Farmer and Operator routes are kept as separate groups
@@ -174,11 +176,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.operatorInventory,
-                builder: (context, state) => const ComingSoonView(
-                  icon: Icons.inventory_2_outlined,
-                  title: 'Inventory arrives in Phase 7',
-                  subtitle: 'Stock levels and restock requests.',
-                ),
+                builder: (context, state) => const InventoryScreen(),
               ),
             ],
           ),
@@ -186,11 +184,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.operatorFarmers,
-                builder: (context, state) => const ComingSoonView(
-                  icon: Icons.people_alt_outlined,
-                  title: 'Farmer list arrives in Phase 7',
-                  subtitle: 'Last visit, active crop, and follow-ups.',
-                ),
+                builder: (context, state) => const FarmersListScreen(),
+                routes: [
+                  // Relative segment — must stay in sync with the absolute
+                  // constant in route_paths.dart used for navigation.
+                  GoRoute(
+                    path: ':farmerId',
+                    builder: (context, state) => FarmerDetailScreen(
+                      farmerId: state.pathParameters['farmerId']!,
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -198,11 +202,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
             routes: [
               GoRoute(
                 path: RoutePaths.operatorEarnings,
-                builder: (context, state) => const ComingSoonView(
-                  icon: Icons.payments_outlined,
-                  title: 'Earnings arrive in Phase 7',
-                  subtitle: 'Commission summary and payout history.',
-                ),
+                builder: (context, state) => const EarningsScreen(),
               ),
             ],
           ),
