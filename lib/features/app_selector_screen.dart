@@ -60,7 +60,7 @@ class AppSelectorScreen extends StatelessWidget {
                         icon: Icons.storefront_rounded,
                         variant: AppButtonVariant.outlined,
                         expand: true,
-                        onPressed: () => context.go(RoutePaths.operatorHome),
+                        onPressed: () => context.go(RoutePaths.operatorDashboard),
                       ),
                     ],
                   ),
