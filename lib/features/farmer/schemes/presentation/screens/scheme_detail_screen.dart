@@ -11,6 +11,7 @@ import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../domain/entities/gov_scheme.dart';
 import '../../domain/entities/scheme_application.dart';
+import '../../../home/presentation/providers/home_providers.dart';
 import '../providers/schemes_providers.dart';
 import '../widgets/application_status_badge.dart';
 import '../widgets/eligibility_badge.dart';
@@ -56,6 +57,7 @@ class _SchemeBodyState extends ConsumerState<_SchemeBody> {
     try {
       await ref.read(schemesRepositoryProvider).applyToScheme(widget.scheme.id);
       ref.invalidate(schemeApplicationProvider(widget.scheme.id));
+      ref.invalidate(farmerProfileProvider); // applying adds a notification
     } catch (err) {
       if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
     } finally {

@@ -12,6 +12,7 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../home/presentation/providers/home_providers.dart';
 import '../providers/soil_health_providers.dart';
 
 /// Captures a real photo (via `image_picker`, which works on Web and
@@ -67,6 +68,9 @@ class _SoilScanCaptureScreenState extends ConsumerState<SoilScanCaptureScreen> {
       );
       ref.invalidate(soilHealthSummaryProvider);
       ref.invalidate(soilScanHistoryProvider);
+      // A finished scan adds a notification and changes the home advice card.
+      ref.invalidate(farmerProfileProvider);
+      ref.invalidate(smartRecommendationProvider);
       if (!mounted) return;
       setState(() {
         _isAnalyzing = false;

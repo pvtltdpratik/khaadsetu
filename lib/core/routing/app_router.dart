@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../features/app_selector_screen.dart';
 import '../../features/farmer/home/presentation/screens/farmer_home_screen.dart';
+import '../../features/farmer/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/farmer/presentation/farmer_shell.dart';
 import '../../features/farmer/soil_health/presentation/screens/soil_scan_capture_screen.dart';
 import '../../features/farmer/soil_health/presentation/screens/soil_scan_history_screen.dart';
@@ -52,6 +53,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RoutePaths.farmerHome,
                 builder: (context, state) => const FarmerHomeScreen(),
+                routes: [
+                  // Relative segment — must stay in sync with the absolute
+                  // constant in route_paths.dart used for navigation.
+                  GoRoute(
+                    path: 'notifications',
+                    builder: (context, state) => const NotificationsScreen(),
+                  ),
+                ],
               ),
             ],
           ),
