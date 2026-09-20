@@ -30,7 +30,10 @@ class FarmerHomeScreen extends ConsumerWidget {
           padding: context.pagePadding,
           children: [
             profileAsync.when(
-              data: (profile) => HomeHeader(profile: profile),
+              data: (profile) => HomeHeader(
+                profile: profile,
+                onNotificationsTap: () => context.push(RoutePaths.farmerNotifications),
+              ),
               loading: () => const SizedBox(
                 height: 56,
                 child: AppLoadingIndicator(),

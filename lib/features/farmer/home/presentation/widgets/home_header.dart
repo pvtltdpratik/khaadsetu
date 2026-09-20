@@ -8,9 +8,10 @@ import '../../domain/entities/farmer_profile.dart';
 /// badge. Custom rather than a Material [AppBar] so the greeting can carry
 /// more warmth than an app bar title allows.
 class HomeHeader extends StatelessWidget {
-  const HomeHeader({super.key, required this.profile});
+  const HomeHeader({super.key, required this.profile, required this.onNotificationsTap});
 
   final FarmerProfile profile;
+  final VoidCallback onNotificationsTap;
 
   @override
   Widget build(BuildContext context) {
@@ -48,16 +49,17 @@ class HomeHeader extends StatelessWidget {
           ),
         ),
         AppSpacing.gapMd,
-        _NotificationBell(count: profile.unreadNotificationCount),
+        _NotificationBell(count: profile.unreadNotificationCount, onTap: onNotificationsTap),
       ],
     );
   }
 }
 
 class _NotificationBell extends StatelessWidget {
-  const _NotificationBell({required this.count});
+  const _NotificationBell({required this.count, required this.onTap});
 
   final int count;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -67,11 +69,7 @@ class _NotificationBell extends StatelessWidget {
       shape: const CircleBorder(),
       child: InkWell(
         customBorder: const CircleBorder(),
-        onTap: () {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Notifications are coming soon')),
-          );
-        },
+        onTap: onTap,
         child: Padding(
           padding: const EdgeInsets.all(AppSpacing.sm),
           child: Stack(

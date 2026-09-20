@@ -9,6 +9,7 @@ class RoutePaths {
   // shell's initial branch; screens should navigate to the branch paths.
   static const farmerRoot = '/farmer';
   static const farmerHome = '/farmer/home';
+  static const farmerNotifications = '/farmer/home/notifications';
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';
 

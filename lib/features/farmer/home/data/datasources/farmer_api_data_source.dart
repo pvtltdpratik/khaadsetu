@@ -15,7 +15,6 @@ class FarmerApiDataSource {
     'name': 'Pratik Kolhe',
     'village': 'Shirur, Pune',
     'landHoldingHectares': 1.5,
-    'unreadNotificationCount': 3,
   };
 
   Future<FarmerProfile> fetchProfile() async {
