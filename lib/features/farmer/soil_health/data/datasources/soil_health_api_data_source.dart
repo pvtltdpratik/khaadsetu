@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:http/http.dart' as http;
+import 'package:http_parser/http_parser.dart';
 
 import '../../../../../core/network/api_config.dart';
 import '../../domain/entities/nutrient_reading.dart';
@@ -31,10 +32,24 @@ class SoilHealthApiDataSource {
         'device_id': deviceId,
         if (cropType != null && cropType.isNotEmpty) 'crop_type': cropType,
       })
-      ..files.add(http.MultipartFile.fromBytes('image', imageBytes, filename: filename));
+      ..files.add(http.MultipartFile.fromBytes(
+        'image',
+        imageBytes,
+        filename: filename,
+        contentType: _imageContentType(filename),
+      ));
 
     final response = await _send(request);
     return _parseResult(jsonDecode(response.body) as Map<String, dynamic>);
+  }
+
+  /// `MultipartFile.fromBytes` sends `application/octet-stream` unless told
+  /// otherwise, and the backend rejects anything but jpeg/png with a 400.
+  /// Camera/gallery photos are jpeg in practice, so that is the fallback.
+  MediaType _imageContentType(String filename) {
+    return filename.toLowerCase().endsWith('.png')
+        ? MediaType('image', 'png')
+        : MediaType('image', 'jpeg');
   }
 
   Future<List<SoilScanResult>> fetchHistory(String deviceId) async {
@@ -43,10 +58,8 @@ class SoilHealthApiDataSource {
     );
     _checkStatus(response);
     final decoded = jsonDecode(response.body);
-    // Assumes the backend returns a plain JSON array of scan objects, per
-    // its documented "fetch up to 5 scans" behavior. Adjust this if your
-    // deployed server wraps the list in an envelope object instead.
-    final list = decoded is List ? decoded : (decoded as Map<String, dynamic>)['history'] as List;
+    // The backend wraps the list as `{"items": [...]}` (AnalysisHistoryResponse).
+    final list = decoded is List ? decoded : (decoded as Map<String, dynamic>)['items'] as List;
     return list.map((e) => _parseResult(e as Map<String, dynamic>)).toList();
   }
 
@@ -88,11 +101,19 @@ class SoilHealthApiDataSource {
     }
   }
 
+  /// The server stores `datetime.utcnow()` and serializes it without a zone
+  /// suffix, so a plain `DateTime.parse` would read it as local time and shift
+  /// every scan by the device's UTC offset (5h30m in India).
+  DateTime _parseServerTime(String raw) {
+    final hasZone = raw.endsWith('Z') || RegExp(r'[+-]\d\d:?\d\d$').hasMatch(raw);
+    return DateTime.parse(hasZone ? raw : '${raw}Z').toLocal();
+  }
+
   SoilScanResult _parseResult(Map<String, dynamic> json) {
     final metadata = json['metadata'] as Map<String, dynamic>?;
     return SoilScanResult(
       id: json['id'] as String,
-      scannedAt: DateTime.parse(json['created_at'] as String),
+      scannedAt: _parseServerTime(json['created_at'] as String),
       overallScore: (json['health_score'] as num).toDouble(),
       soilMoisturePercent: (json['soil_moisture'] as num).toDouble(),
       nutrients: [
