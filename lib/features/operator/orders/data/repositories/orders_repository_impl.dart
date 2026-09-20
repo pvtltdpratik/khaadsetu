@@ -1,11 +1,11 @@
 import '../../domain/entities/order.dart';
 import '../../domain/repositories/orders_repository.dart';
-import '../datasources/orders_local_data_source.dart';
+import '../datasources/orders_api_data_source.dart';
 
 class OrdersRepositoryImpl implements OrdersRepository {
   const OrdersRepositoryImpl(this._dataSource);
 
-  final OrdersLocalDataSource _dataSource;
+  final OrdersApiDataSource _dataSource;
 
   @override
   Future<List<Order>> getOrders() => _dataSource.fetchOrders();

@@ -31,6 +31,8 @@ class _RestockRequestSheetState extends ConsumerState<RestockRequestSheet> {
           );
       ref.invalidate(restockRequestsProvider);
       if (mounted) Navigator.of(context).pop();
+    } catch (err) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
     } finally {
       if (mounted) setState(() => _isSubmitting = false);
     }

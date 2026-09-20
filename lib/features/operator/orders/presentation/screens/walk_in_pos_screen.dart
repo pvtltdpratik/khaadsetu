@@ -64,6 +64,8 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
       ref.invalidate(ordersProvider);
       if (!mounted) return;
       context.pushReplacement(RoutePaths.operatorOrderDetail(order.id));
+    } catch (err) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
     } finally {
       if (mounted) setState(() => _isCheckingOut = false);
     }

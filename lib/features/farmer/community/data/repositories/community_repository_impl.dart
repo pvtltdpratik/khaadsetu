@@ -1,12 +1,12 @@
 import '../../domain/entities/forum_post.dart';
 import '../../domain/entities/forum_reply.dart';
 import '../../domain/repositories/community_repository.dart';
-import '../datasources/community_fake_data_source.dart';
+import '../datasources/community_api_data_source.dart';
 
 class CommunityRepositoryImpl implements CommunityRepository {
   const CommunityRepositoryImpl(this._dataSource);
 
-  final CommunityFakeDataSource _dataSource;
+  final CommunityApiDataSource _dataSource;
 
   @override
   Future<List<ForumPost>> getPosts() => _dataSource.fetchPosts();

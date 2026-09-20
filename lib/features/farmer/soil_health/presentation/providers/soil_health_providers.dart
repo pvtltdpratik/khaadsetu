@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/device/device_id_provider.dart';
+import '../../../../../core/network/api_client_provider.dart';
 import '../../data/datasources/soil_health_api_data_source.dart';
 import '../../data/repositories/soil_health_repository_impl.dart';
 import '../../domain/entities/soil_health_summary.dart';
@@ -12,7 +13,10 @@ import '../../domain/repositories/soil_health_repository.dart';
 /// `.future` once, same as any other dependency.
 final soilHealthRepositoryProvider = FutureProvider<SoilHealthRepository>((ref) async {
   final deviceId = await ref.watch(deviceIdProvider.future);
-  return SoilHealthRepositoryImpl(SoilHealthApiDataSource(), deviceId: deviceId);
+  return SoilHealthRepositoryImpl(
+    SoilHealthApiDataSource(ref.watch(apiClientProvider)),
+    deviceId: deviceId,
+  );
 });
 
 final soilHealthSummaryProvider = FutureProvider.autoDispose<SoilHealthSummary>((ref) async {

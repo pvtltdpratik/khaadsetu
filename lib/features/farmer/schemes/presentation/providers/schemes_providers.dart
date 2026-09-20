@@ -1,8 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../../../../../core/database/database_provider.dart';
+import '../../../../../core/network/api_client_provider.dart';
 import '../../../home/presentation/providers/home_providers.dart';
-import '../../data/datasources/schemes_local_data_source.dart';
+import '../../data/datasources/schemes_api_data_source.dart';
 import '../../data/repositories/schemes_repository_impl.dart';
 import '../../domain/entities/gov_scheme.dart';
 import '../../domain/entities/scheme_application.dart';
@@ -10,8 +10,7 @@ import '../../domain/repositories/schemes_repository.dart';
 import '../../domain/services/scheme_eligibility.dart';
 
 final schemesRepositoryProvider = Provider<SchemesRepository>((ref) {
-  final db = ref.watch(appDatabaseProvider);
-  return SchemesRepositoryImpl(SchemesLocalDataSource(db));
+  return SchemesRepositoryImpl(SchemesApiDataSource(ref.watch(apiClientProvider)));
 });
 
 final schemesProvider = FutureProvider.autoDispose<List<GovScheme>>((ref) {

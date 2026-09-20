@@ -56,6 +56,8 @@ class _SchemeBodyState extends ConsumerState<_SchemeBody> {
     try {
       await ref.read(schemesRepositoryProvider).applyToScheme(widget.scheme.id);
       ref.invalidate(schemeApplicationProvider(widget.scheme.id));
+    } catch (err) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
     } finally {
       if (mounted) setState(() => _isApplying = false);
     }

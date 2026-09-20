@@ -48,12 +48,5 @@ class SoilHealthRepositoryImpl implements SoilHealthRepository {
   Future<List<SoilScanResult>> getScanHistory() => _dataSource.fetchHistory(deviceId);
 
   @override
-  Future<SoilScanResult> getScanById(String id) async {
-    // The backend has no single-scan endpoint (see server/README — only
-    // `/v1/analyze` and `/v1/history`), so this looks the id up within the
-    // bounded history list. Fine given the "up to 5 scans" cap; revisit if
-    // the backend ever grows a GET /v1/scan/{id}.
-    final history = await _dataSource.fetchHistory(deviceId);
-    return history.firstWhere((scan) => scan.id == id);
-  }
+  Future<SoilScanResult> getScanById(String id) => _dataSource.fetchScan(id);
 }

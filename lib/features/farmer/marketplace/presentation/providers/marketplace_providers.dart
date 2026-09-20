@@ -2,14 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../soil_health/domain/entities/nutrient_reading.dart';
 import '../../../soil_health/presentation/providers/soil_health_providers.dart';
-import '../../data/datasources/marketplace_fake_data_source.dart';
+import '../../../../../core/network/api_client_provider.dart';
+import '../../data/datasources/marketplace_api_data_source.dart';
 import '../../data/repositories/marketplace_repository_impl.dart';
 import '../../domain/entities/product.dart';
 import '../../domain/entities/product_review.dart';
 import '../../domain/repositories/marketplace_repository.dart';
 
 final marketplaceRepositoryProvider = Provider<MarketplaceRepository>((ref) {
-  return MarketplaceRepositoryImpl(MarketplaceFakeDataSource());
+  return MarketplaceRepositoryImpl(MarketplaceApiDataSource(ref.watch(apiClientProvider)));
 });
 
 final productsProvider = FutureProvider.autoDispose<List<Product>>((ref) {
