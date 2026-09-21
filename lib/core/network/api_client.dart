@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals (named parameters, private fields)
 import 'dart:async';
 import 'dart:convert';
 
@@ -19,16 +20,31 @@ class ApiException implements Exception {
 }
 
 /// The one HTTP entry point for the app. It adds the headers every request
-/// needs (`X-Device-Id`, `X-API-Key`), decodes JSON, and turns failures into
-/// an [ApiException] carrying a message fit to show a farmer, instead of
-/// leaking a raw `ClientException` into the UI.
+/// needs (`Authorization`, `X-Device-Id`, `X-API-Key`), decodes JSON, and
+/// turns failures into an [ApiException] carrying a message fit to show a
+/// farmer, instead of leaking a raw `ClientException` into the UI.
 class ApiClient {
-  ApiClient({http.Client? client, required Future<String> Function() deviceId})
-      : _client = client ?? http.Client(),
-        _deviceId = deviceId; // ignore: prefer_initializing_formals (named param, private field)
+  ApiClient({
+    http.Client? client,
+    required Future<String> Function() deviceId,
+    Future<String?> Function()? accessToken,
+    void Function()? onUnauthorized,
+  })  : _client = client ?? http.Client(),
+        _deviceId = deviceId,
+        _accessToken = accessToken,
+        _onUnauthorized = onUnauthorized;
 
   final http.Client _client;
   final Future<String> Function() _deviceId;
+
+  /// The signed-in user's Supabase token. When the server has auth on, the
+  /// user id in it owns all the data; the device id is then only a fallback
+  /// for a server running without auth.
+  final Future<String?> Function()? _accessToken;
+
+  /// Called when the server rejects the token (expired beyond refresh, or
+  /// revoked), so the app can send the user back to sign-in.
+  final void Function()? _onUnauthorized;
 
   static const _timeout = Duration(seconds: 20);
 
@@ -40,11 +56,15 @@ class ApiClient {
     return Uri.parse('${ApiConfig.baseUrl}$path').replace(queryParameters: params.isEmpty ? null : params);
   }
 
-  Future<Map<String, String>> _headers({bool json = false}) async => {
-        'X-Device-Id': await _deviceId(),
-        if (ApiConfig.apiKey.isNotEmpty) 'X-API-Key': ApiConfig.apiKey,
-        if (json) 'Content-Type': 'application/json',
-      };
+  Future<Map<String, String>> _headers({bool json = false}) async {
+    final token = await _accessToken?.call();
+    return {
+      if (token != null) 'Authorization': 'Bearer $token',
+      'X-Device-Id': await _deviceId(),
+      if (ApiConfig.apiKey.isNotEmpty) 'X-API-Key': ApiConfig.apiKey,
+      if (json) 'Content-Type': 'application/json',
+    };
+  }
 
   /// Decoded JSON body of a GET.
   Future<dynamic> get(String path, {Map<String, String?>? query}) async {
@@ -98,6 +118,9 @@ class ApiClient {
   dynamic _decode(http.Response response) {
     final body = response.body.isEmpty ? null : jsonDecode(utf8.decode(response.bodyBytes));
     if (response.statusCode < 200 || response.statusCode >= 300) {
+      if (response.statusCode == 401 && response.request?.headers.containsKey('Authorization') == true) {
+        _onUnauthorized?.call();
+      }
       final message = body is Map && body['error'] is String
           ? body['error'] as String
           : 'Server returned ${response.statusCode}.';
