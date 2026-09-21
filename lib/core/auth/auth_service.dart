@@ -49,6 +49,22 @@ class AuthService {
 
   Future<void> signOut() => _guard(() => _auth.signOut());
 
+  /// A valid access token for the API, or null when signed out. The SDK
+  /// refreshes tokens in the background; this covers the gap when the app
+  /// resumes with an already-expired one.
+  Future<String?> accessToken() async {
+    var session = _auth.currentSession;
+    if (session == null) return null;
+    if (session.isExpired) {
+      try {
+        session = (await _auth.refreshSession()).session;
+      } catch (_) {
+        return null;
+      }
+    }
+    return session?.accessToken;
+  }
+
   Future<T> _guard<T>(Future<T> Function() call) async {
     try {
       return await call();
