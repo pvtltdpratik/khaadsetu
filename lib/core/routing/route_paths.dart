@@ -4,6 +4,8 @@ class RoutePaths {
   const RoutePaths._();
 
   static const root = '/';
+  static const signIn = '/sign-in';
+  static const signUp = '/sign-up';
 
   // Farmer App route group. `farmerRoot` exists only to redirect into the
   // shell's initial branch; screens should navigate to the branch paths.

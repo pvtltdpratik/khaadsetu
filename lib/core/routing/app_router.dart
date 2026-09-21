@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/app_selector_screen.dart';
+import '../../features/auth/presentation/screens/sign_in_screen.dart';
+import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/farmer/home/presentation/screens/farmer_home_screen.dart';
 import '../../features/farmer/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/farmer/presentation/farmer_shell.dart';
@@ -23,18 +25,38 @@ import '../../features/operator/orders/presentation/screens/orders_list_screen.d
 import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.dart';
 import '../../features/operator/presentation/operator_shell.dart';
 import '../../features/operator/presentation/screens/operator_dashboard_screen.dart';
+import '../auth/auth_providers.dart';
 import 'route_paths.dart';
 
 /// App-wide router. Farmer and Operator routes are kept as separate groups
 /// (distinct top-level paths, no shared parent route) so each app's nested
 /// routes and shell can evolve independently in later phases.
 final appRouterProvider = Provider<GoRouter>((ref) {
+  final auth = ref.watch(authServiceProvider);
   return GoRouter(
     initialLocation: RoutePaths.root,
+    // Re-run `redirect` on every sign-in / sign-out.
+    refreshListenable: ref.watch(authRefreshProvider),
+    redirect: (context, state) {
+      final signedIn = auth.currentSession != null;
+      final onAuthScreen =
+          state.matchedLocation == RoutePaths.signIn || state.matchedLocation == RoutePaths.signUp;
+      if (!signedIn && !onAuthScreen) return RoutePaths.signIn;
+      if (signedIn && onAuthScreen) return RoutePaths.root;
+      return null;
+    },
     routes: [
       GoRoute(
         path: RoutePaths.root,
         builder: (context, state) => const AppSelectorScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.signIn,
+        builder: (context, state) => const SignInScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.signUp,
+        builder: (context, state) => const SignUpScreen(),
       ),
 
       // --- Farmer App route group ---
