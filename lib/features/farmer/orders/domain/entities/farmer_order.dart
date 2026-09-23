@@ -20,20 +20,26 @@ enum FarmerOrderStatus {
 }
 
 class OrderLine extends Equatable {
-  const OrderLine({required this.productName, required this.quantity, required this.unitPrice});
+  const OrderLine({required this.productName, required this.quantity, required this.unitPrice, this.surplusLotId});
 
   factory OrderLine.fromJson(Map<String, dynamic> json) => OrderLine(
         productName: json['productName'] as String,
         quantity: (json['quantity'] as num).toInt(),
         unitPrice: (json['unitPrice'] as num).toDouble(),
+        surplusLotId: json['surplusLotId'] as String?,
       );
 
   final String productName;
   final int quantity;
   final double unitPrice;
 
+  /// Set when this line was bought from a discounted surplus lot.
+  final String? surplusLotId;
+
+  bool get isSurplus => surplusLotId != null;
+
   @override
-  List<Object?> get props => [productName, quantity, unitPrice];
+  List<Object?> get props => [productName, quantity, unitPrice, surplusLotId];
 }
 
 /// Where an order is to be collected.

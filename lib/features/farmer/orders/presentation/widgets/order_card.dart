@@ -85,7 +85,7 @@ class OrderCard extends ConsumerWidget {
                   padding: const EdgeInsets.only(bottom: 2),
                   child: Row(
                     children: [
-                      Expanded(child: Text('${line.quantity} × ${line.productName}', style: text.bodyMedium)),
+                      Expanded(child: Text('${line.quantity} × ${line.productName}${line.isSurplus ? ' (surplus)' : ''}', style: text.bodyMedium)),
                       Text(formatRupees(line.quantity * line.unitPrice), style: text.bodyMedium),
                     ],
                   ),

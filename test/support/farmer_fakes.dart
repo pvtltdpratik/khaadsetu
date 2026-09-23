@@ -1,4 +1,5 @@
 import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/nearby_center.dart';
+import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/surplus_offer.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/repositories/centers_repository.dart';
 import 'package:khaadsetu_version1/features/farmer/marketplace/domain/entities/product.dart';
 import 'package:khaadsetu_version1/features/farmer/orders/domain/entities/farmer_order.dart';
@@ -102,6 +103,18 @@ class FakeCentersRepository implements CentersRepository {
     return NearbyResult(location: location, radiusKm: 10, centers: centers(cart));
   }
 
+  /// What `surplusNearby` answers, and the products it was asked about.
+  List<SurplusOffer> surplus = [];
+  final surplusCalls = <String?>[];
+  Object? surplusError;
+
+  @override
+  Future<List<SurplusOffer>> surplusNearby({required FarmerLocation location, String? productId}) async {
+    surplusCalls.add(productId);
+    if (surplusError != null) throw surplusError!;
+    return surplus.where((o) => productId == null || o.productId == productId).toList();
+  }
+
   @override
   Future<List<Village>> villages(String query) async =>
       villageList.where((v) => query.isEmpty || v.name.toLowerCase().contains(query.toLowerCase())).toList();
@@ -148,6 +161,29 @@ FarmerOrder farmerOrder(
     );
 
 class FakeOrdersRepository implements OrdersRepository {
+  final surplusPlaced = <({String lotId, int quantity})>[];
+
+  /// Throw a [SurplusUnavailableException] to simulate someone else getting there first.
+  Object? surplusError;
+
+  @override
+  Future<FarmerOrder> placeSurplus({required String lotId, required int quantity, FarmerLocation? location}) async {
+    if (surplusError != null) throw surplusError!;
+    surplusPlaced.add((lotId: lotId, quantity: quantity));
+    final order = FarmerOrder(
+      id: 'order-surplus-${surplusPlaced.length}',
+      status: FarmerOrderStatus.pending,
+      createdAt: DateTime(2026, 9, 24),
+      items: [OrderLine(productName: 'Neem Cake', quantity: quantity, unitPrice: 450, surplusLotId: lotId)],
+      totalAmount: 450.0 * quantity,
+      pickupOtp: '4821',
+      reservedUntil: DateTime(2026, 9, 29),
+      center: const OrderCenter(centerId: 'a', name: 'Center a', village: 'Village a', phone: '98220 00000'),
+    );
+    orders = [order, ...orders];
+    return order;
+  }
+
   final placed = <({List<CartLine> items, String? centerId, FarmerLocation? location})>[];
   final cancelled = <String>[];
 

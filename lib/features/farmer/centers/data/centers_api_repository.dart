@@ -4,6 +4,7 @@ import 'package:geolocator/geolocator.dart';
 
 import '../../../../core/network/api_client.dart';
 import '../domain/entities/nearby_center.dart';
+import '../domain/entities/surplus_offer.dart';
 import '../domain/repositories/centers_repository.dart';
 
 /// Center discovery against the API (`/v1/centers/...`, `/v1/farmer/profile`).
@@ -28,6 +29,17 @@ class CentersApiRepository implements CentersRepository {
       radiusKm: (json['radiusKm'] as num).toInt(),
       centers: (json['centers'] as List).map((e) => NearbyCenter.fromJson(e as Map<String, dynamic>)).toList(),
     );
+  }
+
+  @override
+  Future<List<SurplusOffer>> surplusNearby({required FarmerLocation location, String? productId}) async {
+    final json = await _api.post('/v1/centers/surplus', body: {
+      'latitude': location.latitude,
+      'longitude': location.longitude,
+      'locationSource': location.source == LocationSource.gps ? 'gps' : 'pin',
+      'productId': ?productId,
+    }) as Map<String, dynamic>;
+    return (json['lots'] as List).map((e) => SurplusOffer.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   @override

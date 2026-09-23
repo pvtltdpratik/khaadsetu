@@ -83,6 +83,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                     icon: const Icon(Icons.location_on_outlined),
                   ),
                   IconButton(
+                    tooltip: 'Surplus deals near me',
+                    onPressed: () => context.push(RoutePaths.farmerSurplus),
+                    icon: const Icon(Icons.sell_outlined),
+                  ),
+                  IconButton(
                     tooltip: 'My orders',
                     onPressed: () => context.push(RoutePaths.farmerOrders),
                     icon: const Icon(Icons.receipt_long_outlined),
