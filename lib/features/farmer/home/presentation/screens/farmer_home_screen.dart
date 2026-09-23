@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/responsive/responsive_layout.dart';
 import '../../../../../core/routing/route_paths.dart';
@@ -46,17 +47,23 @@ class FarmerHomeScreen extends ConsumerWidget {
               ),
             ),
             AppSpacing.gapLg,
-            _SmartActionSection(ref: ref),
+            // The home page settles in section by section, top to bottom.
+            FadeSlideIn(index: 1, child: _SmartActionSection(ref: ref)),
             AppSpacing.gapLg,
-            ResponsiveRow(
-              spacing: AppSpacing.md,
-              children: [
-                _WeatherSection(ref: ref),
-                _SoilHealthSection(ref: ref),
-              ],
+            FadeSlideIn(
+              index: 2,
+              child: ResponsiveRow(
+                spacing: AppSpacing.md,
+                children: [
+                  _WeatherSection(ref: ref),
+                  _SoilHealthSection(ref: ref),
+                ],
+              ),
             ),
             AppSpacing.gapLg,
-            QuickActionsRow(
+            FadeSlideIn(
+              index: 3,
+              child: QuickActionsRow(
               actions: [
                 QuickAction(
                   icon: Icons.camera_alt_outlined,
@@ -84,6 +91,7 @@ class FarmerHomeScreen extends ConsumerWidget {
                   onTap: () => context.push(RoutePaths.farmerOrders),
                 ),
               ],
+            ),
             ),
           ],
         ),
