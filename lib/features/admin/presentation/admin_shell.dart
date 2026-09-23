@@ -17,9 +17,10 @@ const _destinations = [
   _Destination(Icons.storefront_outlined, Icons.storefront_rounded, 'Operators'),
   _Destination(Icons.agriculture_outlined, Icons.agriculture_rounded, 'Farmers'),
   _Destination(Icons.location_on_outlined, Icons.location_on_rounded, 'Centers'),
+  _Destination(Icons.local_shipping_outlined, Icons.local_shipping_rounded, 'Supply'),
 ];
 
-/// Chrome for the platform admin panel: four sections, a bottom bar on phones
+/// Chrome for the platform admin panel: five sections, a bottom bar on phones
 /// and a side rail from tablet up (extended with labels on desktop).
 class AdminShell extends StatelessWidget {
   const AdminShell({super.key, required this.navigationShell});

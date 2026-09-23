@@ -39,4 +39,15 @@ abstract class AdminRepository {
   Future<void> assignOperator(String centerId, String? userId);
 
   Future<List<VillageOption>> searchVillages(String query);
+
+  /// Pass null for every status.
+  Future<List<RestockRequest>> restockRequests({RestockStatus? status, int limit = 100});
+
+  /// Moves a request one step: pending to approved, or approved to fulfilled.
+  Future<void> advanceRestock(String id, RestockStatus to);
+
+  /// Open reports, or (with `resolved: true`) the ones already reviewed.
+  Future<List<StockDiscrepancy>> discrepancies({required bool resolved, int limit = 100});
+
+  Future<void> resolveDiscrepancy(String id, {String? note});
 }

@@ -344,6 +344,102 @@ class AuditEntry extends Equatable {
   List<Object?> get props => [id, adminEmail, action, targetType, targetId, details, createdAt];
 }
 
+/// The steps a restock request moves through, in order.
+enum RestockStatus {
+  pending,
+  approved,
+  fulfilled;
+
+  static RestockStatus parse(String? raw) => values.firstWhere((s) => s.name == raw, orElse: () => pending);
+
+  /// The step an admin can move it to, or null when it is finished.
+  RestockStatus? get next => switch (this) {
+        pending => approved,
+        approved => fulfilled,
+        fulfilled => null,
+      };
+}
+
+/// A center's request for more stock, as the supply team sees it.
+class RestockRequest extends Equatable {
+  const RestockRequest({
+    required this.id,
+    required this.centerId,
+    required this.centerName,
+    required this.productName,
+    required this.quantity,
+    required this.status,
+    this.requestedDate,
+  });
+
+  factory RestockRequest.fromJson(Map<String, dynamic> json) => RestockRequest(
+        id: json['id'] as String,
+        centerId: json['centerId'] as String,
+        centerName: (json['centerName'] as String?) ?? '',
+        productName: (json['productName'] as String?) ?? '',
+        quantity: (json['requestedQuantity'] as num).toInt(),
+        status: RestockStatus.parse(json['status'] as String?),
+        requestedDate: _date(json['requestedDate']),
+      );
+
+  final String id;
+  final String centerId;
+  final String centerName;
+  final String productName;
+  final int quantity;
+  final RestockStatus status;
+  final DateTime? requestedDate;
+
+  @override
+  List<Object?> get props => [id, centerId, centerName, productName, quantity, status, requestedDate];
+}
+
+/// An operator's report that a delivery did not match what was expected.
+class StockDiscrepancy extends Equatable {
+  const StockDiscrepancy({
+    required this.id,
+    required this.centerId,
+    required this.centerName,
+    required this.productName,
+    required this.expected,
+    required this.received,
+    required this.note,
+    required this.resolved,
+    required this.resolutionNote,
+    this.createdAt,
+  });
+
+  factory StockDiscrepancy.fromJson(Map<String, dynamic> json) => StockDiscrepancy(
+        id: json['id'] as String,
+        centerId: json['centerId'] as String,
+        centerName: (json['centerName'] as String?) ?? '',
+        productName: (json['productName'] as String?) ?? '',
+        expected: (json['expectedQuantity'] as num).toInt(),
+        received: (json['receivedQuantity'] as num).toInt(),
+        note: (json['note'] as String?) ?? '',
+        resolved: json['status'] == 'resolved',
+        resolutionNote: (json['resolutionNote'] as String?) ?? '',
+        createdAt: _date(json['createdAt']),
+      );
+
+  final String id;
+  final String centerId;
+  final String centerName;
+  final String productName;
+  final int expected;
+  final int received;
+  final String note;
+  final bool resolved;
+  final String resolutionNote;
+  final DateTime? createdAt;
+
+  /// Positive when fewer units arrived than expected.
+  int get shortfall => expected - received;
+
+  @override
+  List<Object?> get props => [id, centerId, centerName, productName, expected, received, note, resolved, resolutionNote, createdAt];
+}
+
 /// A place from the built-in village list, used to fill a new center's coordinates.
 class VillageOption extends Equatable {
   const VillageOption({required this.name, required this.district, required this.latitude, required this.longitude});

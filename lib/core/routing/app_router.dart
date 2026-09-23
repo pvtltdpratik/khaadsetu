@@ -8,6 +8,7 @@ import '../../features/admin/presentation/screens/admin_center_detail_screen.dar
 import '../../features/admin/presentation/screens/admin_centers_screen.dart';
 import '../../features/admin/presentation/screens/admin_overview_screen.dart';
 import '../../features/admin/presentation/screens/admin_people_screen.dart';
+import '../../features/admin/presentation/screens/admin_supply_screen.dart';
 import '../../features/admin/presentation/screens/admin_user_detail_screen.dart';
 import '../../features/admin/presentation/screens/create_center_screen.dart';
 import '../../features/auth/presentation/screens/session_gate_screen.dart';
@@ -282,6 +283,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => AdminCenterDetailScreen(centerId: state.pathParameters['centerId']!),
                   ),
                 ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.adminSupply,
+                builder: (context, state) {
+                  final tab = supplyTabFromQuery(state.uri.queryParameters['tab']);
+                  return AdminSupplyScreen(key: ValueKey('supply-$tab'), initialTab: tab);
+                },
               ),
             ],
           ),

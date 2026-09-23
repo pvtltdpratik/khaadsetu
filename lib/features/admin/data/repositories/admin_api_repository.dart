@@ -104,4 +104,27 @@ class AdminApiRepository implements AdminRepository {
   @override
   Future<List<VillageOption>> searchVillages(String query) async =>
       _rows(await _api.get('/v1/centers/villages', query: {'q': query})).map(VillageOption.fromJson).toList();
+
+  @override
+  Future<List<RestockRequest>> restockRequests({RestockStatus? status, int limit = 100}) async {
+    final list = await _api.get('/v1/admin/restock-requests', query: {'status': status?.name, 'limit': '$limit'});
+    return _rows(list).map(RestockRequest.fromJson).toList();
+  }
+
+  @override
+  Future<void> advanceRestock(String id, RestockStatus to) async {
+    await _api.patch('/v1/admin/restock-requests/${Uri.encodeComponent(id)}', body: {'status': to.name});
+  }
+
+  @override
+  Future<List<StockDiscrepancy>> discrepancies({required bool resolved, int limit = 100}) async {
+    final list = await _api.get('/v1/admin/discrepancies', query: {'status': resolved ? 'resolved' : 'open', 'limit': '$limit'});
+    return _rows(list).map(StockDiscrepancy.fromJson).toList();
+  }
+
+  @override
+  Future<void> resolveDiscrepancy(String id, {String? note}) async {
+    final trimmed = note?.trim() ?? '';
+    await _api.patch('/v1/admin/discrepancies/${Uri.encodeComponent(id)}', body: {if (trimmed.isNotEmpty) 'note': trimmed});
+  }
 }
