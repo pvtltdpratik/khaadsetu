@@ -8,6 +8,7 @@ import 'package:khaadsetu_version1/features/admin/presentation/providers/admin_p
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_center_detail_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_overview_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_people_screen.dart';
+import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_supply_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_user_detail_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/create_center_screen.dart';
 
@@ -157,6 +158,46 @@ class FakeAdminRepository implements AdminRepository {
   @override
   Future<List<VillageOption>> searchVillages(String query) async =>
       query.toLowerCase().startsWith('shir') ? const [VillageOption(name: 'Shirur', district: 'Pune', latitude: 18.8284, longitude: 74.376)] : const [];
+
+  final restocks_ = [
+    const RestockRequest(id: 'r1', centerId: 'c1', centerName: 'Center A', productName: 'Neem Cake', quantity: 20, status: RestockStatus.pending),
+    const RestockRequest(id: 'r2', centerId: 'c1', centerName: 'Center A', productName: 'Urea', quantity: 5, status: RestockStatus.approved),
+  ];
+  final reports_ = [
+    const StockDiscrepancy(id: 'd1', centerId: 'c1', centerName: 'Center A', productName: 'Neem Cake', expected: 20, received: 17, note: 'Three bags torn', resolved: false, resolutionNote: ''),
+    const StockDiscrepancy(id: 'd2', centerId: 'c1', centerName: 'Center A', productName: 'Urea', expected: 5, received: 5, note: '', resolved: true, resolutionNote: 'Recount done'),
+  ];
+  final restockMoves = <String>[];
+  bool failNextAdvance = false;
+  final resolvedReports = <String>[];
+
+  @override
+  Future<List<RestockRequest>> restockRequests({RestockStatus? status, int limit = 100}) async =>
+      restocks_.where((r) => status == null || r.status == status).toList();
+
+  @override
+  Future<void> advanceRestock(String id, RestockStatus to) async {
+    if (failNextAdvance) {
+      failNextAdvance = false;
+      throw Exception('That request is already approved');
+    }
+    restockMoves.add('$id:${to.name}');
+    final i = restocks_.indexWhere((r) => r.id == id);
+    final r = restocks_[i];
+    restocks_[i] = RestockRequest(id: r.id, centerId: r.centerId, centerName: r.centerName, productName: r.productName, quantity: r.quantity, status: to);
+  }
+
+  @override
+  Future<List<StockDiscrepancy>> discrepancies({required bool resolved, int limit = 100}) async =>
+      reports_.where((d) => d.resolved == resolved).toList();
+
+  @override
+  Future<void> resolveDiscrepancy(String id, {String? note}) async {
+    resolvedReports.add('$id:${note ?? ''}');
+    final i = reports_.indexWhere((d) => d.id == id);
+    final d = reports_[i];
+    reports_[i] = StockDiscrepancy(id: d.id, centerId: d.centerId, centerName: d.centerName, productName: d.productName, expected: d.expected, received: d.received, note: d.note, resolved: true, resolutionNote: note ?? '');
+  }
 }
 
 Future<FakeAdminRepository> _pump(WidgetTester tester, Widget screen, {Size size = const Size(400, 900)}) async {
@@ -355,6 +396,80 @@ void main() {
     await _pump(tester, const AdminOverviewScreen(), size: const Size(1280, 900));
     expect(tester.takeException(), isNull);
     await _pump(tester, const AdminPeopleScreen(role: PersonRole.operator), size: const Size(1280, 900));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('supply: pending restock requests come first, and approving asks before it moves them on', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen());
+    expect(find.text('20 × Neem Cake'), findsOneWidget);
+    expect(find.text('5 × Urea'), findsNothing, reason: 'approved requests are under another filter');
+
+    await tester.tap(find.text('Approve'));
+    await tester.pumpAndSettle();
+    expect(find.text('Approve this restock?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(repo.restockMoves, isEmpty);
+
+    await tester.tap(find.text('Approve'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Approve').last);
+    await tester.pumpAndSettle();
+    expect(repo.restockMoves, ['r1:approved']);
+    expect(find.text('Restock approved'), findsOneWidget);
+    expect(find.text('20 × Neem Cake'), findsNothing, reason: 'it left the pending queue');
+    expect(find.text('No restock requests are waiting.'), findsOneWidget);
+  });
+
+  testWidgets('supply: an approved request can be marked delivered, a delivered one has no action', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen());
+    await tester.tap(find.text('On its way'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Mark delivered'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Mark delivered').last);
+    await tester.pumpAndSettle();
+    expect(repo.restockMoves, ['r2:fulfilled']);
+
+    await tester.tap(find.text('Delivered'));
+    await tester.pumpAndSettle();
+    expect(find.text('5 × Urea'), findsOneWidget);
+    expect(find.text('Mark delivered'), findsNothing);
+  });
+
+  testWidgets('supply: a delivery report shows the shortfall and is reviewed with a note to the operator', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen(initialTab: SupplyTab.discrepancies));
+    expect(find.text('3 short'), findsOneWidget);
+    expect(find.text('Expected 20, received 17'), findsOneWidget);
+    expect(find.text('Operator: Three bags torn'), findsOneWidget);
+
+    await tester.tap(find.text('Mark reviewed'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Replacement sent');
+    await tester.tap(find.widgetWithText(FilledButton, 'Mark reviewed').last);
+    await tester.pumpAndSettle();
+    expect(repo.resolvedReports, ['d1:Replacement sent']);
+    expect(find.text('No delivery reports to review.'), findsOneWidget);
+
+    await tester.tap(find.text('Reviewed'));
+    await tester.pumpAndSettle();
+    expect(find.text('Your note: Replacement sent'), findsOneWidget);
+  });
+
+  testWidgets('supply: when the server refuses, the reason is shown and the request stays put', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen());
+    repo.failNextAdvance = true;
+    await tester.tap(find.text('Approve'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Approve').last);
+    await tester.pumpAndSettle();
+    expect(find.textContaining('already approved'), findsOneWidget);
+    expect(find.text('20 × Neem Cake'), findsOneWidget);
+    expect(repo.restockMoves, isEmpty);
+  });
+
+  testWidgets('supply: the wide layout renders without overflow', (tester) async {
+    await _pump(tester, const AdminSupplyScreen(), size: const Size(1280, 900));
     expect(tester.takeException(), isNull);
   });
 }

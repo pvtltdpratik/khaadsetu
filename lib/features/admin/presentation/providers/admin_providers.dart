@@ -66,6 +66,16 @@ final centersWithoutOperatorProvider = FutureProvider.autoDispose<List<AdminCent
   (ref) => ref.watch(adminRepositoryProvider).centers(status: 'active', hasOperator: false),
 );
 
+/// `null` means every status.
+final adminRestockProvider = FutureProvider.autoDispose.family<List<RestockRequest>, RestockStatus?>(
+  (ref, status) => ref.watch(adminRepositoryProvider).restockRequests(status: status),
+);
+
+/// `false` is the open reports, `true` the reviewed ones.
+final adminDiscrepanciesProvider = FutureProvider.autoDispose.family<List<StockDiscrepancy>, bool>(
+  (ref, resolved) => ref.watch(adminRepositoryProvider).discrepancies(resolved: resolved),
+);
+
 /// After any change, everything the panel shows may be stale.
 void refreshAdminData(WidgetRef ref) {
   ref
@@ -77,5 +87,7 @@ void refreshAdminData(WidgetRef ref) {
     ..invalidate(adminCenterProvider)
     ..invalidate(adminCenterStockProvider)
     ..invalidate(unassignedOperatorsProvider)
-    ..invalidate(centersWithoutOperatorProvider);
+    ..invalidate(centersWithoutOperatorProvider)
+    ..invalidate(adminRestockProvider)
+    ..invalidate(adminDiscrepanciesProvider);
 }
