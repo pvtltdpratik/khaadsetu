@@ -7,6 +7,8 @@ import 'package:khaadsetu_version1/features/operator/inventory/domain/entities/r
 import 'package:khaadsetu_version1/features/operator/inventory/domain/repositories/inventory_repository.dart';
 import 'package:khaadsetu_version1/features/operator/orders/domain/entities/order.dart';
 import 'package:khaadsetu_version1/features/operator/orders/domain/repositories/orders_repository.dart' as op;
+import 'package:khaadsetu_version1/features/operator/surplus/domain/entities/surplus_lot.dart';
+import 'package:khaadsetu_version1/features/operator/surplus/domain/repositories/surplus_repository.dart';
 
 InventoryItem shelfItem(
   String id, {
@@ -171,4 +173,82 @@ class FakeNotificationsRepository implements NotificationsRepository {
 
   @override
   Future<void> markAllRead() async {}
+}
+
+SurplusLot surplusLot(
+  String id, {
+  String productId = 'p-neemcake',
+  String name = 'Neem Cake',
+  double catalog = 600,
+  double price = 450,
+  int quantity = 5,
+  int reserved = 0,
+  SurplusStatus status = SurplusStatus.active,
+  SurplusCondition condition = SurplusCondition.nearExpiry,
+  DateTime? bestBefore,
+  String note = '',
+  bool fromShelf = false,
+}) =>
+    SurplusLot(
+      id: id,
+      productId: productId,
+      productName: name,
+      unit: 'bag',
+      catalogPrice: catalog,
+      unitPrice: price,
+      quantity: quantity,
+      reserved: reserved,
+      condition: condition,
+      status: status,
+      bestBefore: bestBefore,
+      note: note,
+      fromShelf: fromShelf,
+    );
+
+class FakeSurplusRepository implements SurplusRepository {
+  FakeSurplusRepository([List<SurplusLot>? lots]) : all = lots ?? [];
+
+  List<SurplusLot> all;
+  final created = <Map<String, Object?>>[];
+  final updates = <String>[];
+  final withdrawn = <String>[];
+  Object? createError;
+
+  @override
+  Future<List<SurplusLot>> lots() async => all;
+
+  @override
+  Future<SurplusLot> create({
+    required String productId,
+    required int quantity,
+    required double unitPrice,
+    required SurplusCondition condition,
+    DateTime? bestBefore,
+    String? note,
+    bool fromShelf = false,
+  }) async {
+    if (createError != null) throw createError!;
+    created.add({'productId': productId, 'quantity': quantity, 'price': unitPrice, 'condition': condition, 'bestBefore': bestBefore, 'note': note, 'fromShelf': fromShelf});
+    final lot = surplusLot('new-${created.length}', productId: productId, quantity: quantity, price: unitPrice, condition: condition, bestBefore: bestBefore, note: note ?? '', fromShelf: fromShelf);
+    all = [lot, ...all];
+    return lot;
+  }
+
+  @override
+  Future<SurplusLot> update(String id, {double? unitPrice, String? note}) async {
+    updates.add('$id:${unitPrice ?? '-'}:${note ?? '-'}');
+    final i = all.indexWhere((l) => l.id == id);
+    final l = all[i];
+    all[i] = surplusLot(l.id, price: unitPrice ?? l.unitPrice, note: note ?? l.note, quantity: l.quantity, reserved: l.reserved);
+    return all[i];
+  }
+
+  @override
+  Future<SurplusLot> withdraw(String id) async {
+    withdrawn.add(id);
+    final i = all.indexWhere((l) => l.id == id);
+    final l = all[i];
+    all[i] = surplusLot(l.id, price: l.unitPrice, quantity: l.reserved, reserved: l.reserved, status: SurplusStatus.withdrawn);
+    return all[i];
+  }
 }
