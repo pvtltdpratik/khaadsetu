@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 
+import '../animation/motion.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 
@@ -69,14 +70,21 @@ class SoilHealthGauge extends StatelessWidget {
       child: Stack(
         alignment: Alignment.center,
         children: [
-          CustomPaint(
-            size: Size.square(size),
-            painter: _GaugePainter(
-              progress: (clamped ?? 0) / 100,
-              trackColor: colors.surfaceSunken,
-              progressColor: ringColor,
-              strokeWidth: strokeWidth,
-              isEmpty: clamped == null,
+          // The ring sweeps round to the score when it first appears, and
+          // glides to the new score after a fresh scan.
+          TweenAnimationBuilder<double>(
+            tween: Tween<double>(begin: 0, end: (clamped ?? 0) / 100),
+            duration: Motion.reduced(context) ? Duration.zero : const Duration(milliseconds: 900),
+            curve: Curves.easeOutCubic,
+            builder: (context, progress, _) => CustomPaint(
+              size: Size.square(size),
+              painter: _GaugePainter(
+                progress: progress,
+                trackColor: colors.surfaceSunken,
+                progressColor: ringColor,
+                strokeWidth: strokeWidth,
+                isEmpty: clamped == null,
+              ),
             ),
           ),
           Column(
