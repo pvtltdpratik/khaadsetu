@@ -14,6 +14,7 @@ import '../../features/farmer/marketplace/presentation/screens/marketplace_scree
 import '../../features/farmer/marketplace/presentation/screens/product_comparison_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_detail_screen.dart';
 import '../../features/farmer/community/presentation/screens/community_feed_screen.dart';
+import '../../features/farmer/community/presentation/screens/create_post_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
@@ -143,6 +144,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   // Relative segments — must stay in sync with the absolute
                   // constants in route_paths.dart used for navigation.
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const CreatePostScreen(),
+                  ),
                   GoRoute(
                     path: 'post/:postId',
                     builder: (context, state) => PostDetailScreen(postId: state.pathParameters['postId']!),

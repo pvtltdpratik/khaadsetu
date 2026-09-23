@@ -28,6 +28,23 @@ class CommunityRepositoryImpl implements CommunityRepository {
   }
 
   @override
+  Future<CommunityPost> createPost({
+    required String title,
+    required String content,
+    required String cropTag,
+    required String districtTag,
+    required ProblemType problemTypeTag,
+  }) {
+    return _dataSource.createPost(
+      title: title,
+      content: content,
+      cropTag: cropTag,
+      districtTag: districtTag,
+      problemTypeTag: problemTypeTag,
+    );
+  }
+
+  @override
   Future<PostDetail> getPostDetail(String postId) => _dataSource.fetchPostDetail(postId);
 
   @override

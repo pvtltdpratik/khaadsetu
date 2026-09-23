@@ -13,6 +13,15 @@ abstract class CommunityRepository {
     int offset,
   });
 
+  /// Returns the created post. Throws on validation/network failure.
+  Future<CommunityPost> createPost({
+    required String title,
+    required String content,
+    required String cropTag,
+    required String districtTag,
+    required ProblemType problemTypeTag,
+  });
+
   Future<PostDetail> getPostDetail(String postId);
 
   Future<PostComment> addComment(String postId, String content);

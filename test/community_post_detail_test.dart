@@ -67,6 +67,10 @@ class _FakeRepository implements CommunityRepository {
   }
 
   @override
+  Future<CommunityPost> createPost({required String title, required String content, required String cropTag, required String districtTag, required ProblemType problemTypeTag}) =>
+      throw UnimplementedError();
+
+  @override
   Future<List<CommunityPost>> getPosts({String? crop, String? district, ProblemType? problemType, String? q, int limit = 20, int offset = 0}) async => [_post];
 }
 

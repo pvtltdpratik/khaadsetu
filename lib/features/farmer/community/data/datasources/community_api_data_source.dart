@@ -26,6 +26,23 @@ class CommunityApiDataSource {
     return list.map((e) => _parsePost(e as Map<String, dynamic>)).toList();
   }
 
+  Future<CommunityPost> createPost({
+    required String title,
+    required String content,
+    required String cropTag,
+    required String districtTag,
+    required ProblemType problemTypeTag,
+  }) async {
+    final json = await _api.post('/v1/community/posts', body: {
+      'title': title,
+      'content': content,
+      'cropTag': cropTag,
+      'districtTag': districtTag,
+      'problemTypeTag': problemTypeTag.name,
+    });
+    return _parsePost(json as Map<String, dynamic>);
+  }
+
   Future<PostDetail> fetchPostDetail(String postId) async {
     final json = await _api.get('/v1/community/posts/$postId') as Map<String, dynamic>;
     return PostDetail(
