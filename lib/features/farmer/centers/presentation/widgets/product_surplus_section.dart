@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -36,8 +37,8 @@ class ProductSurplusSection extends ConsumerWidget {
           ],
         ),
         AppSpacing.gapSm,
-        for (final offer in offers.take(_preview)) ...[
-          SurplusOfferCard(offer: offer),
+        for (final (i, offer) in offers.take(_preview).indexed) ...[
+          FadeSlideIn(key: ValueKey(offer.lotId), index: i, child: SurplusOfferCard(offer: offer)),
           AppSpacing.gapSm,
         ],
       ],

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -104,12 +105,16 @@ class _Results extends StatelessWidget {
       children: [
         Text('Within ${result!.radiusKm} km · best match first', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.textMuted)),
         AppSpacing.gapSm,
-        for (final n in result!.centers) ...[
-          CenterCard(
-            nearby: n,
-            onChoose: !args.pick || (args.cart.lines.isNotEmpty && n.inventory.status != InventoryStatus.all)
-                ? null
-                : () => context.pop(n.center.centerId),
+        for (final (i, n) in result!.centers.indexed) ...[
+          FadeSlideIn(
+            key: ValueKey(n.center.centerId),
+            index: i,
+            child: CenterCard(
+              nearby: n,
+              onChoose: !args.pick || (args.cart.lines.isNotEmpty && n.inventory.status != InventoryStatus.all)
+                  ? null
+                  : () => context.pop(n.center.centerId),
+            ),
           ),
           if (args.pick && args.cart.lines.isNotEmpty && n.inventory.status != InventoryStatus.all)
             Padding(

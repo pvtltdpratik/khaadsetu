@@ -30,13 +30,15 @@ class _PressableState extends State<Pressable> {
 
   @override
   Widget build(BuildContext context) {
-    if (!widget.enabled || Motion.reduced(context)) return widget.child;
+    // The wrapper stays in the tree even while disabled, so a button that turns
+    // disabled (say, while loading) keeps its state and can animate its content.
+    if (Motion.reduced(context)) return widget.child;
     return Listener(
-      onPointerDown: (_) => _set(true),
+      onPointerDown: (_) => _set(widget.enabled),
       onPointerUp: (_) => _set(false),
       onPointerCancel: (_) => _set(false),
       child: AnimatedScale(
-        scale: _down ? widget.scale : 1,
+        scale: _down && widget.enabled ? widget.scale : 1,
         duration: Motion.fast,
         curve: Motion.enter,
         child: widget.child,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -65,8 +66,8 @@ class SurplusNearbyScreen extends ConsumerWidget {
                           }
                           return Column(
                             children: [
-                              for (final offer in list) ...[
-                                SurplusOfferCard(offer: offer),
+                              for (final (i, offer) in list.indexed) ...[
+                                FadeSlideIn(key: ValueKey(offer.lotId), index: i, child: SurplusOfferCard(offer: offer)),
                                 AppSpacing.gapMd,
                               ],
                             ],

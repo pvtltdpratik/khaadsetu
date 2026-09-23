@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/pop_in.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -46,10 +47,14 @@ class SurplusOfferCard extends ConsumerWidget {
           Row(
             children: [
               Expanded(child: Text(o.productName, style: text.titleSmall)),
-              Container(
-                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
-                decoration: BoxDecoration(color: colors.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppRadius.pill)),
-                child: Text('${o.discountPercent}% off', style: text.labelSmall?.copyWith(color: colors.success, fontWeight: FontWeight.w700)),
+              // The discount is the reason to look: it pops in after the card lands.
+              PopIn(
+                delay: const Duration(milliseconds: 220),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: AppSpacing.xxs),
+                  decoration: BoxDecoration(color: colors.success.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(AppRadius.pill)),
+                  child: Text('${o.discountPercent}% off', style: text.labelSmall?.copyWith(color: colors.success, fontWeight: FontWeight.w700)),
+                ),
               ),
             ],
           ),

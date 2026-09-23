@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/animation/pop_in.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/price_format.dart';
@@ -117,7 +118,11 @@ class OrderCard extends ConsumerWidget {
                   child: Column(
                     children: [
                       Text('Your pickup code', style: text.labelMedium?.copyWith(color: colors.primary)),
-                      Text(order.pickupOtp!, style: text.displaySmall?.copyWith(letterSpacing: 8, color: colors.primary, fontWeight: FontWeight.w800)),
+                      // The code arrives with a little pop: it is the thing to remember.
+                      PopIn(
+                        delay: const Duration(milliseconds: 250),
+                        child: Text(order.pickupOtp!, style: text.displaySmall?.copyWith(letterSpacing: 8, color: colors.primary, fontWeight: FontWeight.w800)),
+                      ),
                       if (order.reservedUntil != null)
                         Text('Collect by ${formatDay(order.reservedUntil!)}', style: text.bodySmall?.copyWith(color: colors.primary)),
                     ],
