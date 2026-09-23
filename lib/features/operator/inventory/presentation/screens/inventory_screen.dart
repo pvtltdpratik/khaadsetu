@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/responsive/responsive_layout.dart';
+import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../surplus/presentation/widgets/create_surplus_sheet.dart';
 import '../../domain/entities/inventory_item.dart';
 import '../../domain/entities/restock_request.dart';
 import '../providers/inventory_providers.dart';
@@ -50,6 +53,11 @@ class InventoryScreen extends ConsumerWidget {
               Row(
                 children: [
                   Expanded(child: Text('Inventory', style: Theme.of(context).textTheme.headlineSmall)),
+                  IconButton(
+                    tooltip: 'Surplus stock',
+                    icon: const Icon(Icons.sell_outlined),
+                    onPressed: () => context.go(RoutePaths.operatorSurplus),
+                  ),
                   FilledButton.icon(
                     onPressed: () => showReceiveStock(context),
                     icon: const Icon(Icons.add_box_outlined),
@@ -192,6 +200,12 @@ class _InventoryTile extends StatelessWidget {
                 label: const Text('Request restock'),
                 onPressed: () => showAdaptiveModal<void>(context: context, builder: (context) => RestockRequestSheet(item: item)),
               ),
+              if (item.available > 0)
+                TextButton.icon(
+                  icon: const Icon(Icons.sell_outlined, size: 18),
+                  label: const Text('Sell as surplus'),
+                  onPressed: () => showAdaptiveModal<void>(context: context, builder: (context) => CreateSurplusSheet(shelfItem: item)),
+                ),
             ],
           ),
         ],

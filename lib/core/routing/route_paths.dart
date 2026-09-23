@@ -76,6 +76,7 @@ class RoutePaths {
       '/operator/orders/$orderId';
 
   static const operatorInventory = '/operator/inventory';
+  static const operatorSurplus = '/operator/inventory/surplus';
 
   static const operatorFarmers = '/operator/farmers';
   static const operatorFarmerDetailPattern = '/operator/farmers/:farmerId';

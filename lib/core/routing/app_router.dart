@@ -35,6 +35,7 @@ import '../../features/operator/farmers/presentation/screens/farmer_detail_scree
 import '../../features/operator/farmers/presentation/screens/farmers_list_screen.dart';
 import '../../features/operator/inventory/presentation/screens/inventory_screen.dart';
 import '../../features/operator/orders/presentation/screens/order_detail_screen.dart';
+import '../../features/operator/surplus/presentation/screens/surplus_screen.dart';
 import '../../features/operator/orders/presentation/screens/orders_list_screen.dart';
 import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.dart';
 import '../../features/operator/presentation/operator_shell.dart';
@@ -352,6 +353,13 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RoutePaths.operatorInventory,
                 builder: (context, state) => const InventoryScreen(),
+                routes: [
+                  // Relative segment; keep in sync with RoutePaths.operatorSurplus.
+                  GoRoute(
+                    path: 'surplus',
+                    builder: (context, state) => const SurplusScreen(),
+                  ),
+                ],
               ),
             ],
           ),
