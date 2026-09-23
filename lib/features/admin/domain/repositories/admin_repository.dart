@@ -50,4 +50,10 @@ abstract class AdminRepository {
   Future<List<StockDiscrepancy>> discrepancies({required bool resolved, int limit = 100});
 
   Future<void> resolveDiscrepancy(String id, {String? note});
+
+  /// Every center's surplus lots, newest first.
+  Future<List<AdminSurplusLot>> surplusLots({int limit = 100});
+
+  /// Takes a lot off sale; [reason] is sent to the operator.
+  Future<void> withdrawSurplus(String id, {String? reason});
 }

@@ -123,6 +123,18 @@ class AdminApiRepository implements AdminRepository {
   }
 
   @override
+  Future<List<AdminSurplusLot>> surplusLots({int limit = 100}) async {
+    final list = await _api.get('/v1/admin/surplus', query: {'limit': '$limit'});
+    return _rows(list).map(AdminSurplusLot.fromJson).toList();
+  }
+
+  @override
+  Future<void> withdrawSurplus(String id, {String? reason}) async {
+    final trimmed = reason?.trim() ?? '';
+    await _api.post('/v1/admin/surplus/${Uri.encodeComponent(id)}/withdraw', body: {if (trimmed.isNotEmpty) 'reason': trimmed});
+  }
+
+  @override
   Future<void> resolveDiscrepancy(String id, {String? note}) async {
     final trimmed = note?.trim() ?? '';
     await _api.patch('/v1/admin/discrepancies/${Uri.encodeComponent(id)}', body: {if (trimmed.isNotEmpty) 'note': trimmed});

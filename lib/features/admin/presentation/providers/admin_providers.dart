@@ -76,6 +76,8 @@ final adminDiscrepanciesProvider = FutureProvider.autoDispose.family<List<StockD
   (ref, resolved) => ref.watch(adminRepositoryProvider).discrepancies(resolved: resolved),
 );
 
+final adminSurplusProvider = FutureProvider.autoDispose<List<AdminSurplusLot>>((ref) => ref.watch(adminRepositoryProvider).surplusLots());
+
 /// After any change, everything the panel shows may be stale.
 void refreshAdminData(WidgetRef ref) {
   ref
@@ -89,5 +91,6 @@ void refreshAdminData(WidgetRef ref) {
     ..invalidate(unassignedOperatorsProvider)
     ..invalidate(centersWithoutOperatorProvider)
     ..invalidate(adminRestockProvider)
-    ..invalidate(adminDiscrepanciesProvider);
+    ..invalidate(adminDiscrepanciesProvider)
+    ..invalidate(adminSurplusProvider);
 }

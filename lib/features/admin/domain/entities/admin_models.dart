@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../operator/surplus/domain/entities/surplus_lot.dart';
+
 /// People counts for one role, split by segment. `unassigned` only applies to
 /// operators (signed up but no center yet) and is 0 for farmers.
 class PeopleGroup extends Equatable {
@@ -35,6 +37,8 @@ class AdminOverview extends Equatable {
     required this.lowStockItems,
     this.lowStockUnattended = 0,
     this.discrepanciesOpen = 0,
+    this.surplusActiveLots = 0,
+    this.surplusUnits = 0,
   });
 
   factory AdminOverview.fromJson(Map<String, dynamic> json) {
@@ -54,6 +58,8 @@ class AdminOverview extends Equatable {
       lowStockItems: (json['lowStockItems'] as num).toInt(),
       lowStockUnattended: ((json['lowStockUnattended'] as num?) ?? 0).toInt(),
       discrepanciesOpen: ((json['discrepanciesOpen'] as num?) ?? 0).toInt(),
+      surplusActiveLots: (((json['surplus'] as Map<String, dynamic>?)?['activeLots'] as num?) ?? 0).toInt(),
+      surplusUnits: (((json['surplus'] as Map<String, dynamic>?)?['units'] as num?) ?? 0).toInt(),
     );
   }
 
@@ -74,10 +80,15 @@ class AdminOverview extends Equatable {
   /// Delivery reports from operators the supply team has not reviewed.
   final int discrepanciesOpen;
 
+  /// Surplus offers on sale right now, and the units left in them.
+  final int surplusActiveLots;
+  final int surplusUnits;
+
   @override
   List<Object?> get props => [
         operators, farmers, centersActive, centersSuspended, centersWithoutOperator,
         ordersPending, ordersReadyForPickup, ordersToday, restockPending, lowStockItems, lowStockUnattended, discrepanciesOpen,
+        surplusActiveLots, surplusUnits,
       ];
 }
 
@@ -337,6 +348,7 @@ class AuditEntry extends Equatable {
         'center.unassignOperator' => 'Removed a center\'s operator',
         'restock.approved' => 'Approved a restock request',
         'restock.fulfilled' => 'Marked a restock delivered',
+        'surplus.withdraw' => 'Withdrew a surplus offer',
         _ => action,
       };
 
@@ -438,6 +450,26 @@ class StockDiscrepancy extends Equatable {
 
   @override
   List<Object?> get props => [id, centerId, centerName, productName, expected, received, note, resolved, resolutionNote, createdAt];
+}
+
+/// A surplus lot as the platform sees it: the lot, and which center holds it.
+class AdminSurplusLot extends Equatable {
+  const AdminSurplusLot({required this.lot, required this.centerId, required this.centerName, required this.village});
+
+  factory AdminSurplusLot.fromJson(Map<String, dynamic> json) => AdminSurplusLot(
+        lot: SurplusLot.fromJson(json),
+        centerId: json['centerId'] as String,
+        centerName: (json['centerName'] as String?) ?? '',
+        village: (json['village'] as String?) ?? '',
+      );
+
+  final SurplusLot lot;
+  final String centerId;
+  final String centerName;
+  final String village;
+
+  @override
+  List<Object?> get props => [lot, centerId, centerName, village];
 }
 
 /// A place from the built-in village list, used to fill a new center's coordinates.

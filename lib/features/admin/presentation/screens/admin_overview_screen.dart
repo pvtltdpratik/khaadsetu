@@ -128,6 +128,16 @@ class _OverviewBody extends StatelessWidget {
         onTap: () => context.go(RoutePaths.adminCenters),
       ),
       _StatCard(
+        icon: Icons.sell_rounded,
+        title: 'Surplus on sale',
+        total: o.surplusActiveLots,
+        totalLabel: 'offers',
+        lines: [
+          _Line('Units left', o.surplusUnits, colors.success, () => context.go(_query(RoutePaths.adminSupply, 'tab', 'surplus'))),
+        ],
+        onTap: () => context.go(_query(RoutePaths.adminSupply, 'tab', 'surplus')),
+      ),
+      _StatCard(
         icon: Icons.receipt_long_rounded,
         title: 'Orders',
         total: o.ordersToday,
@@ -155,7 +165,9 @@ class _OverviewBody extends StatelessWidget {
         AppSpacing.gapSm,
         ResponsiveRow(spacing: AppSpacing.md, children: cards.sublist(0, 2)),
         AppSpacing.gapMd,
-        ResponsiveRow(spacing: AppSpacing.md, children: cards.sublist(2)),
+        ResponsiveRow(spacing: AppSpacing.md, children: cards.sublist(2, 4)),
+        AppSpacing.gapMd,
+        ResponsiveRow(spacing: AppSpacing.md, children: [cards[4], const SizedBox.shrink()]),
       ],
     );
   }
