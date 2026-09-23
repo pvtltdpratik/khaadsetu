@@ -10,8 +10,22 @@ import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../domain/entities/inventory_item.dart';
 import '../../domain/entities/restock_request.dart';
 import '../providers/inventory_providers.dart';
+import '../widgets/item_settings_sheet.dart';
+import '../widgets/receive_stock_sheet.dart';
 import '../widgets/restock_request_sheet.dart';
 import '../widgets/stock_level_indicator.dart';
+
+/// Opens the receive-stock sheet and reports what happened.
+Future<void> showReceiveStock(BuildContext context, {InventoryItem? item}) async {
+  final result = await showAdaptiveModal<ReceiveResult>(context: context, builder: (context) => ReceiveStockSheet(item: item));
+  if (result == null || !context.mounted) return;
+  final d = result.discrepancy;
+  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+    content: Text(d == null
+        ? '${result.item.name} stock is now ${result.item.currentStock}'
+        : 'Added to stock. Reported: expected ${d.expected}, counted ${d.received}. The supply team will review it.'),
+  ));
+}
 
 class InventoryScreen extends ConsumerWidget {
   const InventoryScreen({super.key});
@@ -23,58 +37,111 @@ class InventoryScreen extends ConsumerWidget {
 
     return ResponsiveScope(
       child: SafeArea(
-        child: ListView(
-          padding: context.pagePadding,
-          children: [
-            Text('Inventory', style: Theme.of(context).textTheme.headlineSmall),
-            AppSpacing.gapLg,
-            requestsAsync.when(
-              data: (requests) {
-                final pending = requests.where((r) => r.status != RestockRequestStatus.fulfilled).toList();
-                if (pending.isEmpty) return const SizedBox.shrink();
-                return Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Pending restock requests', style: Theme.of(context).textTheme.titleMedium),
-                    AppSpacing.gapSm,
-                    for (final request in pending) ...[
-                      _RestockRequestTile(request: request),
+        child: RefreshIndicator(
+          onRefresh: () async {
+            ref
+              ..invalidate(inventoryItemsProvider)
+              ..invalidate(restockRequestsProvider);
+            await ref.read(inventoryItemsProvider.future);
+          },
+          child: ListView(
+            padding: context.pagePadding,
+            children: [
+              Row(
+                children: [
+                  Expanded(child: Text('Inventory', style: Theme.of(context).textTheme.headlineSmall)),
+                  FilledButton.icon(
+                    onPressed: () => showReceiveStock(context),
+                    icon: const Icon(Icons.add_box_outlined),
+                    label: const Text('Receive stock'),
+                  ),
+                ],
+              ),
+              AppSpacing.gapLg,
+              requestsAsync.when(
+                data: (requests) {
+                  final open = requests.where((r) => r.status != RestockRequestStatus.fulfilled).toList();
+                  if (open.isEmpty) return const SizedBox.shrink();
+                  return Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Restock requests', style: Theme.of(context).textTheme.titleMedium),
                       AppSpacing.gapSm,
-                    ],
-                    AppSpacing.gapMd,
-                  ],
-                );
-              },
-              loading: () => const SizedBox.shrink(),
-              error: (_, _) => const SizedBox.shrink(),
-            ),
-            itemsAsync.when(
-              data: (items) => context.breakpoint.isTabletUp
-                  ? GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      itemCount: items.length,
-                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: AppSpacing.sm,
-                        mainAxisSpacing: AppSpacing.sm,
-                        childAspectRatio: 2.4,
-                      ),
-                      itemBuilder: (context, i) => _InventoryTile(item: items[i]),
-                    )
-                  : Column(
-                      children: [
-                        for (final item in items) ...[
-                          _InventoryTile(item: item),
-                          AppSpacing.gapSm,
-                        ],
+                      for (final request in open) ...[
+                        _RestockRequestTile(request: request),
+                        AppSpacing.gapSm,
                       ],
-                    ),
-              loading: () => const AppLoadingIndicator(),
-              error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(inventoryItemsProvider)),
-            ),
-          ],
+                      AppSpacing.gapMd,
+                    ],
+                  );
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+              itemsAsync.when(
+                data: (items) => items.isEmpty ? const _EmptyShelves() : _Items(items: items),
+                loading: () => const AppLoadingIndicator(),
+                error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(inventoryItemsProvider)),
+              ),
+            ],
+          ),
         ),
+      ),
+    );
+  }
+}
+
+/// Two columns on wider screens. Tiles size to their content (no fixed aspect
+/// ratio), so nothing can overflow however much a tile has to say.
+class _Items extends StatelessWidget {
+  const _Items({required this.items});
+
+  final List<InventoryItem> items;
+
+  @override
+  Widget build(BuildContext context) {
+    // Low stock first: those are what needs attention.
+    final sorted = [...items]..sort((a, b) => (b.isLowStock ? 1 : 0) - (a.isLowStock ? 1 : 0));
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final columns = context.breakpoint.isTabletUp ? 2 : 1;
+        final width = (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
+        return Wrap(
+          spacing: AppSpacing.sm,
+          runSpacing: AppSpacing.sm,
+          children: [for (final item in sorted) SizedBox(width: width, child: _InventoryTile(item: item))],
+        );
+      },
+    );
+  }
+}
+
+class _EmptyShelves extends StatelessWidget {
+  const _EmptyShelves();
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsets.all(AppSpacing.xl),
+      child: Column(
+        children: [
+          Icon(Icons.inventory_2_outlined, size: 48, color: colors.textMuted),
+          AppSpacing.gapMd,
+          Text('Your shelves are empty', style: Theme.of(context).textTheme.titleMedium),
+          AppSpacing.gapXs,
+          Text(
+            'Receive your first delivery to start selling. Farmers can only order what is on your shelves.',
+            textAlign: TextAlign.center,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+          ),
+          AppSpacing.gapMd,
+          FilledButton.icon(
+            onPressed: () => showReceiveStock(context),
+            icon: const Icon(Icons.add_box_outlined),
+            label: const Text('Receive stock'),
+          ),
+        ],
       ),
     );
   }
@@ -90,25 +157,42 @@ class _InventoryTile extends StatelessWidget {
     final colors = context.colors;
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(border: Border.all(color: colors.border), borderRadius: BorderRadius.circular(14)),
+      decoration: BoxDecoration(
+        border: Border.all(color: item.isLowStock ? colors.danger.withValues(alpha: 0.5) : colors.border),
+        borderRadius: BorderRadius.circular(14),
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(item.name, style: Theme.of(context).textTheme.titleSmall),
+          Row(
+            children: [
+              Expanded(child: Text(item.name, style: Theme.of(context).textTheme.titleSmall)),
+              IconButton(
+                tooltip: 'Reorder level and capacity',
+                visualDensity: VisualDensity.compact,
+                icon: const Icon(Icons.tune_rounded, size: 20),
+                onPressed: () => showAdaptiveModal<bool>(context: context, builder: (context) => ItemSettingsSheet(item: item)),
+              ),
+            ],
+          ),
           const SizedBox(height: AppSpacing.xs),
           StockLevelIndicator(item: item),
           AppSpacing.gapSm,
-          Align(
-            alignment: Alignment.centerLeft,
-            child: OutlinedButton.icon(
-              icon: const Icon(Icons.add_box_outlined, size: 18),
-              label: const Text('Request restock'),
-              onPressed: () => showAdaptiveModal<void>(
-                context: context,
-                builder: (context) => RestockRequestSheet(item: item),
+          Wrap(
+            spacing: AppSpacing.sm,
+            runSpacing: AppSpacing.xs,
+            children: [
+              FilledButton.tonalIcon(
+                icon: const Icon(Icons.add_box_outlined, size: 18),
+                label: const Text('Receive'),
+                onPressed: () => showReceiveStock(context, item: item),
               ),
-            ),
+              OutlinedButton.icon(
+                icon: const Icon(Icons.local_shipping_outlined, size: 18),
+                label: const Text('Request restock'),
+                onPressed: () => showAdaptiveModal<void>(context: context, builder: (context) => RestockRequestSheet(item: item)),
+              ),
+            ],
           ),
         ],
       ),
@@ -130,9 +214,9 @@ class _RestockRequestTile extends StatelessWidget {
       RestockRequestStatus.fulfilled => colors.success,
     };
     final label = switch (request.status) {
-      RestockRequestStatus.pending => 'Pending',
-      RestockRequestStatus.approved => 'Approved',
-      RestockRequestStatus.fulfilled => 'Fulfilled',
+      RestockRequestStatus.pending => 'Waiting for approval',
+      RestockRequestStatus.approved => 'Approved, on its way',
+      RestockRequestStatus.fulfilled => 'Delivered',
     };
 
     return Container(
@@ -140,12 +224,7 @@ class _RestockRequestTile extends StatelessWidget {
       decoration: BoxDecoration(color: colors.surfaceSunken, borderRadius: BorderRadius.circular(14)),
       child: Row(
         children: [
-          Expanded(
-            child: Text(
-              '${request.itemName} × ${request.requestedQuantity}',
-              style: Theme.of(context).textTheme.bodyMedium,
-            ),
-          ),
+          Expanded(child: Text('${request.itemName} × ${request.requestedQuantity}', style: Theme.of(context).textTheme.bodyMedium)),
           Container(
             padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 3),
             decoration: BoxDecoration(color: color.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(999)),

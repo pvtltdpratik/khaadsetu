@@ -66,6 +66,7 @@ class RoutePaths {
   // redirect into the shell's initial branch, matching `farmerRoot`.
   static const operatorRoot = '/operator';
   static const operatorDashboard = '/operator/dashboard';
+  static const operatorNotifications = '/operator/dashboard/notifications';
 
   static const operatorOrders = '/operator/orders';
   static const operatorOrdersNew = '/operator/orders/new';

@@ -38,7 +38,7 @@ class OrdersApiDataSource {
       'customerName': customerName,
       'items': [
         for (final i in items)
-          {'productName': i.productName, 'quantity': i.quantity, 'unitPrice': i.unitPrice},
+          {'productId': ?i.productId, 'productName': i.productName, 'quantity': i.quantity, 'unitPrice': i.unitPrice},
       ],
     }) as Map<String, dynamic>;
     return _parse(json);

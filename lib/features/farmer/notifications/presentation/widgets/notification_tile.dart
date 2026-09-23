@@ -103,6 +103,10 @@ class NotificationTile extends StatelessWidget {
     NotificationType.scan => Icons.grass_rounded,
     NotificationType.scheme => Icons.account_balance_outlined,
     NotificationType.order => Icons.shopping_bag_outlined,
+    NotificationType.stock => Icons.inventory_2_outlined,
+    NotificationType.restock => Icons.local_shipping_outlined,
+    NotificationType.account => Icons.manage_accounts_outlined,
+    NotificationType.other => Icons.notifications_none_rounded,
   };
 
   static const _months = [

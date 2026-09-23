@@ -19,12 +19,13 @@ class FarmersApiDataSource {
     return Farmer(
       id: json['id'] as String,
       name: json['name'] as String,
-      village: json['village'] as String,
-      phone: json['phone'] as String,
-      activeCrop: json['activeCrop'] as String,
+      village: (json['village'] as String?) ?? '',
+      phone: (json['phone'] as String?) ?? '',
+      activeCrop: (json['activeCrop'] as String?) ?? '',
       lastVisitDate: DateTime.parse(json['lastVisitDate'] as String).toLocal(),
       needsFollowUp: json['needsFollowUp'] as bool,
-      notes: json['notes'] as String,
+      notes: (json['notes'] as String?) ?? '',
+      ordersCount: ((json['ordersCount'] as num?) ?? 0).toInt(),
     );
   }
 }

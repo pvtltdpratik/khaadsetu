@@ -10,6 +10,7 @@ class Farmer extends Equatable {
     required this.lastVisitDate,
     required this.needsFollowUp,
     required this.notes,
+    this.ordersCount = 0,
   });
 
   final String id;
@@ -25,7 +26,10 @@ class Farmer extends Equatable {
   final bool needsFollowUp;
   final String notes;
 
+  /// How many orders they have placed at this center.
+  final int ordersCount;
+
   @override
   List<Object?> get props =>
-      [id, name, village, phone, activeCrop, lastVisitDate, needsFollowUp, notes];
+      [id, name, village, phone, activeCrop, lastVisitDate, needsFollowUp, notes, ordersCount];
 }
