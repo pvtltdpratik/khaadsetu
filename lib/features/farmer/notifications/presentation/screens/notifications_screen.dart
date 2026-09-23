@@ -49,7 +49,13 @@ class NotificationsScreen extends ConsumerWidget {
         // An operator opens the order to prepare it; a farmer sees their pickup code.
         context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
       case NotificationType.stock:
-        if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
+        // An operator's low-stock alert goes to the inventory; a farmer's
+        // "back in stock" goes to the product, ready to reserve.
+        if (_isOperator(ref)) {
+          context.go(RoutePaths.operatorInventory);
+        } else {
+          context.push(RoutePaths.farmerMarketplaceProduct(refId));
+        }
       case NotificationType.restock:
         if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
       case NotificationType.account:

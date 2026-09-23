@@ -193,11 +193,51 @@ void main() {
     expect(find.text('Your order'), findsOneWidget);
   });
 
-  testWidgets('out of stock everywhere: no reserve, and no dead-end "notify me" button that does nothing', (tester) async {
-    await _pumpProduct(tester, centers: FakeCentersRepository()..centers = _stock({'a': 0, 'b': 0}));
+  testWidgets('out of stock everywhere: no reserve, but they can ask to be told when it is back', (tester) async {
+    final h = await _pumpProduct(tester, centers: FakeCentersRepository()..centers = _stock({'a': 0, 'b': 0}));
     expect(find.text('Currently out of stock at centers near you.'), findsOneWidget);
     expect(tester.widget<FilledButton>(find.widgetWithText(FilledButton, 'Reserve for pickup')).onPressed, isNull);
-    expect(find.textContaining('Notify'), findsNothing);
+
+    await tester.tap(find.text('Notify me when available'));
+    await tester.pumpAndSettle();
+    expect(h.centers.notifyMe.keys, ['p-neemcake']);
+    expect(h.centers.notifyMe['p-neemcake'], shirur, reason: 'remembers where the farmer asked from');
+    expect(find.text("We'll tell you when it's back in stock near you."), findsOneWidget);
+    expect(find.text('Notify me when available'), findsNothing);
+
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(h.centers.notifyMe, isEmpty);
+    expect(find.text('Notify me when available'), findsOneWidget);
+  });
+
+  testWidgets('it is also offered when there is some stock but not enough, and remembers a request made earlier', (tester) async {
+    final centers = FakeCentersRepository()
+      ..centers = _stock({'a': 1})
+      ..notifyMe['p-neemcake'] = shirur;
+    await _pumpProduct(tester, centers: centers);
+    for (var i = 0; i < 2; i++) {
+      await tester.tap(find.byTooltip('More'));
+      await tester.pumpAndSettle();
+    }
+    expect(find.textContaining('Only 1 available'), findsOneWidget);
+    expect(find.text("We'll tell you when it's back in stock near you."), findsOneWidget, reason: 'already subscribed');
+  });
+
+  testWidgets('when it can be reserved there is no reason to ask to be told', (tester) async {
+    await _pumpProduct(tester);
+    expect(find.text('Notify me when available'), findsNothing);
+  });
+
+  testWidgets('a failed request is reported and can be retried', (tester) async {
+    final centers = FakeCentersRepository()..centers = _stock({'a': 0});
+    await _pumpProduct(tester, centers: centers);
+    centers.notifyMeError = Exception("Couldn't reach the server");
+    await tester.tap(find.text('Notify me when available'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining("Couldn't reach the server"), findsOneWidget);
+    expect(find.text('Notify me when available'), findsOneWidget);
+    expect(centers.notifyMe, isEmpty);
   });
 
   testWidgets('without a location the farmer is asked for one instead of shown an error', (tester) async {
