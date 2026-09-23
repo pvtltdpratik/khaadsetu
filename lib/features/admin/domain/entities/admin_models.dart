@@ -33,6 +33,8 @@ class AdminOverview extends Equatable {
     required this.ordersToday,
     required this.restockPending,
     required this.lowStockItems,
+    this.lowStockUnattended = 0,
+    this.discrepanciesOpen = 0,
   });
 
   factory AdminOverview.fromJson(Map<String, dynamic> json) {
@@ -50,6 +52,8 @@ class AdminOverview extends Equatable {
       ordersToday: (orders['today'] as num).toInt(),
       restockPending: ((json['restockRequests'] as Map<String, dynamic>)['pending'] as num).toInt(),
       lowStockItems: (json['lowStockItems'] as num).toInt(),
+      lowStockUnattended: ((json['lowStockUnattended'] as num?) ?? 0).toInt(),
+      discrepanciesOpen: ((json['discrepanciesOpen'] as num?) ?? 0).toInt(),
     );
   }
 
@@ -64,10 +68,16 @@ class AdminOverview extends Equatable {
   final int restockPending;
   final int lowStockItems;
 
+  /// Still low a full day after the operator was alerted: nobody has acted.
+  final int lowStockUnattended;
+
+  /// Delivery reports from operators the supply team has not reviewed.
+  final int discrepanciesOpen;
+
   @override
   List<Object?> get props => [
         operators, farmers, centersActive, centersSuspended, centersWithoutOperator,
-        ordersPending, ordersReadyForPickup, ordersToday, restockPending, lowStockItems,
+        ordersPending, ordersReadyForPickup, ordersToday, restockPending, lowStockItems, lowStockUnattended, discrepanciesOpen,
       ];
 }
 

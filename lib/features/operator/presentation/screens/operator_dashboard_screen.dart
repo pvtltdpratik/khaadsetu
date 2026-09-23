@@ -11,6 +11,8 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/sign_out_button.dart';
+import '../../center/presentation/widgets/my_center_card.dart';
+import '../widgets/operator_notification_bell.dart';
 import '../../inventory/domain/entities/inventory_item.dart';
 import '../../inventory/presentation/providers/inventory_providers.dart';
 import '../../orders/domain/entities/order.dart';
@@ -33,13 +35,12 @@ class OperatorDashboardScreen extends ConsumerWidget {
             Row(
               children: [
                 Expanded(child: Text('Dashboard', style: Theme.of(context).textTheme.headlineSmall)),
+                const OperatorNotificationBell(),
                 if (!context.breakpoint.isTabletUp) const SignOutButton(),
               ],
             ),
-            Text(
-              'Krishi Seva Kendra, Shirur',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted),
-            ),
+            AppSpacing.gapSm,
+            const MyCenterCard(),
             AppSpacing.gapLg,
             ordersAsync.when(
               data: (orders) => _SummaryCards(orders: orders, inventoryAsync: inventoryAsync),
@@ -192,7 +193,7 @@ class _LowStockAlerts extends StatelessWidget {
                     const SizedBox(width: AppSpacing.sm),
                     Expanded(child: Text(item.name, style: Theme.of(context).textTheme.bodyMedium)),
                     Text(
-                      '${item.currentStock} ${item.unit}s left',
+                      item.available <= 0 ? 'out of stock' : '${item.available} ${item.unit}${item.available == 1 ? '' : 's'} left',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.danger),
                     ),
                   ],

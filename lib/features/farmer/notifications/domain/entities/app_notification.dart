@@ -1,7 +1,22 @@
 import 'package:equatable/equatable.dart';
 
 /// What produced the notification. Decides the icon and where a tap goes.
-enum NotificationType { scan, scheme, order }
+///
+/// The server can add types over time (an operator's `stock` alerts, `restock`
+/// updates, `account` changes), so anything unrecognised parses as [other]
+/// rather than failing the whole list.
+enum NotificationType {
+  scan,
+  scheme,
+  order,
+  stock,
+  restock,
+  account,
+  other;
+
+  static NotificationType parse(Object? raw) =>
+      values.firstWhere((t) => t.name == raw, orElse: () => NotificationType.other);
+}
 
 /// Named `AppNotification` because Flutter already exports a `Notification`
 /// widget-event class that would shadow it.

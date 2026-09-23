@@ -70,22 +70,33 @@ class _FarmerBody extends StatelessWidget {
         AppSpacing.gapLg,
         Row(
           children: [
-            Expanded(child: _InfoTile(label: 'Active crop', value: farmer.activeCrop)),
+            Expanded(child: _InfoTile(label: 'Orders here', value: '${farmer.ordersCount}')),
             AppSpacing.gapSm,
-            Expanded(child: _InfoTile(label: 'Phone', value: farmer.phone)),
+            Expanded(child: _InfoTile(label: 'Last order', value: _formatDate(farmer.lastVisitDate))),
           ],
         ),
-        AppSpacing.gapSm,
-        _InfoTile(label: 'Last visit', value: _formatDate(farmer.lastVisitDate)),
-        AppSpacing.gapLg,
-        Text('Notes', style: Theme.of(context).textTheme.titleMedium),
-        AppSpacing.gapSm,
-        Container(
-          width: double.infinity,
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(color: colors.surfaceSunken, borderRadius: BorderRadius.circular(14)),
-          child: Text(farmer.notes, style: Theme.of(context).textTheme.bodyMedium),
-        ),
+        // Crop, phone and notes are only known for farmers who shared them.
+        if (farmer.activeCrop.isNotEmpty || farmer.phone.isNotEmpty) ...[
+          AppSpacing.gapSm,
+          Row(
+            children: [
+              if (farmer.activeCrop.isNotEmpty) Expanded(child: _InfoTile(label: 'Active crop', value: farmer.activeCrop)),
+              if (farmer.activeCrop.isNotEmpty && farmer.phone.isNotEmpty) AppSpacing.gapSm,
+              if (farmer.phone.isNotEmpty) Expanded(child: _InfoTile(label: 'Phone', value: farmer.phone)),
+            ],
+          ),
+        ],
+        if (farmer.notes.isNotEmpty) ...[
+          AppSpacing.gapLg,
+          Text('Notes', style: Theme.of(context).textTheme.titleMedium),
+          AppSpacing.gapSm,
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(color: colors.surfaceSunken, borderRadius: BorderRadius.circular(14)),
+            child: Text(farmer.notes, style: Theme.of(context).textTheme.bodyMedium),
+          ),
+        ],
       ],
     );
   }

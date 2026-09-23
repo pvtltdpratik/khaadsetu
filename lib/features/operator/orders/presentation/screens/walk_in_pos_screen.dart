@@ -37,9 +37,9 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
     super.dispose();
   }
 
-  void _changeQuantity(String itemId, int delta) {
+  void _changeQuantity(String itemId, int delta, {int? max}) {
     setState(() {
-      final next = (_cart[itemId] ?? 0) + delta;
+      final next = ((_cart[itemId] ?? 0) + delta).clamp(0, max ?? 1 << 30);
       if (next <= 0) {
         _cart.remove(itemId);
       } else {
@@ -53,7 +53,7 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
     try {
       final lineItems = _cart.entries.map((entry) {
         final item = items.firstWhere((i) => i.id == entry.key);
-        return OrderLineItem(productName: item.name, quantity: entry.value, unitPrice: item.unitPrice);
+        return OrderLineItem(productId: item.id, productName: item.name, quantity: entry.value, unitPrice: item.unitPrice);
       }).toList();
       final order = await ref.read(ordersRepositoryProvider).createWalkInOrder(
             customerName: _customerNameController.text.trim().isEmpty
@@ -61,7 +61,9 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
                 : _customerNameController.text.trim(),
             items: lineItems,
           );
-      ref.invalidate(ordersProvider);
+      ref
+        ..invalidate(ordersProvider)
+        ..invalidate(inventoryItemsProvider); // the shelf just got lighter
       if (!mounted) return;
       context.pushReplacement(RoutePaths.operatorOrderDetail(order.id));
     } catch (err) {
@@ -95,7 +97,9 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
             ),
             Expanded(
               child: itemsAsync.when(
-                data: (items) => SingleChildScrollView(
+                data: (items) => items.isEmpty
+                    ? _EmptyShelves(onReceive: () => context.go(RoutePaths.operatorInventory))
+                    : SingleChildScrollView(
                   padding: context.pagePadding,
                   child: ResponsiveRow(
                     spacing: AppSpacing.md,
@@ -129,7 +133,7 @@ class _ItemGrid extends StatelessWidget {
 
   final List<InventoryItem> items;
   final Map<String, int> cart;
-  final void Function(String itemId, int delta) onChangeQuantity;
+  final void Function(String itemId, int delta, {int? max}) onChangeQuantity;
 
   @override
   Widget build(BuildContext context) {
@@ -162,6 +166,18 @@ class _ItemGrid extends StatelessWidget {
                       '${formatRupees(item.unitPrice)} / ${item.unit}',
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                     ),
+                    Text(
+                      item.available <= 0
+                          ? 'Out of stock'
+                          : item.reserved > 0
+                              ? '${item.available} to sell (${item.reserved} held for app orders)'
+                              : '${item.available} to sell',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: item.available <= 0 ? colors.danger : colors.textMuted,
+                          ),
+                    ),
                   ],
                 ),
               ),
@@ -172,7 +188,7 @@ class _ItemGrid extends StatelessWidget {
               Text('$qty', style: Theme.of(context).textTheme.titleMedium),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline_rounded),
-                onPressed: () => onChangeQuantity(item.id, 1),
+                onPressed: qty < item.available ? () => onChangeQuantity(item.id, 1, max: item.available) : null,
               ),
             ],
           ),
@@ -256,6 +272,39 @@ class _CartPanel extends StatelessWidget {
             onPressed: cartItems.isEmpty ? null : onCheckout,
           ),
         ],
+      ),
+    );
+  }
+}
+
+/// A new center has nothing to sell until stock is received.
+class _EmptyShelves extends StatelessWidget {
+  const _EmptyShelves({required this.onReceive});
+
+  final VoidCallback onReceive;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(AppSpacing.xl),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.inventory_2_outlined, size: 48, color: colors.textMuted),
+            AppSpacing.gapMd,
+            Text('Your shelves are empty', style: Theme.of(context).textTheme.titleMedium),
+            AppSpacing.gapXs,
+            Text(
+              'Receive some stock first, then you can sell it here.',
+              textAlign: TextAlign.center,
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+            ),
+            AppSpacing.gapMd,
+            FilledButton(onPressed: onReceive, child: const Text('Go to inventory')),
+          ],
+        ),
       ),
     );
   }

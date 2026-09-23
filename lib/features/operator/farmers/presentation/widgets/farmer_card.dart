@@ -32,12 +32,16 @@ class FarmerCard extends StatelessWidget {
                     Text(farmer.name, style: Theme.of(context).textTheme.titleSmall),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      '${farmer.village} · ${farmer.activeCrop}',
+                      [
+                        if (farmer.village.isNotEmpty) farmer.village,
+                        if (farmer.activeCrop.isNotEmpty) farmer.activeCrop,
+                        '${farmer.ordersCount} order${farmer.ordersCount == 1 ? '' : 's'}',
+                      ].join(' · '),
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                     ),
                     const SizedBox(height: AppSpacing.xxs),
                     Text(
-                      'Last visit: ${_formatRelative(farmer.lastVisitDate)}',
+                      'Last order: ${_formatRelative(farmer.lastVisitDate)}',
                       style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted),
                     ),
                   ],

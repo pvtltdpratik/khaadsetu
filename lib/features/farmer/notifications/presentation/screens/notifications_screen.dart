@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/auth/session_profile.dart';
 import '../../../../../core/responsive/breakpoints.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
@@ -45,11 +46,19 @@ class NotificationsScreen extends ConsumerWidget {
       case NotificationType.scheme:
         context.go(RoutePaths.farmerCommunityScheme(refId));
       case NotificationType.order:
-        // The farmer app has no order screen yet; the notification text
-        // already carries the pickup code, so opening it just marks it read.
-        break;
+        // An operator opens the order to prepare it; a farmer sees their pickup code.
+        context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
+      case NotificationType.stock:
+        if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
+      case NotificationType.restock:
+        if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
+      case NotificationType.account:
+      case NotificationType.other:
+        break; // the text says it all
     }
   }
+
+  bool _isOperator(WidgetRef ref) => ref.read(sessionProfileProvider).value?.role == AppRole.operator;
 
   Future<void> _markAllRead(BuildContext context, WidgetRef ref) async {
     try {
@@ -73,6 +82,8 @@ class NotificationsScreen extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final notificationsAsync = ref.watch(notificationsProvider);
+    // The back button and where a tap leads depend on the role, so keep it loaded.
+    ref.watch(sessionProfileProvider);
     final hasUnread =
         notificationsAsync.asData?.value.any((n) => !n.isRead) ?? false;
 
@@ -91,7 +102,7 @@ class NotificationsScreen extends ConsumerWidget {
                     icon: const Icon(Icons.arrow_back_rounded),
                     onPressed: () => context.canPop()
                         ? context.pop()
-                        : context.go(RoutePaths.farmerHome),
+                        : context.go(_isOperator(ref) ? RoutePaths.operatorDashboard : RoutePaths.farmerHome),
                   ),
                   AppSpacing.gapSm,
                   Expanded(

@@ -21,4 +21,22 @@ class InventoryRepositoryImpl implements InventoryRepository {
     required int quantity,
   }) =>
       _dataSource.requestRestock(itemId: itemId, quantity: quantity);
+
+  @override
+  Future<ReceiveResult> receiveStock({
+    required String productId,
+    required int quantity,
+    int? expectedQuantity,
+    String? note,
+  }) =>
+      _dataSource.receiveStock(productId: productId, quantity: quantity, expectedQuantity: expectedQuantity, note: note);
+
+  @override
+  Future<InventoryItem> updateSettings({
+    required String productId,
+    int? reorderLevel,
+    int? maxCapacity,
+    bool clearCapacity = false,
+  }) =>
+      _dataSource.updateSettings(productId: productId, reorderLevel: reorderLevel, maxCapacity: maxCapacity, clearCapacity: clearCapacity);
 }

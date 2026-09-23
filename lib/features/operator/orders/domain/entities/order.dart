@@ -12,8 +12,11 @@ class OrderLineItem extends Equatable {
     required this.productName,
     required this.quantity,
     required this.unitPrice,
+    this.productId,
   });
 
+  /// The catalog product, which is what a walk-in sale is taken off the shelf by.
+  final String? productId;
   final String productName;
   final int quantity;
   final double unitPrice;
@@ -21,7 +24,7 @@ class OrderLineItem extends Equatable {
   double get subtotal => quantity * unitPrice;
 
   @override
-  List<Object?> get props => [productName, quantity, unitPrice];
+  List<Object?> get props => [productName, quantity, unitPrice, productId];
 }
 
 class Order extends Equatable {

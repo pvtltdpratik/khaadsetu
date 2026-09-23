@@ -22,7 +22,7 @@ class NotificationsApiDataSource {
   AppNotification _parse(Map<String, dynamic> json) {
     return AppNotification(
       id: json['id'] as String,
-      type: NotificationType.values.byName(json['type'] as String),
+      type: NotificationType.parse(json['type']),
       title: json['title'] as String,
       body: json['body'] as String,
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),

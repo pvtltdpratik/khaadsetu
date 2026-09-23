@@ -87,6 +87,10 @@ class _OverviewBody extends StatelessWidget {
         ),
       if (o.restockPending > 0)
         _AttentionTile(icon: Icons.local_shipping_outlined, color: colors.info, text: '${o.restockPending} restock request${o.restockPending == 1 ? '' : 's'} pending approval'),
+      if (o.lowStockUnattended > 0)
+        _AttentionTile(icon: Icons.notification_important_outlined, color: colors.danger, text: '${o.lowStockUnattended} product${o.lowStockUnattended == 1 ? '' : 's'} still low a day after the operator was alerted'),
+      if (o.discrepanciesOpen > 0)
+        _AttentionTile(icon: Icons.fact_check_outlined, color: colors.warning, text: '${o.discrepanciesOpen} delivery report${o.discrepanciesOpen == 1 ? '' : 's'} to review'),
       if (o.lowStockItems > 0)
         _AttentionTile(icon: Icons.inventory_2_outlined, color: colors.danger, text: '${o.lowStockItems} product${o.lowStockItems == 1 ? '' : 's'} running low across centers'),
     ];

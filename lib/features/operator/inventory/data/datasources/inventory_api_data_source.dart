@@ -8,8 +8,8 @@ class InventoryApiDataSource {
   final ApiClient _api;
 
   Future<List<InventoryItem>> fetchItems() async {
-    final list = await _api.get('/v1/operator/inventory/items') as List;
-    return list.map((e) => _parseItem(e as Map<String, dynamic>)).toList();
+    final list = await _api.get('/v1/operator/inventory/items', query: {'limit': '200'}) as List;
+    return list.map((e) => InventoryItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
   Future<List<RestockRequest>> fetchRestockRequests() async {
@@ -28,15 +28,36 @@ class InventoryApiDataSource {
     return _parseRequest(json);
   }
 
-  InventoryItem _parseItem(Map<String, dynamic> json) {
-    return InventoryItem(
-      id: json['id'] as String,
-      name: json['name'] as String,
-      unit: json['unit'] as String,
-      unitPrice: (json['unitPrice'] as num).toDouble(),
-      currentStock: (json['currentStock'] as num).toInt(),
-      lowStockThreshold: (json['lowStockThreshold'] as num).toInt(),
+  Future<ReceiveResult> receiveStock({
+    required String productId,
+    required int quantity,
+    int? expectedQuantity,
+    String? note,
+  }) async {
+    final json = await _api.post('/v1/operator/inventory/receive', body: {
+      'productId': productId,
+      'quantity': quantity,
+      'expectedQuantity': ?expectedQuantity,
+      if (note != null && note.trim().isNotEmpty) 'note': note.trim(),
+    }) as Map<String, dynamic>;
+    final d = json['discrepancy'] as Map<String, dynamic>?;
+    return ReceiveResult(
+      item: InventoryItem.fromJson(json),
+      discrepancy: d == null ? null : DiscrepancyReport(expected: (d['expected'] as num).toInt(), received: (d['received'] as num).toInt()),
     );
+  }
+
+  Future<InventoryItem> updateSettings({
+    required String productId,
+    int? reorderLevel,
+    int? maxCapacity,
+    bool clearCapacity = false,
+  }) async {
+    final json = await _api.patch('/v1/operator/inventory/items/${Uri.encodeComponent(productId)}', body: {
+      'reorderLevel': ?reorderLevel,
+      if (clearCapacity) 'maxCapacity': null else 'maxCapacity': ?maxCapacity,
+    }) as Map<String, dynamic>;
+    return InventoryItem.fromJson(json);
   }
 
   RestockRequest _parseRequest(Map<String, dynamic> json) {
