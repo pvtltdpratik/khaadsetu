@@ -10,7 +10,7 @@ import 'api_config.dart';
 /// worded for the UI (the server sends `{"error": "..."}` for every failure),
 /// so screens can show it directly.
 class ApiException implements Exception {
-  ApiException(this.message, {this.statusCode, this.code});
+  ApiException(this.message, {this.statusCode, this.code, this.details});
 
   final String message;
   final int? statusCode;
@@ -18,6 +18,10 @@ class ApiException implements Exception {
   /// The server's machine-readable reason, when it sends one
   /// (e.g. `account_suspended`, `out_of_stock`).
   final String? code;
+
+  /// The rest of the server's error body (e.g. `alternatives` when an item
+  /// just sold out).
+  final Map<String, dynamic>? details;
 
   @override
   String toString() => message;
@@ -143,7 +147,7 @@ class ApiClient {
           : 'Server returned ${response.statusCode}.';
       final code = body is Map && body['code'] is String ? body['code'] as String : null;
       if (code == 'account_suspended') _onAccountSuspended?.call();
-      throw ApiException(message, statusCode: response.statusCode, code: code);
+      throw ApiException(message, statusCode: response.statusCode, code: code, details: body is Map<String, dynamic> ? body : null);
     }
     return body;
   }

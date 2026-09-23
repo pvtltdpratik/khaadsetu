@@ -22,7 +22,10 @@ import '../../features/farmer/soil_health/presentation/screens/soil_scan_result_
 import '../../features/farmer/marketplace/presentation/screens/marketplace_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_comparison_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_detail_screen.dart';
+import '../../features/farmer/centers/presentation/screens/nearby_centers_screen.dart';
+import '../../features/farmer/centers/presentation/screens/village_picker_screen.dart';
 import '../../features/farmer/community/presentation/screens/community_feed_screen.dart';
+import '../../features/farmer/orders/presentation/screens/my_orders_screen.dart';
 import '../../features/farmer/community/presentation/screens/create_post_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
@@ -149,6 +152,24 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => ProductDetailScreen(
                       productId: state.pathParameters['productId']!,
                     ),
+                  ),
+                  GoRoute(
+                    path: 'centers',
+                    builder: (context, state) => NearbyCentersScreen(args: state.extra is NearbyCentersArgs ? state.extra! as NearbyCentersArgs : const NearbyCentersArgs()),
+                  ),
+                  GoRoute(
+                    path: 'location',
+                    builder: (context, state) => const VillagePickerScreen(),
+                  ),
+                  GoRoute(
+                    path: 'orders',
+                    builder: (context, state) => const MyOrdersScreen(),
+                    routes: [
+                      GoRoute(
+                        path: ':orderId',
+                        builder: (context, state) => FarmerOrderDetailScreen(orderId: state.pathParameters['orderId']!),
+                      ),
+                    ],
                   ),
                   GoRoute(
                     path: 'compare/:idA/:idB',

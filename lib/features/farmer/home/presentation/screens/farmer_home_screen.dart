@@ -73,6 +73,16 @@ class FarmerHomeScreen extends ConsumerWidget {
                   label: 'Community',
                   onTap: () => context.go(RoutePaths.farmerCommunity),
                 ),
+                QuickAction(
+                  icon: Icons.location_on_outlined,
+                  label: 'Nearby Centers',
+                  onTap: () => context.push(RoutePaths.farmerCenters),
+                ),
+                QuickAction(
+                  icon: Icons.receipt_long_outlined,
+                  label: 'My Orders',
+                  onTap: () => context.push(RoutePaths.farmerOrders),
+                ),
               ],
             ),
           ],

@@ -40,6 +40,12 @@ class RoutePaths {
   static String farmerMarketplaceProduct(String productId) =>
       '/farmer/marketplace/product/$productId';
 
+  // Village centers and orders live under the marketplace tab.
+  static const farmerCenters = '/farmer/marketplace/centers';
+  static const farmerChooseVillage = '/farmer/marketplace/location';
+  static const farmerOrders = '/farmer/marketplace/orders';
+  static String farmerOrder(String orderId) => '/farmer/marketplace/orders/${Uri.encodeComponent(orderId)}';
+
   static const farmerMarketplaceComparePattern = '/farmer/marketplace/compare/:idA/:idB';
   static String farmerMarketplaceCompare(String idA, String idB) =>
       '/farmer/marketplace/compare/$idA/$idB';
