@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/theme/app_colors.dart';
-import '../../domain/entities/forum_post.dart';
+import '../../domain/entities/community_post.dart';
 
 class ProblemTypeStyle {
   const ProblemTypeStyle._();

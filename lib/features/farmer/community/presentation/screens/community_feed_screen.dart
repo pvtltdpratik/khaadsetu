@@ -1,19 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:go_router/go_router.dart';
 
 import '../../../../../core/responsive/responsive.dart';
-import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../../core/widgets/tag_filter_row.dart';
 import '../../../schemes/presentation/screens/schemes_list_view.dart';
-import '../../domain/entities/forum_post.dart';
+import '../../domain/entities/community_post.dart';
 import '../providers/community_providers.dart';
-import '../widgets/forum_post_card.dart';
+import '../widgets/community_post_card.dart';
 import '../widgets/problem_type_style.dart';
+
+// No "distinct crop/district values" endpoint exists on the server (crop and
+// district are free text, unlike problem type), so the filter chips offer a
+// small curated list matching what's actually in the seed data rather than
+// every value a farmer might type into a post.
+const _kCrops = ['Wheat', 'Cotton', 'Onion', 'Sugarcane', 'Soybean', 'Rice', 'Mustard', 'Grapes', 'Okra'];
+const _kDistricts = ['Pune', 'Aurangabad', 'Nashik', 'Kolhapur', 'Solapur'];
 
 class CommunityFeedScreen extends ConsumerStatefulWidget {
   const CommunityFeedScreen({super.key});
@@ -24,9 +29,29 @@ class CommunityFeedScreen extends ConsumerStatefulWidget {
 
 class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
   int _section = 0; // 0 = Forum, 1 = Schemes
-  String? _cropFilter;
-  String? _districtFilter;
-  ProblemType? _problemFilter;
+  late final ScrollController _scrollController;
+
+  @override
+  void initState() {
+    super.initState();
+    _scrollController = ScrollController()..addListener(_onScroll);
+  }
+
+  @override
+  void dispose() {
+    _scrollController
+      ..removeListener(_onScroll)
+      ..dispose();
+    super.dispose();
+  }
+
+  void _onScroll() {
+    if (!_scrollController.hasClients) return;
+    final position = _scrollController.position;
+    if (position.pixels >= position.maxScrollExtent - 200) {
+      ref.read(communityFeedProvider.notifier).loadMore();
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,75 +88,130 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
   }
 
   Widget _buildForum(BuildContext context) {
-    final postsAsync = ref.watch(forumPostsProvider);
+    final feedAsync = ref.watch(communityFeedProvider);
+    final colors = context.colors;
 
-    return postsAsync.when(
-      data: (posts) {
-        final crops = posts.map((p) => p.crop).toSet().toList()..sort();
-        final districts = posts.map((p) => p.district).toSet().toList()..sort();
-        final filtered = posts.where((p) {
-          if (_cropFilter != null && p.crop != _cropFilter) return false;
-          if (_districtFilter != null && p.district != _districtFilter) return false;
-          if (_problemFilter != null && p.problemType != _problemFilter) return false;
-          return true;
-        }).toList();
+    return feedAsync.when(
+      data: (feed) {
+        final isTabletUp = context.breakpoint.isTabletUp;
 
-        return Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
-              child: Column(
-                children: [
-                  TagFilterRow<String>(
-                    label: 'Crop',
-                    options: crops,
-                    selected: _cropFilter,
-                    labelBuilder: (c) => c,
-                    onChanged: (c) => setState(() => _cropFilter = c),
-                  ),
-                  AppSpacing.gapSm,
-                  TagFilterRow<String>(
-                    label: 'District',
-                    options: districts,
-                    selected: _districtFilter,
-                    labelBuilder: (d) => d,
-                    onChanged: (d) => setState(() => _districtFilter = d),
-                  ),
-                  AppSpacing.gapSm,
-                  TagFilterRow<ProblemType>(
-                    label: 'Problem type',
-                    options: ProblemType.values,
-                    selected: _problemFilter,
-                    labelBuilder: ProblemTypeStyle.labelFor,
-                    onChanged: (p) => setState(() => _problemFilter = p),
-                  ),
-                ],
-              ),
-            ),
-            AppSpacing.gapSm,
-            Expanded(
-              child: filtered.isEmpty
-                  ? Center(
-                      child: Text(
-                        'No posts match these filters',
-                        style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted),
+        return RefreshIndicator(
+          onRefresh: () => ref.read(communityFeedProvider.notifier).refresh(),
+          child: CustomScrollView(
+            controller: _scrollController,
+            // Pull-to-refresh needs at least one always-scrollable physics,
+            // even when there are too few posts to fill the viewport.
+            physics: const AlwaysScrollableScrollPhysics(),
+            slivers: [
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(AppSpacing.md, 0, AppSpacing.md, 0),
+                sliver: SliverToBoxAdapter(
+                  child: Column(
+                    children: [
+                      TagFilterRow<String>(
+                        label: 'Crop',
+                        options: _kCrops,
+                        selected: feed.filters.crop,
+                        labelBuilder: (c) => c,
+                        onChanged: (c) => ref.read(communityFeedProvider.notifier).setFilters(
+                              CommunityFilters(crop: c, district: feed.filters.district, problemType: feed.filters.problemType),
+                            ),
                       ),
-                    )
-                  : ListView.separated(
-                      padding: context.pagePadding,
-                      itemCount: filtered.length,
-                      separatorBuilder: (_, _) => AppSpacing.gapSm,
-                      itemBuilder: (context, i) => ForumPostCard(
-                        post: filtered[i],
-                        onTap: () => context.push(RoutePaths.farmerCommunityPost(filtered[i].id)),
+                      AppSpacing.gapSm,
+                      TagFilterRow<String>(
+                        label: 'District',
+                        options: _kDistricts,
+                        selected: feed.filters.district,
+                        labelBuilder: (d) => d,
+                        onChanged: (d) => ref.read(communityFeedProvider.notifier).setFilters(
+                              CommunityFilters(crop: feed.filters.crop, district: d, problemType: feed.filters.problemType),
+                            ),
+                      ),
+                      AppSpacing.gapSm,
+                      TagFilterRow<ProblemType>(
+                        label: 'Problem type',
+                        options: ProblemType.values,
+                        selected: feed.filters.problemType,
+                        labelBuilder: ProblemTypeStyle.labelFor,
+                        onChanged: (p) => ref.read(communityFeedProvider.notifier).setFilters(
+                              CommunityFilters(crop: feed.filters.crop, district: feed.filters.district, problemType: p),
+                            ),
+                      ),
+                      AppSpacing.gapSm,
+                    ],
+                  ),
+                ),
+              ),
+              if (feed.posts.isEmpty)
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Center(
+                    child: Padding(
+                      padding: const EdgeInsets.all(AppSpacing.xl),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.forum_outlined, size: 40, color: colors.textMuted),
+                          AppSpacing.gapSm,
+                          Text(
+                            'No posts match these filters',
+                            textAlign: TextAlign.center,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+                          ),
+                        ],
                       ),
                     ),
-            ),
-          ],
+                  ),
+                )
+              else if (isTabletUp)
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  sliver: SliverGrid(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: context.gridColumns,
+                      crossAxisSpacing: AppSpacing.sm,
+                      mainAxisSpacing: AppSpacing.sm,
+                      childAspectRatio: 1.6,
+                    ),
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) => CommunityPostCard(post: feed.posts[i], onTap: () => _showComingSoon(context)),
+                      childCount: feed.posts.length,
+                    ),
+                  ),
+                )
+              else
+                SliverPadding(
+                  padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+                  sliver: SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, i) => Padding(
+                        padding: const EdgeInsets.only(bottom: AppSpacing.sm),
+                        child: CommunityPostCard(post: feed.posts[i], onTap: () => _showComingSoon(context)),
+                      ),
+                      childCount: feed.posts.length,
+                    ),
+                  ),
+                ),
+              if (feed.isLoadingMore)
+                const SliverToBoxAdapter(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(vertical: AppSpacing.lg),
+                    child: Center(child: CircularProgressIndicator()),
+                  ),
+                ),
+              const SliverToBoxAdapter(child: SizedBox(height: AppSpacing.md)),
+            ],
+          ),
         );
       },
       loading: () => const AppLoadingIndicator(),
-      error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(forumPostsProvider)),
+      error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(communityFeedProvider)),
+    );
+  }
+
+  void _showComingSoon(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Post details are coming in a future update')),
     );
   }
 }
