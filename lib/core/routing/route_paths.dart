@@ -4,6 +4,19 @@ class RoutePaths {
   const RoutePaths._();
 
   static const root = '/';
+  static const suspended = '/suspended';
+  static const pendingOperator = '/pending-operator';
+
+  // Platform admin panel.
+  static const adminRoot = '/admin';
+  static const adminOverview = '/admin/overview';
+  static const adminOperators = '/admin/operators';
+  static const adminFarmers = '/admin/farmers';
+  static const adminCenters = '/admin/centers';
+  static const adminCenterNew = '/admin/centers/new';
+  static String adminOperator(String userId) => '/admin/operators/${Uri.encodeComponent(userId)}';
+  static String adminFarmer(String userId) => '/admin/farmers/${Uri.encodeComponent(userId)}';
+  static String adminCenter(String centerId) => '/admin/centers/${Uri.encodeComponent(centerId)}';
   static const signIn = '/sign-in';
   static const signUp = '/sign-up';
 

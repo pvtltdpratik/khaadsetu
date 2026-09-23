@@ -10,10 +10,14 @@ import 'api_config.dart';
 /// worded for the UI (the server sends `{"error": "..."}` for every failure),
 /// so screens can show it directly.
 class ApiException implements Exception {
-  ApiException(this.message, {this.statusCode});
+  ApiException(this.message, {this.statusCode, this.code});
 
   final String message;
   final int? statusCode;
+
+  /// The server's machine-readable reason, when it sends one
+  /// (e.g. `account_suspended`, `out_of_stock`).
+  final String? code;
 
   @override
   String toString() => message;
@@ -29,10 +33,12 @@ class ApiClient {
     required Future<String> Function() deviceId,
     Future<String?> Function()? accessToken,
     void Function()? onUnauthorized,
+    void Function()? onAccountSuspended,
   })  : _client = client ?? http.Client(),
         _deviceId = deviceId,
         _accessToken = accessToken,
-        _onUnauthorized = onUnauthorized;
+        _onUnauthorized = onUnauthorized,
+        _onAccountSuspended = onAccountSuspended;
 
   final http.Client _client;
   final Future<String> Function() _deviceId;
@@ -45,6 +51,10 @@ class ApiClient {
   /// Called when the server rejects the token (expired beyond refresh, or
   /// revoked), so the app can send the user back to sign-in.
   final void Function()? _onUnauthorized;
+
+  /// Called when the server says the account has been suspended, so the app
+  /// can refresh who the user is and show the suspended screen.
+  final void Function()? _onAccountSuspended;
 
   static const _timeout = Duration(seconds: 20);
 
@@ -76,6 +86,13 @@ class ApiClient {
     final headers = await _headers(json: true);
     return _decode(await _guard(() => _client
         .post(_uri(path), headers: headers, body: body == null ? null : jsonEncode(body))
+        .timeout(_timeout)));
+  }
+
+  Future<dynamic> patch(String path, {Object? body}) async {
+    final headers = await _headers(json: true);
+    return _decode(await _guard(() => _client
+        .patch(_uri(path), headers: headers, body: body == null ? null : jsonEncode(body))
         .timeout(_timeout)));
   }
 
@@ -124,7 +141,9 @@ class ApiClient {
       final message = body is Map && body['error'] is String
           ? body['error'] as String
           : 'Server returned ${response.statusCode}.';
-      throw ApiException(message, statusCode: response.statusCode);
+      final code = body is Map && body['code'] is String ? body['code'] as String : null;
+      if (code == 'account_suspended') _onAccountSuspended?.call();
+      throw ApiException(message, statusCode: response.statusCode, code: code);
     }
     return body;
   }

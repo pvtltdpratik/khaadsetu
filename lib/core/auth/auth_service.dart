@@ -27,16 +27,6 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
 
-  /// The signed-in user's role, or null for a signed-out user or an account
-  /// created before roles existed.
-  UserRole? get currentRole => UserRole.fromMetadata(_auth.currentUser?.userMetadata);
-
-  /// Saves the role on the account (used by the one-time chooser). The SDK
-  /// emits a user-updated event, which re-runs the router's redirect.
-  Future<void> setRole(UserRole role) {
-    return _guard(() => _auth.updateUser(UserAttributes(data: {UserRole.metadataKey: role.name})));
-  }
-
   Future<void> signIn({required String email, required String password}) {
     return _guard(() => _auth.signInWithPassword(email: email.trim(), password: password));
   }
