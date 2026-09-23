@@ -13,8 +13,67 @@ import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../inventory/domain/entities/inventory_item.dart';
 import '../../../inventory/presentation/providers/inventory_providers.dart';
+import '../../../surplus/domain/entities/surplus_lot.dart';
+import '../../../surplus/presentation/providers/surplus_providers.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_providers.dart';
+
+/// One thing the till can sell: a shelf product, or a batch of discounted
+/// surplus units. Both are limited to what is [available] (not held for app
+/// orders) and both know their price, so the cart and the grid treat them alike.
+class Sellable {
+  const Sellable({
+    required this.key,
+    required this.name,
+    required this.unit,
+    required this.price,
+    required this.available,
+    required this.reserved,
+    this.productId,
+    this.surplusLotId,
+    this.note,
+  });
+
+  factory Sellable.fromItem(InventoryItem i) => Sellable(
+        key: i.id,
+        productId: i.id,
+        name: i.name,
+        unit: i.unit,
+        price: i.unitPrice,
+        available: i.available,
+        reserved: i.reserved,
+      );
+
+  factory Sellable.fromLot(SurplusLot l) => Sellable(
+        key: 'lot:${l.id}',
+        productId: l.productId,
+        surplusLotId: l.id,
+        name: l.productName,
+        unit: l.unit,
+        price: l.unitPrice,
+        available: l.available,
+        reserved: l.reserved,
+        note: '${l.condition.label} · ${l.discountPercent}% off',
+      );
+
+  /// The cart key: the product id, or `lot:<id>` for surplus, so the same
+  /// product from the shelf and from a lot are separate lines.
+  final String key;
+  final String? productId;
+  final String? surplusLotId;
+  final String name;
+  final String unit;
+  final double price;
+  final int available;
+  final int reserved;
+
+  /// For surplus: why it is cheaper and by how much.
+  final String? note;
+
+  bool get isSurplus => surplusLotId != null;
+
+  String get title => isSurplus ? '$name (surplus)' : name;
+}
 
 /// A real point-of-sale layout on tablet/desktop — item grid alongside a
 /// fixed cart panel, the way an actual till works — collapsing to a stacked
@@ -27,7 +86,7 @@ class WalkInPosScreen extends ConsumerStatefulWidget {
 }
 
 class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
-  final Map<String, int> _cart = {}; // itemId -> quantity
+  final Map<String, int> _cart = {}; // Sellable.key -> quantity
   final _customerNameController = TextEditingController();
   bool _isCheckingOut = false;
 
@@ -37,23 +96,23 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
     super.dispose();
   }
 
-  void _changeQuantity(String itemId, int delta, {int? max}) {
+  void _changeQuantity(String key, int delta, {int? max}) {
     setState(() {
-      final next = ((_cart[itemId] ?? 0) + delta).clamp(0, max ?? 1 << 30);
+      final next = ((_cart[key] ?? 0) + delta).clamp(0, max ?? 1 << 30);
       if (next <= 0) {
-        _cart.remove(itemId);
+        _cart.remove(key);
       } else {
-        _cart[itemId] = next;
+        _cart[key] = next;
       }
     });
   }
 
-  Future<void> _checkout(List<InventoryItem> items) async {
+  Future<void> _checkout(List<Sellable> sellables) async {
     setState(() => _isCheckingOut = true);
     try {
       final lineItems = _cart.entries.map((entry) {
-        final item = items.firstWhere((i) => i.id == entry.key);
-        return OrderLineItem(productId: item.id, productName: item.name, quantity: entry.value, unitPrice: item.unitPrice);
+        final s = sellables.firstWhere((i) => i.key == entry.key);
+        return OrderLineItem(productId: s.productId, surplusLotId: s.surplusLotId, productName: s.name, quantity: entry.value, unitPrice: s.price);
       }).toList();
       final order = await ref.read(ordersRepositoryProvider).createWalkInOrder(
             customerName: _customerNameController.text.trim().isEmpty
@@ -61,9 +120,8 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
                 : _customerNameController.text.trim(),
             items: lineItems,
           );
-      ref
-        ..invalidate(ordersProvider)
-        ..invalidate(inventoryItemsProvider); // the shelf just got lighter
+      ref.invalidate(ordersProvider);
+      refreshSurplus(ref); // the shelf and the lots just got lighter
       if (!mounted) return;
       context.pushReplacement(RoutePaths.operatorOrderDetail(order.id));
     } catch (err) {
@@ -76,6 +134,8 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
   @override
   Widget build(BuildContext context) {
     final itemsAsync = ref.watch(inventoryItemsProvider);
+    // Surplus is a bonus: if it cannot be loaded the till still sells the shelf.
+    final lots = ref.watch(surplusLotsProvider).asData?.value ?? const <SurplusLot>[];
 
     return ResponsiveScope(
       child: SafeArea(
@@ -97,26 +157,41 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
             ),
             Expanded(
               child: itemsAsync.when(
-                data: (items) => items.isEmpty
-                    ? _EmptyShelves(onReceive: () => context.go(RoutePaths.operatorInventory))
-                    : SingleChildScrollView(
-                  padding: context.pagePadding,
-                  child: ResponsiveRow(
-                    spacing: AppSpacing.md,
-                    flexes: const [2, 1],
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _ItemGrid(items: items, cart: _cart, onChangeQuantity: _changeQuantity),
-                      _CartPanel(
-                        items: items,
-                        cart: _cart,
-                        customerNameController: _customerNameController,
-                        isCheckingOut: _isCheckingOut,
-                        onCheckout: () => _checkout(items),
-                      ),
-                    ],
-                  ),
-                ),
+                data: (items) {
+                  final shelf = [for (final i in items) Sellable.fromItem(i)];
+                  final surplus = [for (final l in lots.where((l) => l.isOnSale && l.available > 0)) Sellable.fromLot(l)];
+                  if (shelf.isEmpty && surplus.isEmpty) return _EmptyShelves(onReceive: () => context.go(RoutePaths.operatorInventory));
+                  final all = [...shelf, ...surplus];
+                  return SingleChildScrollView(
+                    padding: context.pagePadding,
+                    child: ResponsiveRow(
+                      spacing: AppSpacing.md,
+                      flexes: const [2, 1],
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            _ItemGrid(items: shelf, cart: _cart, onChangeQuantity: _changeQuantity),
+                            if (surplus.isNotEmpty) ...[
+                              AppSpacing.gapMd,
+                              Text('Surplus (cheaper)', style: Theme.of(context).textTheme.titleMedium),
+                              AppSpacing.gapSm,
+                              _ItemGrid(items: surplus, cart: _cart, onChangeQuantity: _changeQuantity),
+                            ],
+                          ],
+                        ),
+                        _CartPanel(
+                          items: all,
+                          cart: _cart,
+                          customerNameController: _customerNameController,
+                          isCheckingOut: _isCheckingOut,
+                          onCheckout: () => _checkout(all),
+                        ),
+                      ],
+                    ),
+                  );
+                },
                 loading: () => const AppLoadingIndicator(),
                 error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(inventoryItemsProvider)),
               ),
@@ -131,9 +206,9 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
 class _ItemGrid extends StatelessWidget {
   const _ItemGrid({required this.items, required this.cart, required this.onChangeQuantity});
 
-  final List<InventoryItem> items;
+  final List<Sellable> items;
   final Map<String, int> cart;
-  final void Function(String itemId, int delta, {int? max}) onChangeQuantity;
+  final void Function(String key, int delta, {int? max}) onChangeQuantity;
 
   @override
   Widget build(BuildContext context) {
@@ -149,11 +224,14 @@ class _ItemGrid extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         final item = items[i];
-        final qty = cart[item.id] ?? 0;
+        final qty = cart[item.key] ?? 0;
         final colors = context.colors;
         return Container(
           padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(border: Border.all(color: colors.border), borderRadius: BorderRadius.circular(14)),
+          decoration: BoxDecoration(
+            border: Border.all(color: item.isSurplus ? colors.success.withValues(alpha: 0.6) : colors.border),
+            borderRadius: BorderRadius.circular(14),
+          ),
           child: Row(
             children: [
               Expanded(
@@ -161,9 +239,11 @@ class _ItemGrid extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(item.name, style: Theme.of(context).textTheme.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                    Text(item.title, style: Theme.of(context).textTheme.titleSmall, maxLines: 1, overflow: TextOverflow.ellipsis),
                     Text(
-                      '${formatRupees(item.unitPrice)} / ${item.unit}',
+                      '${formatRupees(item.price)} / ${item.unit}${item.note == null ? '' : ' · ${item.note}'}',
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                     ),
                     Text(
@@ -183,12 +263,12 @@ class _ItemGrid extends StatelessWidget {
               ),
               IconButton(
                 icon: const Icon(Icons.remove_circle_outline_rounded),
-                onPressed: qty > 0 ? () => onChangeQuantity(item.id, -1) : null,
+                onPressed: qty > 0 ? () => onChangeQuantity(item.key, -1) : null,
               ),
               Text('$qty', style: Theme.of(context).textTheme.titleMedium),
               IconButton(
                 icon: const Icon(Icons.add_circle_outline_rounded),
-                onPressed: qty < item.available ? () => onChangeQuantity(item.id, 1, max: item.available) : null,
+                onPressed: qty < item.available ? () => onChangeQuantity(item.key, 1, max: item.available) : null,
               ),
             ],
           ),
@@ -207,7 +287,7 @@ class _CartPanel extends StatelessWidget {
     required this.onCheckout,
   });
 
-  final List<InventoryItem> items;
+  final List<Sellable> items;
   final Map<String, int> cart;
   final TextEditingController customerNameController;
   final bool isCheckingOut;
@@ -216,8 +296,8 @@ class _CartPanel extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    final cartItems = cart.entries.map((e) => (items.firstWhere((i) => i.id == e.key), e.value)).toList();
-    final total = cartItems.fold<double>(0, (sum, e) => sum + e.$1.unitPrice * e.$2);
+    final cartItems = cart.entries.map((e) => (items.firstWhere((i) => i.key == e.key), e.value)).toList();
+    final total = cartItems.fold<double>(0, (sum, e) => sum + e.$1.price * e.$2);
 
     return Container(
       padding: const EdgeInsets.all(AppSpacing.md),
@@ -246,13 +326,13 @@ class _CartPanel extends StatelessWidget {
                   children: [
                     Expanded(
                       child: Text(
-                        '${item.name} × $qty',
+                        '${item.title} × $qty',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                         style: Theme.of(context).textTheme.bodyMedium,
                       ),
                     ),
-                    Text(formatRupees(item.unitPrice * qty), style: Theme.of(context).textTheme.bodyMedium),
+                    Text(formatRupees(item.price * qty), style: Theme.of(context).textTheme.bodyMedium),
                   ],
                 ),
               ),

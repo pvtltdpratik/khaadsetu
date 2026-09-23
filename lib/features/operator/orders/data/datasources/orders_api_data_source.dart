@@ -38,7 +38,13 @@ class OrdersApiDataSource {
       'customerName': customerName,
       'items': [
         for (final i in items)
-          {'productId': ?i.productId, 'productName': i.productName, 'quantity': i.quantity, 'unitPrice': i.unitPrice},
+          {
+            // A surplus line names its lot; the server takes the product from it.
+            if (i.isSurplus) 'surplusLotId': i.surplusLotId else 'productId': ?i.productId,
+            'productName': i.productName,
+            'quantity': i.quantity,
+            'unitPrice': i.unitPrice,
+          },
       ],
     }) as Map<String, dynamic>;
     return _parse(json);
@@ -56,6 +62,7 @@ class OrdersApiDataSource {
                 productName: m['productName'] as String,
                 quantity: (m['quantity'] as num).toInt(),
                 unitPrice: (m['unitPrice'] as num).toDouble(),
+                surplusLotId: m['surplusLotId'] as String?,
               ))
           .toList(),
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
