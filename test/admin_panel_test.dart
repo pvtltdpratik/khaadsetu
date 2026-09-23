@@ -11,6 +11,7 @@ import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_peo
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_supply_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/admin_user_detail_screen.dart';
 import 'package:khaadsetu_version1/features/admin/presentation/screens/create_center_screen.dart';
+import 'package:khaadsetu_version1/features/operator/surplus/domain/entities/surplus_lot.dart';
 
 AdminUser _user(String id, String name, PersonRole role, PersonSegment segment, {String? center, String? village, String status = 'active'}) => AdminUser(
       userId: id,
@@ -76,6 +77,8 @@ class FakeAdminRepository implements AdminRepository {
         ordersToday: 5,
         restockPending: 2,
         lowStockItems: 3,
+        surplusActiveLots: 4,
+        surplusUnits: 17,
       );
 
   @override
@@ -168,6 +171,77 @@ class FakeAdminRepository implements AdminRepository {
     const StockDiscrepancy(id: 'd2', centerId: 'c1', centerName: 'Center A', productName: 'Urea', expected: 5, received: 5, note: '', resolved: true, resolutionNote: 'Recount done'),
   ];
   final restockMoves = <String>[];
+  final surplus_ = [
+    AdminSurplusLot(
+      lot: SurplusLot(
+        id: 's1',
+        productId: 'p-neemcake',
+        productName: 'Neem Cake',
+        unit: 'bag',
+        catalogPrice: 600,
+        unitPrice: 450,
+        quantity: 5,
+        reserved: 2,
+        condition: SurplusCondition.nearExpiry,
+        status: SurplusStatus.active,
+        bestBefore: DateTime(2026, 11, 30),
+        note: 'Torn bags',
+      ),
+      centerId: 'c1',
+      centerName: 'Center A',
+      village: 'Shirur',
+    ),
+    const AdminSurplusLot(
+      lot: SurplusLot(
+        id: 's2',
+        productId: 'p-verm',
+        productName: 'Vermicompost',
+        unit: 'bag',
+        catalogPrice: 450,
+        unitPrice: 300,
+        quantity: 0,
+        reserved: 0,
+        condition: SurplusCondition.other,
+        status: SurplusStatus.soldOut,
+      ),
+      centerId: 'c2',
+      centerName: 'Orphan Center',
+      village: 'Paithan',
+    ),
+  ];
+  final surplusWithdrawals = <String>[];
+  bool failNextWithdraw = false;
+
+  @override
+  Future<List<AdminSurplusLot>> surplusLots({int limit = 100}) async => [...surplus_];
+
+  @override
+  Future<void> withdrawSurplus(String id, {String? reason}) async {
+    if (failNextWithdraw) {
+      failNextWithdraw = false;
+      throw Exception('That lot is already withdrawn');
+    }
+    surplusWithdrawals.add('$id:${reason ?? ''}');
+    final i = surplus_.indexWhere((l) => l.lot.id == id);
+    final l = surplus_[i].lot;
+    surplus_[i] = AdminSurplusLot(
+      lot: SurplusLot(
+        id: l.id,
+        productId: l.productId,
+        productName: l.productName,
+        unit: l.unit,
+        catalogPrice: l.catalogPrice,
+        unitPrice: l.unitPrice,
+        quantity: l.reserved,
+        reserved: l.reserved,
+        condition: l.condition,
+        status: SurplusStatus.withdrawn,
+      ),
+      centerId: surplus_[i].centerId,
+      centerName: surplus_[i].centerName,
+      village: surplus_[i].village,
+    );
+  }
   bool failNextAdvance = false;
   final resolvedReports = <String>[];
 
@@ -466,6 +540,93 @@ void main() {
     expect(find.textContaining('already approved'), findsOneWidget);
     expect(find.text('20 × Neem Cake'), findsOneWidget);
     expect(repo.restockMoves, isEmpty);
+  });
+
+  test('the overview parses surplus, and an older server that does not send it reads as none', () {
+    Map<String, dynamic> base() => {
+          'people': {
+            'operators': {'active': 1, 'suspended': 0, 'unassigned': 0, 'total': 1},
+            'farmers': {'active': 1, 'suspended': 0, 'total': 1},
+          },
+          'centers': {'active': 1, 'suspended': 0, 'withoutOperator': 0},
+          'orders': {'pending': 0, 'readyForPickup': 0, 'today': 0},
+          'restockRequests': {'pending': 0},
+          'lowStockItems': 0,
+        };
+    final withSurplus = AdminOverview.fromJson({...base(), 'surplus': {'activeLots': 3, 'units': 12}});
+    expect((withSurplus.surplusActiveLots, withSurplus.surplusUnits), (3, 12));
+    final without = AdminOverview.fromJson(base());
+    expect((without.surplusActiveLots, without.surplusUnits), (0, 0));
+  });
+
+  testWidgets('overview: a Surplus card counts offers on sale and the units left', (tester) async {
+    await _pump(tester, const AdminOverviewScreen());
+    expect(find.text('Surplus on sale'), findsOneWidget);
+    expect(find.text(' offers'), findsOneWidget);
+    expect(find.text('Units left'), findsOneWidget);
+    expect(find.text('17'), findsOneWidget);
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('supply: surplus offers from every center, with price, what is held, and why; ended ones are kept apart', (tester) async {
+    await _pump(tester, const AdminSupplyScreen(initialTab: SupplyTab.surplus));
+    expect(find.text('On sale (1)'), findsOneWidget);
+    expect(find.text('Ended (1)'), findsOneWidget);
+    expect(find.text('Neem Cake'), findsOneWidget);
+    expect(find.text('Center A, Shirur'), findsOneWidget);
+    expect(find.text('Rs 450 (regular Rs 600, 25% off)'), findsOneWidget);
+    expect(find.text('3 available, 2 held · Near expiry · best before 30/11/2026'), findsOneWidget);
+    expect(find.text('Torn bags'), findsOneWidget);
+    expect(find.text('Vermicompost'), findsNothing);
+
+    await tester.tap(find.text('Ended (1)'));
+    await tester.pumpAndSettle();
+    expect(find.text('Vermicompost'), findsOneWidget);
+    expect(find.text('Sold out'), findsOneWidget);
+    expect(find.text('Withdraw'), findsNothing, reason: 'nothing to take off sale');
+  });
+
+  testWidgets('supply: withdrawing asks first, sends the reason to the operator, and moves the offer to Ended', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen(initialTab: SupplyTab.surplus));
+    await tester.tap(find.text('Withdraw'));
+    await tester.pumpAndSettle();
+    expect(find.text('Withdraw this offer?'), findsOneWidget);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(repo.surplusWithdrawals, isEmpty);
+
+    await tester.tap(find.text('Withdraw'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(TextField), 'Past its date');
+    await tester.tap(find.widgetWithText(FilledButton, 'Withdraw'));
+    await tester.pumpAndSettle();
+    expect(repo.surplusWithdrawals, ['s1:Past its date']);
+    expect(find.text('Offer withdrawn'), findsOneWidget);
+    expect(find.text('On sale (0)'), findsOneWidget);
+    expect(find.text('Ended (2)'), findsOneWidget);
+  });
+
+  testWidgets('supply: a refused withdrawal shows why and leaves the offer on the list', (tester) async {
+    final repo = await _pump(tester, const AdminSupplyScreen(initialTab: SupplyTab.surplus));
+    repo.failNextWithdraw = true;
+    await tester.tap(find.text('Withdraw'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.widgetWithText(FilledButton, 'Withdraw'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('already withdrawn'), findsOneWidget);
+    expect(find.text('Neem Cake'), findsOneWidget);
+  });
+
+  test('a surplus link opens the Surplus view; unknown ones fall back to restocks', () {
+    expect(supplyTabFromQuery('surplus'), SupplyTab.surplus);
+    expect(supplyTabFromQuery('discrepancies'), SupplyTab.discrepancies);
+    expect(supplyTabFromQuery('nonsense'), SupplyTab.restock);
+    expect(supplyTabFromQuery(null), SupplyTab.restock);
+  });
+
+  test('the activity list words a surplus withdrawal', () {
+    final e = AuditEntry(id: 'a', adminEmail: 'x', action: 'surplus.withdraw', targetType: 'surplus', targetId: 's1', details: const {}, createdAt: DateTime(2026));
+    expect(e.summary, 'Withdrew a surplus offer');
   });
 
   testWidgets('supply: the wide layout renders without overflow', (tester) async {

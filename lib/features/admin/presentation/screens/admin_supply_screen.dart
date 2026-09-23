@@ -7,13 +7,18 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/sign_out_button.dart';
+import '../../../operator/surplus/domain/entities/surplus_lot.dart';
 import '../../domain/entities/admin_models.dart';
 import '../providers/admin_providers.dart';
 import '../widgets/admin_widgets.dart';
 
-enum SupplyTab { restock, discrepancies }
+enum SupplyTab { restock, discrepancies, surplus }
 
-SupplyTab supplyTabFromQuery(String? raw) => raw == 'discrepancies' ? SupplyTab.discrepancies : SupplyTab.restock;
+SupplyTab supplyTabFromQuery(String? raw) => switch (raw) {
+      'discrepancies' => SupplyTab.discrepancies,
+      'surplus' => SupplyTab.surplus,
+      _ => SupplyTab.restock,
+    };
 
 /// The supply desk: restock requests to approve and deliver, and delivery
 /// reports from operators to review.
@@ -50,12 +55,17 @@ class _AdminSupplyScreenState extends ConsumerState<AdminSupplyScreen> {
                   segments: const [
                     ButtonSegment(value: SupplyTab.restock, label: Text('Restock requests'), icon: Icon(Icons.local_shipping_outlined)),
                     ButtonSegment(value: SupplyTab.discrepancies, label: Text('Delivery reports'), icon: Icon(Icons.fact_check_outlined)),
+                    ButtonSegment(value: SupplyTab.surplus, label: Text('Surplus'), icon: Icon(Icons.sell_outlined)),
                   ],
                   selected: {_tab},
                   onSelectionChanged: (s) => setState(() => _tab = s.first),
                 ),
                 AppSpacing.gapMd,
-                if (_tab == SupplyTab.restock) const _RestockList() else const _DiscrepancyList(),
+                switch (_tab) {
+                  SupplyTab.restock => const _RestockList(),
+                  SupplyTab.discrepancies => const _DiscrepancyList(),
+                  SupplyTab.surplus => const _SurplusList(),
+                },
               ],
             ),
           ),
@@ -275,6 +285,117 @@ class _DiscrepancyCard extends StatelessWidget {
           if (!d.resolved) ...[
             AppSpacing.gapSm,
             Align(alignment: Alignment.centerRight, child: FilledButton.tonal(onPressed: onResolve, child: const Text('Mark reviewed'))),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Surplus
+// ---------------------------------------------------------------------------
+
+class _SurplusList extends ConsumerStatefulWidget {
+  const _SurplusList();
+
+  @override
+  ConsumerState<_SurplusList> createState() => _SurplusListState();
+}
+
+class _SurplusListState extends ConsumerState<_SurplusList> {
+  bool _showEnded = false;
+
+  Future<void> _withdraw(AdminSurplusLot item) async {
+    final reason = await confirmAction(
+      context,
+      title: 'Withdraw this offer?',
+      message: '${item.lot.productName} at ${item.centerName} comes off sale. The operator is told, and unsold units go back to their shelf if they came from it.',
+      confirmLabel: 'Withdraw',
+      destructive: true,
+      askReason: true,
+    );
+    if (reason == null || !mounted) return;
+    await _perform(context, ref, () => ref.read(adminRepositoryProvider).withdrawSurplus(item.lot.id, reason: reason), 'Offer withdrawn');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final lots = ref.watch(adminSurplusProvider);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        lots.when(
+          data: (all) {
+            final onSale = all.where((l) => l.lot.isOnSale).toList();
+            final ended = all.where((l) => !l.lot.isOnSale).toList();
+            final shown = _showEnded ? ended : onSale;
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                FilterChips<bool>(
+                  options: {false: 'On sale (${onSale.length})', true: 'Ended (${ended.length})'},
+                  selected: _showEnded,
+                  onChanged: (v) => setState(() => _showEnded = v ?? false),
+                ),
+                AppSpacing.gapMd,
+                if (shown.isEmpty)
+                  _Empty(icon: Icons.sell_outlined, text: _showEnded ? 'No ended surplus offers.' : 'No surplus is on sale right now.')
+                else
+                  Column(children: [for (final item in shown) _SurplusCard(item: item, onWithdraw: () => _withdraw(item))]),
+              ],
+            );
+          },
+          loading: () => const SizedBox(height: 160, child: AppLoadingIndicator()),
+          error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(adminSurplusProvider)),
+        ),
+      ],
+    );
+  }
+}
+
+class _SurplusCard extends StatelessWidget {
+  const _SurplusCard({required this.item, required this.onWithdraw});
+
+  final AdminSurplusLot item;
+  final VoidCallback onWithdraw;
+
+  static String _money(double v) => v == v.roundToDouble() ? v.toStringAsFixed(0) : v.toStringAsFixed(2);
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final text = Theme.of(context).textTheme;
+    final lot = item.lot;
+    final (label, color) = switch (lot.status) {
+      SurplusStatus.active => ('On sale', colors.success),
+      SurplusStatus.soldOut => ('Sold out', colors.textMuted),
+      SurplusStatus.expired => ('Expired', colors.danger),
+      SurplusStatus.withdrawn => ('Withdrawn', colors.textMuted),
+    };
+    final best = lot.bestBefore;
+    return _CardShell(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(child: Text(lot.productName, style: text.titleSmall)),
+              StatusBadge(label: label, color: color),
+            ],
+          ),
+          const SizedBox(height: 2),
+          Text('${item.centerName}${item.village.isEmpty ? '' : ', ${item.village}'}', style: text.bodySmall?.copyWith(color: colors.textMuted)),
+          AppSpacing.gapSm,
+          Text('Rs ${_money(lot.unitPrice)} (regular Rs ${_money(lot.catalogPrice)}, ${lot.discountPercent}% off)', style: text.bodyMedium),
+          Text(
+            '${lot.available} available${lot.reserved > 0 ? ', ${lot.reserved} held' : ''} · ${lot.condition.label}${best == null ? '' : ' · best before ${best.day}/${best.month}/${best.year}'}',
+            style: text.bodySmall?.copyWith(color: colors.textMuted),
+          ),
+          if (lot.note.isNotEmpty) Text(lot.note, style: text.bodySmall?.copyWith(color: colors.textMuted)),
+          if (lot.isOnSale) ...[
+            AppSpacing.gapSm,
+            Align(alignment: Alignment.centerRight, child: OutlinedButton(onPressed: onWithdraw, child: const Text('Withdraw'))),
           ],
         ],
       ),
