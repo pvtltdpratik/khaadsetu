@@ -4,13 +4,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 import 'package:khaadsetu_version1/core/network/api_client.dart';
+import 'package:khaadsetu_version1/core/routing/route_paths.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/features/farmer/marketplace/domain/entities/product.dart';
 import 'package:khaadsetu_version1/features/farmer/marketplace/presentation/providers/marketplace_providers.dart';
+import 'package:khaadsetu_version1/features/operator/inventory/domain/entities/inventory_item.dart';
 import 'package:khaadsetu_version1/features/operator/inventory/presentation/providers/inventory_providers.dart';
+import 'package:khaadsetu_version1/features/operator/orders/data/datasources/orders_api_data_source.dart';
+import 'package:khaadsetu_version1/features/operator/orders/domain/entities/order.dart';
+import 'package:khaadsetu_version1/features/operator/orders/presentation/providers/orders_providers.dart' as op;
+import 'package:khaadsetu_version1/features/operator/orders/presentation/screens/walk_in_pos_screen.dart';
 import 'package:khaadsetu_version1/features/operator/surplus/data/surplus_api_repository.dart';
 import 'package:khaadsetu_version1/features/operator/surplus/domain/entities/surplus_lot.dart';
 import 'package:khaadsetu_version1/features/operator/surplus/presentation/providers/surplus_providers.dart';
@@ -215,6 +222,141 @@ void main() {
     testWidgets('tablet width has no overflow', (tester) async {
       await pump(tester, [surplusLot('a', note: 'x' * 120), surplusLot('b', name: 'A Product With A Rather Long Name Indeed')], size: const Size(1100, 900));
       expect(tester.takeException(), isNull);
+    });
+  });
+
+  group('walk-in sales with surplus', () {
+    Future<({FakeOperatorOrdersRepository orders})> pumpPos(
+      WidgetTester tester, {
+      List<InventoryItem> items = const [],
+      List<SurplusLot> lots = const [],
+      Object? lotsError,
+    }) async {
+      await _size(tester, size: const Size(420, 2400));
+      final orders = FakeOperatorOrdersRepository();
+      final router = GoRouter(routes: [
+        GoRoute(path: '/', builder: (context, _) => const Scaffold(body: WalkInPosScreen())),
+        GoRoute(path: RoutePaths.operatorOrderDetailPattern, builder: (context, state) => Text('sale ${state.pathParameters['orderId']}')),
+        GoRoute(path: RoutePaths.operatorInventory, builder: (context, _) => const Text('inventory page')),
+      ]);
+      addTearDown(router.dispose);
+      await tester.pumpWidget(ProviderScope(
+        overrides: [
+          inventoryRepositoryProvider.overrideWithValue(FakeInventoryRepository(items: items)),
+          op.ordersRepositoryProvider.overrideWithValue(orders),
+          if (lotsError == null) surplusRepositoryProvider.overrideWithValue(FakeSurplusRepository(lots)) else surplusLotsProvider.overrideWith((ref) async => throw lotsError),
+        ],
+        child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
+      ));
+      await tester.pumpAndSettle();
+      return (orders: orders);
+    }
+
+    testWidgets('surplus on sale appears under the shelf, with its own price and why it is cheaper', (tester) async {
+      await pumpPos(tester, items: [shelfItem('p-neemcake', onHand: 10)], lots: [surplusLot('a', price: 450, quantity: 3)]);
+      expect(find.text('Surplus (cheaper)'), findsOneWidget);
+      expect(find.text('Neem Cake (surplus)'), findsOneWidget);
+      expect(find.text('₹450 / bag · Near expiry · 25% off'), findsOneWidget);
+      expect(find.text('3 to sell'), findsOneWidget);
+    });
+
+    testWidgets('selling surplus sends its lot (not just the product) at the lot price', (tester) async {
+      final h = await pumpPos(tester, lots: [surplusLot('lot-9', price: 450, quantity: 3)]);
+      await tester.tap(find.byIcon(Icons.add_circle_outline_rounded));
+      await tester.tap(find.byIcon(Icons.add_circle_outline_rounded));
+      await tester.pump();
+      expect(find.text('Neem Cake (surplus) × 2'), findsOneWidget);
+      expect(find.text('₹900'), findsWidgets);
+      await tester.tap(find.text('Complete sale'));
+      await tester.pumpAndSettle();
+      final line = h.orders.walkIns.single.single;
+      expect(line.surplusLotId, 'lot-9');
+      expect(line.productId, 'p-neemcake');
+      expect(line.unitPrice, 450);
+      expect(line.quantity, 2);
+      expect(find.text('sale walk-1'), findsOneWidget);
+    });
+
+    testWidgets('the same product from the shelf and from a lot are separate lines with separate prices', (tester) async {
+      final h = await pumpPos(tester, items: [shelfItem('p-neemcake', onHand: 10)], lots: [surplusLot('lot-1', price: 450, quantity: 5)]);
+      final adds = find.byIcon(Icons.add_circle_outline_rounded);
+      expect(adds, findsNWidgets(2));
+      await tester.tap(adds.first); // the shelf
+      await tester.tap(adds.last); // the lot
+      await tester.tap(adds.last);
+      await tester.pump();
+      expect(find.text('Neem Cake × 1'), findsOneWidget);
+      expect(find.text('Neem Cake (surplus) × 2'), findsOneWidget);
+      // 1 x 600 + 2 x 450
+      expect(find.text('₹1,500'), findsOneWidget);
+      await tester.tap(find.text('Complete sale'));
+      await tester.pumpAndSettle();
+      final lines = h.orders.walkIns.single;
+      expect(lines.map((l) => l.surplusLotId), [null, 'lot-1']);
+      expect(lines.map((l) => l.quantity), [1, 2]);
+    });
+
+    testWidgets('a lot cannot be sold beyond what app orders are not holding', (tester) async {
+      await pumpPos(tester, lots: [surplusLot('a', quantity: 5, reserved: 3)]);
+      expect(find.text('2 to sell (3 held for app orders)'), findsOneWidget);
+      final add = find.widgetWithIcon(IconButton, Icons.add_circle_outline_rounded);
+      await tester.tap(add);
+      await tester.tap(add);
+      await tester.pump();
+      expect(tester.widget<IconButton>(add).onPressed, isNull);
+    });
+
+    testWidgets('ended offers are not sold, and with none on sale there is no surplus section', (tester) async {
+      await pumpPos(tester, items: [shelfItem('p-neemcake', onHand: 10)], lots: [surplusLot('gone', status: SurplusStatus.withdrawn, quantity: 0), surplusLot('old', status: SurplusStatus.expired)]);
+      expect(find.text('Surplus (cheaper)'), findsNothing);
+      expect(find.textContaining('(surplus)'), findsNothing);
+    });
+
+    testWidgets('empty shelves but surplus to sell: the till is usable, not a dead end', (tester) async {
+      await pumpPos(tester, lots: [surplusLot('a')]);
+      expect(find.text('Your shelves are empty'), findsNothing);
+      expect(find.text('Neem Cake (surplus)'), findsOneWidget);
+    });
+
+    testWidgets('if surplus cannot be loaded the shelf still sells', (tester) async {
+      final h = await pumpPos(tester, items: [shelfItem('p-neemcake', onHand: 10)], lotsError: Exception('offline'));
+      expect(find.text('Neem Cake'), findsOneWidget);
+      expect(find.textContaining('offline'), findsNothing);
+      await tester.tap(find.byIcon(Icons.add_circle_outline_rounded));
+      await tester.pump();
+      await tester.tap(find.text('Complete sale'));
+      await tester.pumpAndSettle();
+      expect(h.orders.walkIns.single.single.surplusLotId, isNull);
+    });
+
+    test('the API request names the lot for a surplus line and the product for a shelf line', () async {
+      late http.Request seen;
+      final ds = OrdersApiDataSource(ApiClient(
+        client: MockClient((req) async {
+          seen = req;
+          return http.Response(
+            jsonEncode({
+              'id': 'o1', 'customerName': 'Sita', 'type': 'walkIn', 'status': 'completed', 'createdAt': '2026-09-24T05:00:00Z', 'pickupOtp': null,
+              'items': [
+                {'productName': 'Neem Cake', 'quantity': 2, 'unitPrice': 450, 'surplusLotId': 'lot-1'},
+                {'productName': 'Neem Cake', 'quantity': 1, 'unitPrice': 600},
+              ],
+            }),
+            201,
+            headers: {'content-type': 'application/json'},
+          );
+        }),
+        deviceId: () async => 'op',
+      ));
+      final order = await ds.createWalkInOrder(customerName: 'Sita', items: const [
+        OrderLineItem(productName: 'Neem Cake', quantity: 2, unitPrice: 450, productId: 'p-neemcake', surplusLotId: 'lot-1'),
+        OrderLineItem(productName: 'Neem Cake', quantity: 1, unitPrice: 600, productId: 'p-neemcake'),
+      ]);
+      final items = (jsonDecode(seen.body) as Map<String, dynamic>)['items'] as List;
+      expect(items[0], {'surplusLotId': 'lot-1', 'productName': 'Neem Cake', 'quantity': 2, 'unitPrice': 450.0});
+      expect(items[1], {'productId': 'p-neemcake', 'productName': 'Neem Cake', 'quantity': 1, 'unitPrice': 600.0});
+      expect(order.items[0].isSurplus, isTrue);
+      expect(order.items[1].isSurplus, isFalse);
     });
   });
 

@@ -135,7 +135,7 @@ class _OrderBodyState extends ConsumerState<_OrderBody> {
               children: [
                 Expanded(
                   child: Text(
-                    '${item.productName} × ${item.quantity}',
+                    '${item.productName}${item.isSurplus ? ' (surplus)' : ''} × ${item.quantity}',
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                 ),
