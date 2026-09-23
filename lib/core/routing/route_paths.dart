@@ -43,6 +43,7 @@ class RoutePaths {
 
   // Village centers and orders live under the marketplace tab.
   static const farmerCenters = '/farmer/marketplace/centers';
+  static const farmerSurplus = '/farmer/marketplace/surplus';
   static const farmerChooseVillage = '/farmer/marketplace/location';
   static const farmerOrders = '/farmer/marketplace/orders';
   static String farmerOrder(String orderId) => '/farmer/marketplace/orders/${Uri.encodeComponent(orderId)}';

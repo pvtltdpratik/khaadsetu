@@ -1,9 +1,14 @@
 import '../entities/nearby_center.dart';
+import '../entities/surplus_offer.dart';
 
 abstract class CentersRepository {
   /// The centers this farmer could use from [location], best first. [cart] is
   /// what they want (empty when just browsing).
   Future<NearbyResult> nearby({required FarmerLocation location, Cart cart = Cart.empty, int limit = 5});
+
+  /// Discounted surplus units near [location], nearest first. [productId]
+  /// narrows it to one product.
+  Future<List<SurplusOffer>> surplusNearby({required FarmerLocation location, String? productId});
 
   Future<List<Village>> villages(String query);
 

@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../../../core/network/api_client_provider.dart';
 import '../../data/centers_api_repository.dart';
 import '../../domain/entities/nearby_center.dart';
+import '../../domain/entities/surplus_offer.dart';
 import '../../domain/repositories/centers_repository.dart';
 
 final centersRepositoryProvider = Provider<CentersRepository>((ref) => CentersApiRepository(ref.watch(apiClientProvider)));
@@ -86,6 +87,14 @@ final nearbyCentersProvider = FutureProvider.autoDispose.family<NearbyResult?, C
   final location = await ref.watch(farmerLocationProvider.future);
   if (location == null) return null;
   return ref.watch(centersRepositoryProvider).nearby(location: location, cart: cart);
+});
+
+/// Discounted surplus near the farmer, nearest first; [productId] null means
+/// every product. Null when we don't know where the farmer is yet.
+final surplusNearbyProvider = FutureProvider.autoDispose.family<List<SurplusOffer>?, String?>((ref, productId) async {
+  final location = await ref.watch(farmerLocationProvider.future);
+  if (location == null) return null;
+  return ref.watch(centersRepositoryProvider).surplusNearby(location: location, productId: productId);
 });
 
 /// Whether the farmer is waiting to hear that [productId] is back in stock.

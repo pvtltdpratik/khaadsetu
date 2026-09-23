@@ -34,6 +34,26 @@ class OrdersApiRepository implements OrdersRepository {
   }
 
   @override
+  Future<FarmerOrder> placeSurplus({required String lotId, required int quantity, FarmerLocation? location}) async {
+    try {
+      final json = await _api.post('/v1/orders', body: {
+        'items': [
+          {'surplusLotId': lotId, 'quantity': quantity},
+        ],
+        if (location != null) ...{
+          'latitude': location.latitude,
+          'longitude': location.longitude,
+          'locationSource': location.source == LocationSource.gps ? 'gps' : 'pin',
+        },
+      });
+      return FarmerOrder.fromJson(json as Map<String, dynamic>);
+    } on ApiException catch (err) {
+      if (err.code == 'surplus_unavailable') throw SurplusUnavailableException(err.message);
+      rethrow;
+    }
+  }
+
+  @override
   Future<List<FarmerOrder>> myOrders() async {
     final list = await _api.get('/v1/orders') as List;
     return list.map((e) => FarmerOrder.fromJson(e as Map<String, dynamic>)).toList();

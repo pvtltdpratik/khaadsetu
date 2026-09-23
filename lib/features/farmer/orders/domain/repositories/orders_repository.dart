@@ -13,7 +13,21 @@ class OutOfStockException implements Exception {
   String toString() => message;
 }
 
+/// A surplus offer sold out (or was withdrawn) before this farmer could reserve it.
+class SurplusUnavailableException implements Exception {
+  const SurplusUnavailableException(this.message);
+
+  final String message;
+
+  @override
+  String toString() => message;
+}
+
 abstract class OrdersRepository {
+  /// Reserves [quantity] units of a discounted surplus lot for pickup at the
+  /// center that listed it. Throws [SurplusUnavailableException] when it is gone.
+  Future<FarmerOrder> placeSurplus({required String lotId, required int quantity, FarmerLocation? location});
+
   /// Reserves [items] for pickup. With [centerId] the farmer's own choice is
   /// used; without it the server assigns the best center that has everything,
   /// judged from [location]. Throws [OutOfStockException] when nothing fits.
