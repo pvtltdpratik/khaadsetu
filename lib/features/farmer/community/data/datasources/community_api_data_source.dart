@@ -1,47 +1,44 @@
 import '../../../../../core/network/api_client.dart';
-import '../../domain/entities/forum_post.dart';
-import '../../domain/entities/forum_reply.dart';
+import '../../domain/entities/community_post.dart';
 
 class CommunityApiDataSource {
   const CommunityApiDataSource(this._api);
 
   final ApiClient _api;
 
-  Future<List<ForumPost>> fetchPosts() async {
-    final list = await _api.get('/v1/community/posts') as List;
+  Future<List<CommunityPost>> fetchPosts({
+    String? crop,
+    String? district,
+    ProblemType? problemType,
+    String? q,
+    required int limit,
+    required int offset,
+  }) async {
+    final list = await _api.get('/v1/community/posts', query: {
+      'crop': crop,
+      'district': district,
+      'problemType': problemType?.name,
+      'q': q,
+      'limit': '$limit',
+      'offset': '$offset',
+    }) as List;
     return list.map((e) => _parsePost(e as Map<String, dynamic>)).toList();
   }
 
-  Future<ForumPost> fetchPostById(String id) async {
-    return _parsePost(await _api.get('/v1/community/posts/$id') as Map<String, dynamic>);
-  }
-
-  Future<List<ForumReply>> fetchReplies(String postId) async {
-    final list = await _api.get('/v1/community/posts/$postId/replies') as List;
-    return list.map((e) => _parseReply(e as Map<String, dynamic>)).toList();
-  }
-
-  ForumPost _parsePost(Map<String, dynamic> json) {
-    return ForumPost(
-      id: json['id'] as String,
-      authorName: json['authorName'] as String,
+  CommunityPost _parsePost(Map<String, dynamic> json) {
+    return CommunityPost(
+      postId: json['postId'] as String,
+      farmerId: json['farmerId'] as String,
+      farmerName: json['farmerName'] as String,
       title: json['title'] as String,
-      body: json['body'] as String,
-      crop: json['crop'] as String,
-      district: json['district'] as String,
-      problemType: ProblemType.values.byName(json['problemType'] as String),
+      content: json['content'] as String,
+      cropTag: json['cropTag'] as String,
+      districtTag: json['districtTag'] as String,
+      problemTypeTag: ProblemType.values.byName(json['problemTypeTag'] as String),
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
-      replyCount: (json['replyCount'] as num).toInt(),
+      updatedAt: DateTime.parse(json['updatedAt'] as String).toLocal(),
+      commentCount: (json['commentCount'] as num).toInt(),
       likeCount: (json['likeCount'] as num).toInt(),
-    );
-  }
-
-  ForumReply _parseReply(Map<String, dynamic> json) {
-    return ForumReply(
-      id: json['id'] as String,
-      authorName: json['authorName'] as String,
-      body: json['body'] as String,
-      createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
     );
   }
 }

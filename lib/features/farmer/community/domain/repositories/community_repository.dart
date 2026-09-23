@@ -1,8 +1,14 @@
-import '../entities/forum_post.dart';
-import '../entities/forum_reply.dart';
+import '../entities/community_post.dart';
 
 abstract class CommunityRepository {
-  Future<List<ForumPost>> getPosts();
-  Future<ForumPost> getPostById(String id);
-  Future<List<ForumReply>> getReplies(String postId);
+  /// Newest first. All filters are optional and AND together; `q` searches
+  /// title/content. `limit`/`offset` page through the server's results.
+  Future<List<CommunityPost>> getPosts({
+    String? crop,
+    String? district,
+    ProblemType? problemType,
+    String? q,
+    int limit,
+    int offset,
+  });
 }
