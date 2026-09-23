@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../animation/fade_slide_in.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import 'app_button.dart';
@@ -22,40 +23,41 @@ class AppErrorView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Center(
-      child: Padding(
-        padding: const EdgeInsets.all(AppSpacing.lg),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(Icons.cloud_off_rounded, size: 40, color: colors.danger),
-            AppSpacing.gapMd,
-            Text(
-              title,
-              textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
-            ),
-            if (message != null) ...[
-              AppSpacing.gapSm,
+    return FadeSlideIn(
+      child: Center(
+        child: Padding(
+          padding: const EdgeInsets.all(AppSpacing.lg),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(Icons.cloud_off_rounded, size: 40, color: colors.danger),
+              AppSpacing.gapMd,
               Text(
-                message!,
+                title,
                 textAlign: TextAlign.center,
-                style: Theme.of(context)
-                    .textTheme
-                    .bodyMedium
-                    ?.copyWith(color: colors.textMuted),
+                style: Theme.of(context).textTheme.titleMedium,
               ),
+              if (message != null) ...[
+                AppSpacing.gapSm,
+                Text(
+                  message!,
+                  textAlign: TextAlign.center,
+                  style: Theme.of(
+                    context,
+                  ).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
+                ),
+              ],
+              if (onRetry != null) ...[
+                AppSpacing.gapLg,
+                AppButton(
+                  label: 'Try again',
+                  icon: Icons.refresh_rounded,
+                  variant: AppButtonVariant.outlined,
+                  onPressed: onRetry,
+                ),
+              ],
             ],
-            if (onRetry != null) ...[
-              AppSpacing.gapLg,
-              AppButton(
-                label: 'Try again',
-                icon: Icons.refresh_rounded,
-                variant: AppButtonVariant.outlined,
-                onPressed: onRetry,
-              ),
-            ],
-          ],
+          ),
         ),
       ),
     );

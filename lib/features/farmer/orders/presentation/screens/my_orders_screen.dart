@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -57,8 +59,12 @@ class MyOrdersScreen extends ConsumerWidget {
                           maxWidth: 720,
                           child: Column(
                             children: [
-                              for (final o in list) ...[
-                                OrderCard(order: o, onTap: () => context.push(RoutePaths.farmerOrder(o.id))),
+                              for (final (i, o) in list.indexed) ...[
+                                FadeSlideIn(
+                                  key: ValueKey(o.id),
+                                  index: i,
+                                  child: Pressable(child: OrderCard(order: o, onTap: () => context.push(RoutePaths.farmerOrder(o.id)))),
+                                ),
                                 AppSpacing.gapSm,
                               ],
                             ],

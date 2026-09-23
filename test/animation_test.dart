@@ -103,11 +103,17 @@ void main() {
       expect(tester.widget<AnimatedScale>(find.byType(AnimatedScale)).scale, 1);
     });
 
-    testWidgets('with reduced motion or disabled it adds nothing', (tester) async {
+    testWidgets('with reduced motion it adds nothing at all', (tester) async {
       await tester.pumpWidget(_app(const Pressable(child: Text('x')), reduceMotion: true));
       expect(find.byType(AnimatedScale), findsNothing);
+    });
+
+    testWidgets('a disabled one does not dip, and does not change shape (so what is inside keeps its state)', (tester) async {
       await tester.pumpWidget(_app(const Pressable(enabled: false, child: Text('x'))));
-      expect(find.byType(AnimatedScale), findsNothing);
+      final g = await tester.startGesture(tester.getCenter(find.text('x')));
+      await tester.pump();
+      expect(tester.widget<AnimatedScale>(find.byType(AnimatedScale)).scale, 1);
+      await g.up();
     });
   });
 

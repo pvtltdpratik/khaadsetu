@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -190,12 +192,18 @@ class _ProductsView extends StatelessWidget {
         separatorBuilder: (_, _) => AppSpacing.gapSm,
         itemBuilder: (context, i) {
           final product = products[i];
-          return ProductListTile(
-            product: product,
-            matchesSoil: _matchesSoil(product),
-            compareMode: compareMode,
-            isSelectedForCompare: selectedForCompare.contains(product.id),
-            onTap: () => onProductTap(product),
+          return FadeSlideIn(
+            key: ValueKey(product.id),
+            index: i,
+            child: Pressable(
+              child: ProductListTile(
+                product: product,
+                matchesSoil: _matchesSoil(product),
+                compareMode: compareMode,
+                isSelectedForCompare: selectedForCompare.contains(product.id),
+                onTap: () => onProductTap(product),
+              ),
+            ),
           );
         },
       );
@@ -212,12 +220,18 @@ class _ProductsView extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         final product = products[i];
-        return ProductGridCard(
-          product: product,
-          matchesSoil: _matchesSoil(product),
-          compareMode: compareMode,
-          isSelectedForCompare: selectedForCompare.contains(product.id),
-          onTap: () => onProductTap(product),
+        return FadeSlideIn(
+          key: ValueKey(product.id),
+          index: i,
+          child: Pressable(
+            child: ProductGridCard(
+              product: product,
+              matchesSoil: _matchesSoil(product),
+              compareMode: compareMode,
+              isSelectedForCompare: selectedForCompare.contains(product.id),
+              onTap: () => onProductTap(product),
+            ),
+          ),
         );
       },
     );

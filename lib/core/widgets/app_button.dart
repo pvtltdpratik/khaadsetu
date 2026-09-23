@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../animation/motion.dart';
+import '../animation/pressable.dart';
 import '../theme/app_spacing.dart';
 
 enum AppButtonVariant { primary, secondary, outlined, text }
@@ -31,8 +33,11 @@ class AppButton extends StatelessWidget {
   Widget build(BuildContext context) {
     final disabled = isLoading || onPressed == null;
 
-    final child = isLoading
+    // The label and the spinner cross-fade, so pressing a button and waiting
+    // feels like one continuous thing rather than the text vanishing.
+    final content = isLoading
         ? SizedBox(
+            key: const ValueKey('loading'),
             width: 20,
             height: 20,
             child: CircularProgressIndicator(
@@ -41,8 +46,9 @@ class AppButton extends StatelessWidget {
             ),
           )
         : icon == null
-            ? Text(label)
+            ? Text(label, key: const ValueKey('label'))
             : Row(
+                key: const ValueKey('label'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(icon, size: 20),
@@ -50,6 +56,7 @@ class AppButton extends StatelessWidget {
                   Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
                 ],
               );
+    final child = Motion.reduced(context) ? content : AnimatedSwitcher(duration: Motion.fast, child: content);
 
     final button = switch (variant) {
       AppButtonVariant.primary => ElevatedButton(
@@ -74,7 +81,8 @@ class AppButton extends StatelessWidget {
         ),
     };
 
-    return expand ? SizedBox(width: double.infinity, child: button) : button;
+    final pressable = Pressable(enabled: !disabled, child: button);
+    return expand ? SizedBox(width: double.infinity, child: pressable) : pressable;
   }
 
   Color _spinnerColor(BuildContext context) {
