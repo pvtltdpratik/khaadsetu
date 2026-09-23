@@ -35,6 +35,21 @@ class CommunityPost extends Equatable {
   final int commentCount;
   final int likeCount;
 
+  CommunityPost copyWith({int? commentCount, int? likeCount}) => CommunityPost(
+        postId: postId,
+        farmerId: farmerId,
+        farmerName: farmerName,
+        title: title,
+        content: content,
+        cropTag: cropTag,
+        districtTag: districtTag,
+        problemTypeTag: problemTypeTag,
+        createdAt: createdAt,
+        updatedAt: updatedAt,
+        commentCount: commentCount ?? this.commentCount,
+        likeCount: likeCount ?? this.likeCount,
+      );
+
   @override
   List<Object?> get props => [
         postId,

@@ -1,4 +1,5 @@
 import '../../domain/entities/community_post.dart';
+import '../../domain/entities/post_comment.dart';
 import '../../domain/repositories/community_repository.dart';
 import '../datasources/community_api_data_source.dart';
 
@@ -25,4 +26,13 @@ class CommunityRepositoryImpl implements CommunityRepository {
       offset: offset,
     );
   }
+
+  @override
+  Future<PostDetail> getPostDetail(String postId) => _dataSource.fetchPostDetail(postId);
+
+  @override
+  Future<PostComment> addComment(String postId, String content) => _dataSource.postComment(postId, content);
+
+  @override
+  Future<({bool liked, int likeCount})> toggleLike(String postId) => _dataSource.toggleLike(postId);
 }

@@ -14,6 +14,7 @@ import '../../features/farmer/marketplace/presentation/screens/marketplace_scree
 import '../../features/farmer/marketplace/presentation/screens/product_comparison_screen.dart';
 import '../../features/farmer/marketplace/presentation/screens/product_detail_screen.dart';
 import '../../features/farmer/community/presentation/screens/community_feed_screen.dart';
+import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
 import '../../features/operator/farmers/presentation/screens/farmer_detail_screen.dart';
@@ -142,9 +143,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   // Relative segments — must stay in sync with the absolute
                   // constants in route_paths.dart used for navigation.
-                  // 'post/:postId' (farmerCommunityPostPattern) is not
-                  // registered yet — the post-detail screen is being rebuilt
-                  // against the new API and will come back with it.
+                  GoRoute(
+                    path: 'post/:postId',
+                    builder: (context, state) => PostDetailScreen(postId: state.pathParameters['postId']!),
+                  ),
                   GoRoute(
                     path: 'scheme/:schemeId',
                     builder: (context, state) => SchemeDetailScreen(

@@ -1,5 +1,6 @@
 import '../../../../../core/network/api_client.dart';
 import '../../domain/entities/community_post.dart';
+import '../../domain/entities/post_comment.dart';
 
 class CommunityApiDataSource {
   const CommunityApiDataSource(this._api);
@@ -23,6 +24,38 @@ class CommunityApiDataSource {
       'offset': '$offset',
     }) as List;
     return list.map((e) => _parsePost(e as Map<String, dynamic>)).toList();
+  }
+
+  Future<PostDetail> fetchPostDetail(String postId) async {
+    final json = await _api.get('/v1/community/posts/$postId') as Map<String, dynamic>;
+    return PostDetail(
+      post: _parsePost(json),
+      likedByMe: json['likedByMe'] as bool? ?? false,
+      comments: (json['comments'] as List).map((e) => _parseComment(e as Map<String, dynamic>)).toList(),
+    );
+  }
+
+  Future<PostComment> postComment(String postId, String content) async {
+    final json = await _api.post('/v1/community/posts/$postId/comments', body: {'content': content});
+    return _parseComment(json as Map<String, dynamic>);
+  }
+
+  Future<({bool liked, int likeCount})> toggleLike(String postId) async {
+    final json = await _api.post('/v1/community/posts/$postId/like') as Map<String, dynamic>;
+    return (liked: json['liked'] as bool, likeCount: (json['likeCount'] as num).toInt());
+  }
+
+  PostComment _parseComment(Map<String, dynamic> json) {
+    return PostComment(
+      commentId: json['commentId'] as String,
+      postId: json['postId'] as String,
+      farmerName: json['farmerName'] as String,
+      content: json['content'] as String,
+      isAiGenerated: json['isAiGenerated'] as bool,
+      isAgronomistVerified: json['isAgronomistVerified'] as bool,
+      agronomistName: json['agronomistName'] as String?,
+      createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
+    );
   }
 
   CommunityPost _parsePost(Map<String, dynamic> json) {

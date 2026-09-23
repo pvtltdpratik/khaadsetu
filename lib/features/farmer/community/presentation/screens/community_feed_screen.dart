@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../../../core/responsive/responsive.dart';
+import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
@@ -174,7 +176,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       childAspectRatio: 1.6,
                     ),
                     delegate: SliverChildBuilderDelegate(
-                      (context, i) => CommunityPostCard(post: feed.posts[i], onTap: () => _showComingSoon(context)),
+                      (context, i) => CommunityPostCard(post: feed.posts[i], onTap: () => context.push(RoutePaths.farmerCommunityPost(feed.posts[i].postId))),
                       childCount: feed.posts.length,
                     ),
                   ),
@@ -186,7 +188,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                     delegate: SliverChildBuilderDelegate(
                       (context, i) => Padding(
                         padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                        child: CommunityPostCard(post: feed.posts[i], onTap: () => _showComingSoon(context)),
+                        child: CommunityPostCard(post: feed.posts[i], onTap: () => context.push(RoutePaths.farmerCommunityPost(feed.posts[i].postId))),
                       ),
                       childCount: feed.posts.length,
                     ),
@@ -206,12 +208,6 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
       },
       loading: () => const AppLoadingIndicator(),
       error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(communityFeedProvider)),
-    );
-  }
-
-  void _showComingSoon(BuildContext context) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Post details are coming in a future update')),
     );
   }
 }
