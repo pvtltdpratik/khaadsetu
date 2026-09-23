@@ -77,6 +77,16 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
               child: Row(
                 children: [
                   Expanded(child: Text('Marketplace', style: Theme.of(context).textTheme.titleLarge)),
+                  IconButton(
+                    tooltip: 'Village centers near me',
+                    onPressed: () => context.push(RoutePaths.farmerCenters),
+                    icon: const Icon(Icons.location_on_outlined),
+                  ),
+                  IconButton(
+                    tooltip: 'My orders',
+                    onPressed: () => context.push(RoutePaths.farmerOrders),
+                    icon: const Icon(Icons.receipt_long_outlined),
+                  ),
                   TextButton.icon(
                     onPressed: _toggleCompareMode,
                     icon: Icon(_compareMode ? Icons.close_rounded : Icons.compare_arrows_rounded),

@@ -9,6 +9,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../centers/presentation/widgets/product_reserve_section.dart';
 import '../../domain/entities/product.dart';
 import '../providers/marketplace_providers.dart';
 import '../widgets/npk_composition_chart.dart';
@@ -119,6 +120,8 @@ class _DetailBody extends ConsumerWidget {
             ),
           ],
         ),
+        AppSpacing.gapLg,
+        ProductReserveSection(product: product),
         AppSpacing.gapLg,
         Text('Nutrient composition', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
