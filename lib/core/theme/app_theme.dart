@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../animation/page_transitions.dart';
 import 'app_colors.dart';
 import 'app_spacing.dart';
 import 'app_typography.dart';
@@ -53,6 +54,7 @@ class AppTheme {
       fontFamily: AppTypography.fontFamily,
       dividerColor: t.divider,
       splashFactory: InkRipple.splashFactory,
+      pageTransitionsTheme: appPageTransitions,
       extensions: <ThemeExtension<dynamic>>[t],
 
       appBarTheme: AppBarTheme(
