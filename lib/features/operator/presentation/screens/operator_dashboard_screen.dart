@@ -10,6 +10,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../core/widgets/sign_out_button.dart';
 import '../../inventory/domain/entities/inventory_item.dart';
 import '../../inventory/presentation/providers/inventory_providers.dart';
 import '../../orders/domain/entities/order.dart';
@@ -29,7 +30,12 @@ class OperatorDashboardScreen extends ConsumerWidget {
         child: ListView(
           padding: context.pagePadding,
           children: [
-            Text('Dashboard', style: Theme.of(context).textTheme.headlineSmall),
+            Row(
+              children: [
+                Expanded(child: Text('Dashboard', style: Theme.of(context).textTheme.headlineSmall)),
+                if (!context.breakpoint.isTabletUp) const SignOutButton(),
+              ],
+            ),
             Text(
               'Krishi Seva Kendra, Shirur',
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted),

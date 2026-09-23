@@ -4,11 +4,13 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/auth/auth_service.dart';
+import '../../../../core/auth/user_role.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
 import '../widgets/auth_scaffold.dart';
+import '../widgets/role_selector.dart';
 
 class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
@@ -23,6 +25,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _email = TextEditingController();
   final _password = TextEditingController();
   final _confirm = TextEditingController();
+  UserRole? _role;
   bool _isSubmitting = false;
   String? _error;
 
@@ -37,6 +40,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
 
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
+    if (_role == null) {
+      setState(() => _error = 'Choose whether you are a farmer or an operator.');
+      return;
+    }
     setState(() {
       _isSubmitting = true;
       _error = null;
@@ -46,6 +53,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             name: _name.text,
             email: _email.text,
             password: _password.text,
+            role: _role!,
           );
       if (!mounted) return;
       if (result == SignUpResult.confirmEmail) {
@@ -75,6 +83,17 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Text('I am a', style: Theme.of(context).textTheme.labelLarge),
+              AppSpacing.gapSm,
+              RoleSelector(
+                selected: _role,
+                enabled: !_isSubmitting,
+                onChanged: (r) => setState(() {
+                  _role = r;
+                  _error = null;
+                }),
+              ),
+              AppSpacing.gapMd,
               TextFormField(
                 controller: _name,
                 textCapitalization: TextCapitalization.words,
