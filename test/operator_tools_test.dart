@@ -477,6 +477,7 @@ void main() {
         GoRoute(path: RoutePaths.operatorOrderDetailPattern, builder: (context, state) => Text('operator order ${state.pathParameters['orderId']}')),
         GoRoute(path: RoutePaths.operatorInventory, builder: (context, _) => const Text('operator inventory')),
         GoRoute(path: '${RoutePaths.farmerOrders}/:orderId', builder: (context, state) => Text('farmer order ${state.pathParameters['orderId']}')),
+        GoRoute(path: RoutePaths.farmerMarketplaceProductPattern, builder: (context, state) => Text('product ${state.pathParameters['productId']}')),
       ]);
       await tester.pumpWidget(ProviderScope(
         overrides: [notificationsRepositoryProvider.overrideWithValue(repo), sessionProfileProvider.overrideWith((ref) async => me(role))],
@@ -526,6 +527,20 @@ void main() {
       await tester.tap(find.text('Low stock: Neem Cake'));
       await tester.pumpAndSettle();
       expect(find.text('operator inventory'), findsOneWidget);
+    });
+
+    testWidgets('a farmer opening "back in stock" goes to that product, ready to reserve', (tester) async {
+      await pump(tester, AppRole.farmer, [note('1', NotificationType.stock, title: 'Neem Cake is back in stock', refId: 'p-neemcake')]);
+      await tester.tap(find.text('Neem Cake is back in stock'));
+      await tester.pumpAndSettle();
+      expect(find.text('product p-neemcake'), findsOneWidget);
+    });
+
+    testWidgets('an order that was moved to another center opens that order, for the farmer and the operators alike', (tester) async {
+      await pump(tester, AppRole.farmer, [note('1', NotificationType.order, title: 'Your order was moved to another center', refId: 'order-9')]);
+      await tester.tap(find.text('Your order was moved to another center'));
+      await tester.pumpAndSettle();
+      expect(find.text('farmer order order-9'), findsOneWidget);
     });
 
     testWidgets('the bell shows how many are unread', (tester) async {

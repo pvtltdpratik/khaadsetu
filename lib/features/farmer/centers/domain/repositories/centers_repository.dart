@@ -12,6 +12,14 @@ abstract class CentersRepository {
   Future<FarmerLocation?> savedLocation();
 
   Future<void> saveLocation(FarmerLocation location);
+
+  /// Whether this farmer has asked to be told when [productId] is available near them.
+  Future<bool> isNotifyMeOn(String productId);
+
+  /// Asks to be told, once, when any center near [location] receives the product.
+  Future<void> turnNotifyMeOn(String productId, FarmerLocation location);
+
+  Future<void> turnNotifyMeOff(String productId);
 }
 
 /// Why the device's position could not be read, worded for the farmer.

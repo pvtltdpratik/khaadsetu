@@ -100,6 +100,11 @@ class ApiClient {
         .timeout(_timeout)));
   }
 
+  Future<dynamic> delete(String path) async {
+    final headers = await _headers();
+    return _decode(await _guard(() => _client.delete(_uri(path), headers: headers).timeout(_timeout)));
+  }
+
   Future<dynamic> put(String path, {Object? body}) async {
     final headers = await _headers(json: true);
     return _decode(await _guard(() => _client

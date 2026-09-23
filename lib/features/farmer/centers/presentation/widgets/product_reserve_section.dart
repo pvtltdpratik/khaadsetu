@@ -215,12 +215,73 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
             ),
           ],
         ),
+        if (!message.canReserve) ...[
+          AppSpacing.gapMd,
+          _NotifyMe(productId: widget.product.id, location: result.location),
+        ],
         AppSpacing.gapSm,
         Text(
           'Reserving holds your items for 5 days. You pay at the center when you collect.',
           style: text.bodySmall?.copyWith(color: colors.textMuted),
         ),
       ],
+    );
+  }
+}
+
+/// Shown when nothing nearby can fill the order: ask to be told when it can.
+class _NotifyMe extends ConsumerStatefulWidget {
+  const _NotifyMe({required this.productId, required this.location});
+
+  final String productId;
+  final FarmerLocation location;
+
+  @override
+  ConsumerState<_NotifyMe> createState() => _NotifyMeState();
+}
+
+class _NotifyMeState extends ConsumerState<_NotifyMe> {
+  bool _busy = false;
+
+  Future<void> _toggle(bool on) async {
+    setState(() => _busy = true);
+    try {
+      final repo = ref.read(centersRepositoryProvider);
+      if (on) {
+        await repo.turnNotifyMeOn(widget.productId, widget.location);
+      } else {
+        await repo.turnNotifyMeOff(widget.productId);
+      }
+      ref.invalidate(notifyMeProvider(widget.productId));
+    } catch (err) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final on = ref.watch(notifyMeProvider(widget.productId)).value ?? false;
+    if (on) {
+      return Container(
+        padding: const EdgeInsets.all(AppSpacing.sm),
+        decoration: BoxDecoration(color: colors.surfaceSunken, borderRadius: BorderRadius.circular(10)),
+        child: Row(
+          children: [
+            Icon(Icons.notifications_active_outlined, size: 18, color: colors.primary),
+            const SizedBox(width: AppSpacing.sm),
+            Expanded(child: Text("We'll tell you when it's back in stock near you.", style: Theme.of(context).textTheme.bodySmall)),
+            TextButton(onPressed: _busy ? null : () => _toggle(false), child: const Text('Cancel')),
+          ],
+        ),
+      );
+    }
+    return OutlinedButton.icon(
+      onPressed: _busy ? null : () => _toggle(true),
+      icon: const Icon(Icons.notifications_none_rounded),
+      label: const Text('Notify me when available'),
     );
   }
 }

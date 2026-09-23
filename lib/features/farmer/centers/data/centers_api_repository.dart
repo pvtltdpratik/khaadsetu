@@ -66,6 +66,24 @@ class CentersApiRepository implements CentersRepository {
       'locationSource': location.source.name,
     });
   }
+
+  String _notifyPath(String productId) => '/v1/products/${Uri.encodeComponent(productId)}/notify-me';
+
+  @override
+  Future<bool> isNotifyMeOn(String productId) async {
+    final json = await _api.get(_notifyPath(productId)) as Map<String, dynamic>;
+    return json['subscribed'] as bool;
+  }
+
+  @override
+  Future<void> turnNotifyMeOn(String productId, FarmerLocation location) async {
+    await _api.put(_notifyPath(productId), body: {'latitude': location.latitude, 'longitude': location.longitude});
+  }
+
+  @override
+  Future<void> turnNotifyMeOff(String productId) async {
+    await _api.delete(_notifyPath(productId));
+  }
 }
 
 /// The device's GPS, with the reason worded for the farmer when it is unavailable.

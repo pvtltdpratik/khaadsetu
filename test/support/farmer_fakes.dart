@@ -111,6 +111,22 @@ class FakeCentersRepository implements CentersRepository {
 
   @override
   Future<void> saveLocation(FarmerLocation location) async => savedLocations.add(location);
+
+  /// Products the farmer has asked to be told about, and where they asked from.
+  final notifyMe = <String, FarmerLocation>{};
+  Object? notifyMeError;
+
+  @override
+  Future<bool> isNotifyMeOn(String productId) async => notifyMe.containsKey(productId);
+
+  @override
+  Future<void> turnNotifyMeOn(String productId, FarmerLocation location) async {
+    if (notifyMeError != null) throw notifyMeError!;
+    notifyMe[productId] = location;
+  }
+
+  @override
+  Future<void> turnNotifyMeOff(String productId) async => notifyMe.remove(productId);
 }
 
 FarmerOrder farmerOrder(

@@ -87,3 +87,8 @@ final nearbyCentersProvider = FutureProvider.autoDispose.family<NearbyResult?, C
   if (location == null) return null;
   return ref.watch(centersRepositoryProvider).nearby(location: location, cart: cart);
 });
+
+/// Whether the farmer is waiting to hear that [productId] is back in stock.
+final notifyMeProvider = FutureProvider.autoDispose.family<bool, String>(
+  (ref, productId) => ref.watch(centersRepositoryProvider).isNotifyMeOn(productId),
+);
