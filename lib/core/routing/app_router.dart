@@ -27,6 +27,7 @@ import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.d
 import '../../features/operator/presentation/operator_shell.dart';
 import '../../features/operator/presentation/screens/operator_dashboard_screen.dart';
 import '../auth/auth_providers.dart';
+import '../auth/user_role.dart';
 import 'route_paths.dart';
 
 /// App-wide router. Farmer and Operator routes are kept as separate groups
@@ -43,8 +44,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       final onAuthScreen =
           state.matchedLocation == RoutePaths.signIn || state.matchedLocation == RoutePaths.signUp;
       if (!signedIn && !onAuthScreen) return RoutePaths.signIn;
-      if (signedIn && onAuthScreen) return RoutePaths.root;
-      return null;
+      if (!signedIn) return null;
+      // Signed in: keep them out of the auth screens, then route by role so a
+      // farmer never lands in the operator app (or the other way round).
+      if (onAuthScreen) return redirectForRole(auth.currentRole, RoutePaths.root) ?? RoutePaths.root;
+      return redirectForRole(auth.currentRole, state.matchedLocation);
     },
     routes: [
       GoRoute(

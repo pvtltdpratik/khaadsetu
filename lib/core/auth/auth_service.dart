@@ -1,5 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'user_role.dart';
+
 /// Thrown for any failed auth call, with a message worded for the UI.
 class AuthFailure implements Exception {
   AuthFailure(this.message);
@@ -25,6 +27,16 @@ class AuthService {
   User? get currentUser => _auth.currentUser;
   Stream<AuthState> get onAuthStateChange => _auth.onAuthStateChange;
 
+  /// The signed-in user's role, or null for a signed-out user or an account
+  /// created before roles existed.
+  UserRole? get currentRole => UserRole.fromMetadata(_auth.currentUser?.userMetadata);
+
+  /// Saves the role on the account (used by the one-time chooser). The SDK
+  /// emits a user-updated event, which re-runs the router's redirect.
+  Future<void> setRole(UserRole role) {
+    return _guard(() => _auth.updateUser(UserAttributes(data: {UserRole.metadataKey: role.name})));
+  }
+
   Future<void> signIn({required String email, required String password}) {
     return _guard(() => _auth.signInWithPassword(email: email.trim(), password: password));
   }
@@ -33,11 +45,12 @@ class AuthService {
     required String name,
     required String email,
     required String password,
+    required UserRole role,
   }) async {
     final response = await _guard(() => _auth.signUp(
           email: email.trim(),
           password: password,
-          data: {'full_name': name.trim()},
+          data: {'full_name': name.trim(), UserRole.metadataKey: role.name},
         ));
     // An address that is already registered comes back as a user with no
     // identities (Supabase hides it to avoid revealing who has an account).

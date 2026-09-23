@@ -7,6 +7,7 @@ import '../../../../../core/responsive/responsive_layout.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
+import '../../../../../core/widgets/sign_out_button.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../soil_health/presentation/providers/soil_health_providers.dart';
 import '../../../weather/presentation/providers/weather_providers.dart';
@@ -29,6 +30,7 @@ class FarmerHomeScreen extends ConsumerWidget {
         child: ListView(
           padding: context.pagePadding,
           children: [
+            if (!context.breakpoint.isTabletUp) const Align(alignment: Alignment.centerRight, child: SignOutButton()),
             profileAsync.when(
               data: (profile) => HomeHeader(
                 profile: profile,

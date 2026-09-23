@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/responsive/responsive.dart';
+import '../../../core/widgets/sign_out_button.dart';
 
 class _FarmerDestination {
   const _FarmerDestination({
@@ -87,6 +88,12 @@ class FarmerShell extends StatelessWidget {
                     labelType: context.breakpoint.isDesktop
                         ? NavigationRailLabelType.none
                         : NavigationRailLabelType.selected,
+                    trailing: const Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(padding: EdgeInsets.only(bottom: 16), child: SignOutButton()),
+                      ),
+                    ),
                     selectedIndex: navigationShell.currentIndex,
                     onDestinationSelected: _onDestinationSelected,
                     destinations: [

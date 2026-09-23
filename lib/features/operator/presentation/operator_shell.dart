@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/responsive/responsive.dart';
+import '../../../core/widgets/sign_out_button.dart';
 
 class _OperatorDestination {
   const _OperatorDestination({
@@ -90,6 +91,12 @@ class OperatorShell extends StatelessWidget {
                     extended: true,
                     minExtendedWidth: 208,
                     labelType: NavigationRailLabelType.none,
+                    trailing: const Expanded(
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: Padding(padding: EdgeInsets.only(bottom: 16), child: SignOutButton()),
+                      ),
+                    ),
                     selectedIndex: navigationShell.currentIndex,
                     onDestinationSelected: _onDestinationSelected,
                     destinations: [
