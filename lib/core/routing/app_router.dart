@@ -1,7 +1,16 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/app_selector_screen.dart';
+import '../../features/admin/domain/entities/admin_models.dart';
+import '../../features/admin/presentation/admin_shell.dart';
+import '../../features/admin/presentation/screens/admin_center_detail_screen.dart';
+import '../../features/admin/presentation/screens/admin_centers_screen.dart';
+import '../../features/admin/presentation/screens/admin_overview_screen.dart';
+import '../../features/admin/presentation/screens/admin_people_screen.dart';
+import '../../features/admin/presentation/screens/admin_user_detail_screen.dart';
+import '../../features/admin/presentation/screens/create_center_screen.dart';
+import '../../features/auth/presentation/screens/session_gate_screen.dart';
 import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/farmer/home/presentation/screens/farmer_home_screen.dart';
@@ -27,7 +36,7 @@ import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.d
 import '../../features/operator/presentation/operator_shell.dart';
 import '../../features/operator/presentation/screens/operator_dashboard_screen.dart';
 import '../auth/auth_providers.dart';
-import '../auth/user_role.dart';
+import '../auth/session_profile.dart';
 import 'route_paths.dart';
 
 /// App-wide router. Farmer and Operator routes are kept as separate groups
@@ -35,25 +44,37 @@ import 'route_paths.dart';
 /// routes and shell can evolve independently in later phases.
 final appRouterProvider = Provider<GoRouter>((ref) {
   final auth = ref.watch(authServiceProvider);
+  // The redirect depends on who the SERVER says the user is, which arrives a
+  // moment after sign-in (and can change, e.g. when an admin suspends them), so
+  // the router re-runs its redirect when either the session or that profile changes.
+  final refresh = _RouterRefresh();
+  ref.onDispose(refresh.dispose);
+  ref.listen(sessionProfileProvider, (_, _) => refresh.ping());
   return GoRouter(
     initialLocation: RoutePaths.root,
-    // Re-run `redirect` on every sign-in / sign-out.
-    refreshListenable: ref.watch(authRefreshProvider),
+    refreshListenable: Listenable.merge([ref.watch(authRefreshProvider), refresh]),
     redirect: (context, state) {
       final signedIn = auth.currentSession != null;
       final onAuthScreen =
           state.matchedLocation == RoutePaths.signIn || state.matchedLocation == RoutePaths.signUp;
-      if (!signedIn && !onAuthScreen) return RoutePaths.signIn;
-      if (!signedIn) return null;
-      // Signed in: keep them out of the auth screens, then route by role so a
-      // farmer never lands in the operator app (or the other way round).
-      if (onAuthScreen) return redirectForRole(auth.currentRole, RoutePaths.root) ?? RoutePaths.root;
-      return redirectForRole(auth.currentRole, state.matchedLocation);
+      if (!signedIn) return onAuthScreen ? null : RoutePaths.signIn;
+      // Signed in: route by the server's word (null while it is still loading),
+      // so a farmer never lands in the operator app, an operator never in the
+      // admin panel, and so on.
+      return redirectForSession(ref.read(sessionProfileProvider).value, state.matchedLocation);
     },
     routes: [
       GoRoute(
         path: RoutePaths.root,
-        builder: (context, state) => const AppSelectorScreen(),
+        builder: (context, state) => const SessionGateScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.suspended,
+        builder: (context, state) => const SuspendedScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.pendingOperator,
+        builder: (context, state) => const PendingOperatorScreen(),
       ),
       GoRoute(
         path: RoutePaths.signIn,
@@ -169,6 +190,83 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         ],
       ),
 
+      // --- Platform admin panel ---
+      GoRoute(
+        path: RoutePaths.adminRoot,
+        redirect: (context, state) => RoutePaths.adminOverview,
+      ),
+      StatefulShellRoute.indexedStack(
+        builder: (context, state, navigationShell) => AdminShell(navigationShell: navigationShell),
+        branches: [
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.adminOverview,
+                builder: (context, state) => const AdminOverviewScreen(),
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.adminOperators,
+                builder: (context, state) {
+                  final segment = _segmentFromQuery(state.uri.queryParameters['segment']);
+                  // Keyed by the filter so a link like "operators awaiting a
+                  // center" re-applies it even when this tab is already open.
+                  return AdminPeopleScreen(key: ValueKey('operators-$segment'), role: PersonRole.operator, initialSegment: segment);
+                },
+                routes: [
+                  GoRoute(
+                    path: ':userId',
+                    builder: (context, state) => AdminUserDetailScreen(userId: state.pathParameters['userId']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.adminFarmers,
+                builder: (context, state) {
+                  final segment = _segmentFromQuery(state.uri.queryParameters['segment']);
+                  return AdminPeopleScreen(key: ValueKey('farmers-$segment'), role: PersonRole.farmer, initialSegment: segment);
+                },
+                routes: [
+                  GoRoute(
+                    path: ':userId',
+                    builder: (context, state) => AdminUserDetailScreen(userId: state.pathParameters['userId']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.adminCenters,
+                builder: (context, state) {
+                  final filter = centerFilterFromQuery(state.uri.queryParameters['filter']);
+                  return AdminCentersScreen(key: ValueKey('centers-$filter'), initialFilter: filter);
+                },
+                routes: [
+                  // 'new' is declared before ':centerId' so it matches first.
+                  GoRoute(
+                    path: 'new',
+                    builder: (context, state) => const CreateCenterScreen(),
+                  ),
+                  GoRoute(
+                    path: ':centerId',
+                    builder: (context, state) => AdminCenterDetailScreen(centerId: state.pathParameters['centerId']!),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+
       // --- Village Center Operator App route group ---
       GoRoute(
         path: RoutePaths.operatorRoot,
@@ -249,3 +347,15 @@ final appRouterProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
+
+PersonSegment? _segmentFromQuery(String? raw) {
+  for (final s in PersonSegment.values) {
+    if (s.name == raw) return s;
+  }
+  return null;
+}
+
+/// A [Listenable] the router can be told to re-check its redirect through.
+class _RouterRefresh extends ChangeNotifier {
+  void ping() => notifyListeners();
+}
