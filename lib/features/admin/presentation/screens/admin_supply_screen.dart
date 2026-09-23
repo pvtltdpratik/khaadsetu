@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../core/animation/fade_slide_in.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -145,7 +146,7 @@ class _RestockListState extends ConsumerState<_RestockList> {
         requests.when(
           data: (list) => list.isEmpty
               ? _Empty(icon: Icons.local_shipping_outlined, text: _status == RestockStatus.pending ? 'No restock requests are waiting.' : 'No restock requests here.')
-              : Column(children: [for (final r in list) _RestockCard(request: r, onAdvance: () => _advance(r))]),
+              : Column(children: [for (final (i, r) in list.indexed) FadeSlideIn(key: ValueKey(r.id), index: i, child: _RestockCard(request: r, onAdvance: () => _advance(r)))]),
           loading: () => const SizedBox(height: 160, child: AppLoadingIndicator()),
           error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(adminRestockProvider)),
         ),
@@ -240,7 +241,7 @@ class _DiscrepancyListState extends ConsumerState<_DiscrepancyList> {
         reports.when(
           data: (list) => list.isEmpty
               ? _Empty(icon: Icons.fact_check_outlined, text: _resolved ? 'No reviewed reports yet.' : 'No delivery reports to review.')
-              : Column(children: [for (final d in list) _DiscrepancyCard(report: d, onResolve: () => _resolve(d))]),
+              : Column(children: [for (final (i, d) in list.indexed) FadeSlideIn(key: ValueKey(d.id), index: i, child: _DiscrepancyCard(report: d, onResolve: () => _resolve(d)))]),
           loading: () => const SizedBox(height: 160, child: AppLoadingIndicator()),
           error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(adminDiscrepanciesProvider)),
         ),
@@ -342,7 +343,7 @@ class _SurplusListState extends ConsumerState<_SurplusList> {
                 if (shown.isEmpty)
                   _Empty(icon: Icons.sell_outlined, text: _showEnded ? 'No ended surplus offers.' : 'No surplus is on sale right now.')
                 else
-                  Column(children: [for (final item in shown) _SurplusCard(item: item, onWithdraw: () => _withdraw(item))]),
+                  Column(children: [for (final (i, item) in shown.indexed) FadeSlideIn(key: ValueKey(item.lot.id), index: i, child: _SurplusCard(item: item, onWithdraw: () => _withdraw(item)))]),
               ],
             );
           },

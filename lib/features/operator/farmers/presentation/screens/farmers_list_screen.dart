@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -72,9 +74,15 @@ class _FarmersListScreenState extends ConsumerState<FarmersListScreen> {
                       padding: context.pagePadding,
                       itemCount: filtered.length,
                       separatorBuilder: (_, _) => AppSpacing.gapSm,
-                      itemBuilder: (context, i) => FarmerCard(
-                        farmer: filtered[i],
-                        onTap: () => context.push(RoutePaths.operatorFarmerDetail(filtered[i].id)),
+                      itemBuilder: (context, i) => FadeSlideIn(
+                        key: ValueKey(filtered[i].id),
+                        index: i,
+                        child: Pressable(
+                          child: FarmerCard(
+                            farmer: filtered[i],
+                            onTap: () => context.push(RoutePaths.operatorFarmerDetail(filtered[i].id)),
+                          ),
+                        ),
                       ),
                     );
                   }
@@ -87,9 +95,15 @@ class _FarmersListScreenState extends ConsumerState<FarmersListScreen> {
                       mainAxisSpacing: AppSpacing.md,
                       childAspectRatio: 2.2,
                     ),
-                    itemBuilder: (context, i) => FarmerCard(
-                      farmer: filtered[i],
-                      onTap: () => context.push(RoutePaths.operatorFarmerDetail(filtered[i].id)),
+                    itemBuilder: (context, i) => FadeSlideIn(
+                      key: ValueKey(filtered[i].id),
+                      index: i,
+                      child: Pressable(
+                        child: FarmerCard(
+                          farmer: filtered[i],
+                          onTap: () => context.push(RoutePaths.operatorFarmerDetail(filtered[i].id)),
+                        ),
+                      ),
                     ),
                   );
                 },

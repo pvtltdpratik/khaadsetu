@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/animated_count.dart';
+import '../../../../core/animation/fade_slide_in.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../../core/routing/route_paths.dart';
@@ -98,10 +100,10 @@ class _SummaryCards extends StatelessWidget {
     final lowStock = inventoryAsync.whenOrNull(data: (items) => items.where((i) => i.isLowStock).length) ?? 0;
 
     final cards = [
-      ('Today\'s orders', '$todaysOrders', Icons.receipt_long_outlined, context.colors.primary),
-      ('Walk-ins today', '$walkIns', Icons.storefront_outlined, context.colors.secondary),
-      ('Needs attention', '$needsAttention', Icons.pending_actions_outlined, context.colors.warning),
-      ('Low stock items', '$lowStock', Icons.inventory_2_outlined, context.colors.danger),
+      ('Today\'s orders', todaysOrders, Icons.receipt_long_outlined, context.colors.primary),
+      ('Walk-ins today', walkIns, Icons.storefront_outlined, context.colors.secondary),
+      ('Needs attention', needsAttention, Icons.pending_actions_outlined, context.colors.warning),
+      ('Low stock items', lowStock, Icons.inventory_2_outlined, context.colors.danger),
     ];
 
     return GridView.builder(
@@ -116,17 +118,21 @@ class _SummaryCards extends StatelessWidget {
       ),
       itemBuilder: (context, i) {
         final (label, value, icon, color) = cards[i];
-        return Container(
-          padding: const EdgeInsets.all(AppSpacing.md),
-          decoration: BoxDecoration(color: context.colors.surfaceSunken, borderRadius: BorderRadius.circular(14)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Icon(icon, color: color),
-              Text(value, style: Theme.of(context).textTheme.headlineSmall),
-              Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.colors.textMuted)),
-            ],
+        return FadeSlideIn(
+          key: ValueKey(label),
+          index: i,
+          child: Container(
+            padding: const EdgeInsets.all(AppSpacing.md),
+            decoration: BoxDecoration(color: context.colors.surfaceSunken, borderRadius: BorderRadius.circular(14)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Icon(icon, color: color),
+                AnimatedCount(value: value, style: Theme.of(context).textTheme.headlineSmall),
+                Text(label, style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.colors.textMuted)),
+              ],
+            ),
           ),
         );
       },

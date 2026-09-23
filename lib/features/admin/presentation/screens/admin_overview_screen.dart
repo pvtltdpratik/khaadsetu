@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/animated_count.dart';
+import '../../../../core/animation/fade_slide_in.dart';
+import '../../../../core/animation/motion.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/responsive/responsive_layout.dart';
 import '../../../../core/routing/route_paths.dart';
@@ -155,7 +158,7 @@ class _OverviewBody extends StatelessWidget {
         if (attention.isNotEmpty) ...[
           Text('Needs attention', style: Theme.of(context).textTheme.titleMedium),
           AppSpacing.gapSm,
-          ...attention,
+          for (final (i, tile) in attention.indexed) FadeSlideIn(index: i, child: tile),
           AppSpacing.gapLg,
         ] else ...[
           _AttentionTile(icon: Icons.check_circle_outline_rounded, color: colors.success, text: 'Nothing needs attention right now'),
@@ -163,11 +166,12 @@ class _OverviewBody extends StatelessWidget {
         ],
         Text('People, centers and orders', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
-        ResponsiveRow(spacing: AppSpacing.md, children: cards.sublist(0, 2)),
+        // The cards land one after another, a beat after the attention list.
+        ResponsiveRow(spacing: AppSpacing.md, children: [for (var i = 0; i < 2; i++) FadeSlideIn(delay: Motion.delayFor(attention.length + i), child: cards[i])]),
         AppSpacing.gapMd,
-        ResponsiveRow(spacing: AppSpacing.md, children: cards.sublist(2, 4)),
+        ResponsiveRow(spacing: AppSpacing.md, children: [for (var i = 2; i < 4; i++) FadeSlideIn(delay: Motion.delayFor(attention.length + i), child: cards[i])]),
         AppSpacing.gapMd,
-        ResponsiveRow(spacing: AppSpacing.md, children: [cards[4], const SizedBox.shrink()]),
+        ResponsiveRow(spacing: AppSpacing.md, children: [FadeSlideIn(delay: Motion.delayFor(attention.length + 4), child: cards[4]), const SizedBox.shrink()]),
       ],
     );
   }
@@ -249,7 +253,7 @@ class _StatCard extends StatelessWidget {
                   Icon(icon, color: colors.primary, size: 20),
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(child: Text(title, style: text.titleSmall)),
-                  Text('$total', style: text.headlineSmall),
+                  AnimatedCount(value: total, style: text.headlineSmall),
                   if (totalLabel != null) Text(' $totalLabel', style: text.bodySmall?.copyWith(color: colors.textMuted)),
                 ],
               ),
@@ -264,7 +268,7 @@ class _StatCard extends StatelessWidget {
                         Container(width: 8, height: 8, decoration: BoxDecoration(color: line.color, shape: BoxShape.circle)),
                         const SizedBox(width: AppSpacing.sm),
                         Expanded(child: Text(line.label, style: text.bodyMedium)),
-                        Text('${line.count}', style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
+                        AnimatedCount(value: line.count, style: text.bodyMedium?.copyWith(fontWeight: FontWeight.w600)),
                       ],
                     ),
                   ),

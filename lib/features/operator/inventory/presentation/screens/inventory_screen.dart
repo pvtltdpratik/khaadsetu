@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/responsive/responsive_layout.dart';
 import '../../../../../core/routing/route_paths.dart';
@@ -117,7 +118,10 @@ class _Items extends StatelessWidget {
         return Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
-          children: [for (final item in sorted) SizedBox(width: width, child: _InventoryTile(item: item))],
+          children: [
+            for (final (i, item) in sorted.indexed)
+              SizedBox(width: width, child: FadeSlideIn(key: ValueKey(item.id), index: i, child: _InventoryTile(item: item))),
+          ],
         );
       },
     );
