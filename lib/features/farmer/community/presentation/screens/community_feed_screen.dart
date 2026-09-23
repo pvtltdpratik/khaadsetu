@@ -11,16 +11,10 @@ import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../../core/widgets/tag_filter_row.dart';
 import '../../../schemes/presentation/screens/schemes_list_view.dart';
 import '../../domain/entities/community_post.dart';
+import '../community_options.dart';
 import '../providers/community_providers.dart';
 import '../widgets/community_post_card.dart';
 import '../widgets/problem_type_style.dart';
-
-// No "distinct crop/district values" endpoint exists on the server (crop and
-// district are free text, unlike problem type), so the filter chips offer a
-// small curated list matching what's actually in the seed data rather than
-// every value a farmer might type into a post.
-const _kCrops = ['Wheat', 'Cotton', 'Onion', 'Sugarcane', 'Soybean', 'Rice', 'Mustard', 'Grapes', 'Okra'];
-const _kDistricts = ['Pune', 'Aurangabad', 'Nashik', 'Kolhapur', 'Solapur'];
 
 class CommunityFeedScreen extends ConsumerStatefulWidget {
   const CommunityFeedScreen({super.key});
@@ -66,6 +60,12 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
               child: Row(
                 children: [
                   Expanded(child: Text('Community', style: Theme.of(context).textTheme.titleLarge)),
+                  if (_section == 0)
+                    FilledButton.icon(
+                      onPressed: () => context.push(RoutePaths.farmerCommunityNewPost),
+                      icon: const Icon(Icons.add_rounded),
+                      label: const Text('New post'),
+                    ),
                 ],
               ),
             ),
@@ -112,7 +112,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                     children: [
                       TagFilterRow<String>(
                         label: 'Crop',
-                        options: _kCrops,
+                        options: kCommunityCrops,
                         selected: feed.filters.crop,
                         labelBuilder: (c) => c,
                         onChanged: (c) => ref.read(communityFeedProvider.notifier).setFilters(
@@ -122,7 +122,7 @@ class _CommunityFeedScreenState extends ConsumerState<CommunityFeedScreen> {
                       AppSpacing.gapSm,
                       TagFilterRow<String>(
                         label: 'District',
-                        options: _kDistricts,
+                        options: kCommunityDistricts,
                         selected: feed.filters.district,
                         labelBuilder: (d) => d,
                         onChanged: (d) => ref.read(communityFeedProvider.notifier).setFilters(

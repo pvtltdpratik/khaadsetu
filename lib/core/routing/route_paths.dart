@@ -33,6 +33,8 @@ class RoutePaths {
 
   static const farmerCommunity = '/farmer/community';
 
+  static const farmerCommunityNewPost = '/farmer/community/new';
+
   static const farmerCommunityPostPattern = '/farmer/community/post/:postId';
   static String farmerCommunityPost(String postId) =>
       '/farmer/community/post/$postId';
