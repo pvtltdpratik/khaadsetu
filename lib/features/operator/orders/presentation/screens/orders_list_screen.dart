@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -74,9 +76,15 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
                       padding: context.pagePadding,
                       itemCount: filtered.length,
                       separatorBuilder: (_, _) => AppSpacing.gapSm,
-                      itemBuilder: (context, i) => OrderCard(
-                        order: filtered[i],
-                        onTap: () => context.push(RoutePaths.operatorOrderDetail(filtered[i].id)),
+                      itemBuilder: (context, i) => FadeSlideIn(
+                        key: ValueKey(filtered[i].id),
+                        index: i,
+                        child: Pressable(
+                          child: OrderCard(
+                            order: filtered[i],
+                            onTap: () => context.push(RoutePaths.operatorOrderDetail(filtered[i].id)),
+                          ),
+                        ),
                       ),
                     );
                   }
@@ -89,9 +97,15 @@ class _OrdersListScreenState extends ConsumerState<OrdersListScreen> {
                       mainAxisSpacing: AppSpacing.md,
                       childAspectRatio: 1.3,
                     ),
-                    itemBuilder: (context, i) => OrderCard(
-                      order: filtered[i],
-                      onTap: () => context.push(RoutePaths.operatorOrderDetail(filtered[i].id)),
+                    itemBuilder: (context, i) => FadeSlideIn(
+                      key: ValueKey(filtered[i].id),
+                      index: i,
+                      child: Pressable(
+                        child: OrderCard(
+                          order: filtered[i],
+                          onTap: () => context.push(RoutePaths.operatorOrderDetail(filtered[i].id)),
+                        ),
+                      ),
                     ),
                   );
                 },

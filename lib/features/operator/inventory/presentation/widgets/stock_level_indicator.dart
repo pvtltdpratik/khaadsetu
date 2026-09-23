@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/animation/motion.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/inventory_item.dart';
@@ -49,11 +50,22 @@ class StockLevelIndicator extends StatelessWidget {
           ],
         ),
         const SizedBox(height: AppSpacing.xxs),
+        // The bar grows to its level when it first appears and glides when the
+        // level changes (a delivery arrives, an order is placed).
         LayoutBuilder(
           builder: (context, constraints) => Stack(
             children: [
               Container(height: 8, decoration: BoxDecoration(color: colors.surfaceSunken, borderRadius: BorderRadius.circular(999))),
-              Container(width: constraints.maxWidth * ratio, height: 8, decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(999))),
+              TweenAnimationBuilder<double>(
+                tween: Tween<double>(begin: 0, end: ratio),
+                duration: Motion.reduced(context) ? Duration.zero : Motion.slow,
+                curve: Motion.enter,
+                builder: (context, value, _) => Container(
+                  width: constraints.maxWidth * value,
+                  height: 8,
+                  decoration: BoxDecoration(color: color, borderRadius: BorderRadius.circular(999)),
+                ),
+              ),
             ],
           ),
         ),

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/fade_slide_in.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -92,9 +93,13 @@ class _AdminPeopleScreenState extends ConsumerState<AdminPeopleScreen> {
                               );
                             }
                             final user = list[i];
-                            return PersonTile(
-                              user: user,
-                              onTap: () => context.push(_isOperators ? RoutePaths.adminOperator(user.userId) : RoutePaths.adminFarmer(user.userId)),
+                            return FadeSlideIn(
+                              key: ValueKey(user.userId),
+                              index: i,
+                              child: PersonTile(
+                                user: user,
+                                onTap: () => context.push(_isOperators ? RoutePaths.adminOperator(user.userId) : RoutePaths.adminFarmer(user.userId)),
+                              ),
                             );
                           },
                         ),

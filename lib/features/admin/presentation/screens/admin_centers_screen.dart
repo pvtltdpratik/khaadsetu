@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/fade_slide_in.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -101,7 +102,11 @@ class _AdminCentersScreenState extends ConsumerState<AdminCentersScreen> {
                       : ListView.separated(
                           itemCount: list.length,
                           separatorBuilder: (_, _) => AppSpacing.gapSm,
-                          itemBuilder: (context, i) => CenterTile(center: list[i], onTap: () => context.push(RoutePaths.adminCenter(list[i].centerId))),
+                          itemBuilder: (context, i) => FadeSlideIn(
+                            key: ValueKey(list[i].centerId),
+                            index: i,
+                            child: CenterTile(center: list[i], onTap: () => context.push(RoutePaths.adminCenter(list[i].centerId))),
+                          ),
                         ),
                   loading: () => const AppLoadingIndicator(),
                   error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(adminCentersProvider(query))),

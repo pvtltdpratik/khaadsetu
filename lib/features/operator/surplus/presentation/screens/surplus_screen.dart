@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/responsive/responsive_layout.dart';
 import '../../../../../core/routing/route_paths.dart';
@@ -77,8 +78,8 @@ class _SurplusScreenState extends ConsumerState<SurplusScreen> {
                       if (shown.isEmpty)
                         _Empty(showEnded: _showEnded, anyLots: all.isNotEmpty)
                       else
-                        for (final lot in shown) ...[
-                          _LotCard(lot: lot),
+                        for (final (i, lot) in shown.indexed) ...[
+                          FadeSlideIn(key: ValueKey(lot.id), index: i, child: _LotCard(lot: lot)),
                           AppSpacing.gapSm,
                         ],
                     ],
