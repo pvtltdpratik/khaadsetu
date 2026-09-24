@@ -32,6 +32,10 @@ import '../../features/farmer/community/presentation/screens/create_post_screen.
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
+import '../../features/delivery/presentation/screens/delivery_hub_screen.dart';
+import '../../features/delivery/presentation/screens/loads_screens.dart';
+import '../../features/delivery/presentation/screens/trips_screen.dart';
+import '../../features/delivery/presentation/screens/wallet_screen.dart';
 import '../../features/operator/farmers/presentation/screens/farmer_detail_screen.dart';
 import '../../features/operator/farmers/presentation/screens/farmers_list_screen.dart';
 import '../../features/operator/inventory/presentation/screens/inventory_screen.dart';
@@ -113,6 +117,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'deliver',
+                    builder: (context, state) => const DeliveryHubScreen(),
+                    routes: [
+                      GoRoute(path: 'wallet', builder: (context, state) => const WalletScreen()),
+                      GoRoute(path: 'trips', builder: (context, state) => const TripsScreen()),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'loads',
+                    builder: (context, state) => const MyLoadsScreen(),
+                    routes: [
+                      // Before ':loadId', so "new" is not read as a load's id.
+                      GoRoute(path: 'new', builder: (context, state) => const SendLoadScreen()),
+                      GoRoute(path: ':loadId', builder: (context, state) => LoadDetailScreen(jobId: state.pathParameters['loadId']!)),
+                    ],
                   ),
                 ],
               ),
@@ -324,6 +345,23 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
+                  ),
+                  GoRoute(
+                    path: 'deliver',
+                    builder: (context, state) => const DeliveryHubScreen(),
+                    routes: [
+                      GoRoute(path: 'wallet', builder: (context, state) => const WalletScreen()),
+                      GoRoute(path: 'trips', builder: (context, state) => const TripsScreen()),
+                    ],
+                  ),
+                  GoRoute(
+                    path: 'loads',
+                    builder: (context, state) => const MyLoadsScreen(),
+                    routes: [
+                      // Before ':loadId', so "new" is not read as a load's id.
+                      GoRoute(path: 'new', builder: (context, state) => const SendLoadScreen()),
+                      GoRoute(path: ':loadId', builder: (context, state) => LoadDetailScreen(jobId: state.pathParameters['loadId']!)),
+                    ],
                   ),
                 ],
               ),

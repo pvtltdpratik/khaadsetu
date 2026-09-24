@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/network/api_client_provider.dart';
 import '../../../farmer/centers/domain/entities/nearby_center.dart';
+import '../../../farmer/centers/presentation/providers/centers_providers.dart';
 import '../../data/delivery_api_repository.dart';
 import '../../domain/entities/delivery_models.dart';
 import '../../domain/repositories/delivery_repository.dart';
@@ -56,3 +57,27 @@ class BoardArgs extends Equatable {
 final tripBoardProvider = FutureProvider.autoDispose.family<List<Trip>, BoardArgs>(
   (ref, args) => ref.watch(deliveryRepositoryProvider).tripBoard(location: args.location, weightKg: args.weightKg),
 );
+
+/// A route and a weight: what a load would cost.
+class RouteArgs extends Equatable {
+  const RouteArgs({required this.from, required this.to, required this.weightKg});
+
+  final GeoPoint from;
+  final GeoPoint to;
+  final double weightKg;
+
+  @override
+  List<Object?> get props => [from, to, weightKg];
+}
+
+final loadQuoteProvider = FutureProvider.autoDispose.family<LoadQuote, RouteArgs>(
+  (ref, a) => ref.watch(deliveryRepositoryProvider).loadQuote(LoadRequest(from: a.from, fromPhone: '', to: a.to, toPhone: '', weightKg: a.weightKg, description: '', feePayer: 'sender')),
+);
+
+/// Working centers near the farmer, to choose which one checks a delivery application.
+final reviewCentersProvider = FutureProvider.autoDispose<List<NearbyCenter>>((ref) async {
+  final location = await ref.watch(farmerLocationProvider.future);
+  if (location == null) return const [];
+  final result = await ref.watch(centersRepositoryProvider).nearby(location: location, limit: 10);
+  return result.centers;
+});
