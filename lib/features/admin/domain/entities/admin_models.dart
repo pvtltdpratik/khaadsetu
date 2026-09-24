@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../delivery/management/domain/management_models.dart';
 import '../../../operator/surplus/domain/entities/surplus_lot.dart';
 
 /// People counts for one role, split by segment. `unassigned` only applies to
@@ -39,6 +40,7 @@ class AdminOverview extends Equatable {
     this.discrepanciesOpen = 0,
     this.surplusActiveLots = 0,
     this.surplusUnits = 0,
+    this.delivery,
   });
 
   factory AdminOverview.fromJson(Map<String, dynamic> json) {
@@ -60,6 +62,7 @@ class AdminOverview extends Equatable {
       discrepanciesOpen: ((json['discrepanciesOpen'] as num?) ?? 0).toInt(),
       surplusActiveLots: (((json['surplus'] as Map<String, dynamic>?)?['activeLots'] as num?) ?? 0).toInt(),
       surplusUnits: (((json['surplus'] as Map<String, dynamic>?)?['units'] as num?) ?? 0).toInt(),
+      delivery: json['delivery'] == null ? null : DeliverySummary.fromJson(json['delivery'] as Map<String, dynamic>),
     );
   }
 
@@ -84,11 +87,15 @@ class AdminOverview extends Equatable {
   final int surplusActiveLots;
   final int surplusUnits;
 
+  /// Home delivery: jobs looking for a driver, on the road, done today; partners; cash held.
+  /// Null when talking to an older server.
+  final DeliverySummary? delivery;
+
   @override
   List<Object?> get props => [
         operators, farmers, centersActive, centersSuspended, centersWithoutOperator,
         ordersPending, ordersReadyForPickup, ordersToday, restockPending, lowStockItems, lowStockUnattended, discrepanciesOpen,
-        surplusActiveLots, surplusUnits,
+        surplusActiveLots, surplusUnits, delivery,
       ];
 }
 

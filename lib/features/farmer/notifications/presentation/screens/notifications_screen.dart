@@ -75,7 +75,11 @@ class NotificationsScreen extends ConsumerWidget {
       context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
       return;
     }
-    if (_isOperator(ref)) return; // application and cash notices: the text says it
+    // An application to check, a delivery with no driver, cash handed over: the board has it all.
+    if (_isOperator(ref)) {
+      context.push(RoutePaths.operatorDeliveries);
+      return;
+    }
     if (refId.startsWith('job-')) {
       try {
         await ref.read(deliveryRepositoryProvider).load(refId);

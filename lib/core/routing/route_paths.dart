@@ -14,6 +14,7 @@ class RoutePaths {
   static const adminFarmers = '/admin/farmers';
   static const adminCenters = '/admin/centers';
   static const adminSupply = '/admin/supply';
+  static const adminDelivery = '/admin/delivery';
   static const adminCenterNew = '/admin/centers/new';
   static String adminOperator(String userId) => '/admin/operators/${Uri.encodeComponent(userId)}';
   static String adminFarmer(String userId) => '/admin/farmers/${Uri.encodeComponent(userId)}';
@@ -93,4 +94,5 @@ class RoutePaths {
       '/operator/farmers/$farmerId';
 
   static const operatorEarnings = '/operator/earnings';
+  static const operatorDeliveries = '/operator/deliveries';
 }
