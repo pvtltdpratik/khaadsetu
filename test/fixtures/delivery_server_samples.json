@@ -1,0 +1,1631 @@
+{
+  "partnerNone": {
+    "status": "none",
+    "userId": "ramesh",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "maxDistanceKm": 10,
+    "freeFrom": "06:00",
+    "freeUntil": "20:00",
+    "online": false,
+    "documents": {
+      "licence": null,
+      "rc": null
+    },
+    "missing": [
+      "vehicleType",
+      "vehicleNumber",
+      "capacityKg",
+      "phone",
+      "licence",
+      "rc"
+    ],
+    "canSubmit": false
+  },
+  "partnerDraft": {
+    "userId": "ramesh",
+    "status": "draft",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "capacityKg": 600,
+    "phone": "9876500000",
+    "maxDistanceKm": 10,
+    "freeFrom": "00:00",
+    "freeUntil": "23:59",
+    "online": false,
+    "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reviewCenterName": "Shirur Center",
+    "rejectionReason": null,
+    "ratingCount": 0,
+    "deliveriesDone": 0,
+    "submittedAt": null,
+    "reviewedAt": null,
+    "createdAt": "2026-09-24T16:50:32.684Z",
+    "name": "Ramesh Patil",
+    "village": "Shirur",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratingAvg": 0,
+    "vehicleLabel": "Pickup / small van",
+    "documents": {
+      "licence": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.782Z"
+      },
+      "rc": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.817Z"
+      }
+    },
+    "missing": [],
+    "canSubmit": true
+  },
+  "partnerPending": {
+    "userId": "ramesh",
+    "status": "pending",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "capacityKg": 600,
+    "phone": "9876500000",
+    "maxDistanceKm": 10,
+    "freeFrom": "00:00",
+    "freeUntil": "23:59",
+    "online": false,
+    "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reviewCenterName": "Shirur Center",
+    "rejectionReason": null,
+    "ratingCount": 0,
+    "deliveriesDone": 0,
+    "submittedAt": "2026-09-24T16:50:32.835Z",
+    "reviewedAt": null,
+    "createdAt": "2026-09-24T16:50:32.684Z",
+    "name": "Ramesh Patil",
+    "village": "Shirur",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratingAvg": 0,
+    "vehicleLabel": "Pickup / small van",
+    "documents": {
+      "licence": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.782Z"
+      },
+      "rc": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.817Z"
+      }
+    },
+    "missing": [],
+    "canSubmit": false
+  },
+  "opPartnersList": [
+    {
+      "userId": "ramesh",
+      "status": "pending",
+      "vehicleType": "pickup",
+      "vehicleNumber": "MH12AB1234",
+      "capacityKg": 600,
+      "phone": "9876500000",
+      "maxDistanceKm": 10,
+      "freeFrom": "00:00",
+      "freeUntil": "23:59",
+      "online": false,
+      "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "reviewCenterName": "Shirur Center",
+      "rejectionReason": null,
+      "ratingCount": 0,
+      "deliveriesDone": 0,
+      "submittedAt": "2026-09-24T16:50:32.835Z",
+      "reviewedAt": null,
+      "createdAt": "2026-09-24T16:50:32.684Z",
+      "name": "Ramesh Patil",
+      "village": "Shirur",
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "ratingAvg": 0,
+      "vehicleLabel": "Pickup / small van"
+    }
+  ],
+  "opPartnerDetail": {
+    "userId": "ramesh",
+    "status": "pending",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "capacityKg": 600,
+    "phone": "9876500000",
+    "maxDistanceKm": 10,
+    "freeFrom": "00:00",
+    "freeUntil": "23:59",
+    "online": false,
+    "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reviewCenterName": "Shirur Center",
+    "rejectionReason": null,
+    "ratingCount": 0,
+    "deliveriesDone": 0,
+    "submittedAt": "2026-09-24T16:50:32.835Z",
+    "reviewedAt": null,
+    "createdAt": "2026-09-24T16:50:32.684Z",
+    "name": "Ramesh Patil",
+    "village": "Shirur",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratingAvg": 0,
+    "vehicleLabel": "Pickup / small van",
+    "documents": {
+      "licence": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.782Z"
+      },
+      "rc": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.817Z"
+      }
+    },
+    "missing": [],
+    "canSubmit": false,
+    "events": [
+      {
+        "id": "dpe-84fd5dda-9f1b-4955-8117-b0d7c6d844db",
+        "actorRole": "partner",
+        "action": "submitted",
+        "note": "",
+        "createdAt": "2026-09-24T16:50:32.835Z"
+      },
+      {
+        "id": "dpe-d55dd9d4-9443-4d29-bfac-e0e146dc2435",
+        "actorRole": "partner",
+        "action": "document_uploaded",
+        "note": "rc",
+        "createdAt": "2026-09-24T16:50:32.817Z"
+      },
+      {
+        "id": "dpe-5601a387-dd0f-46bb-99de-c8c3b3328e01",
+        "actorRole": "partner",
+        "action": "document_uploaded",
+        "note": "licence",
+        "createdAt": "2026-09-24T16:50:32.782Z"
+      }
+    ]
+  },
+  "documentContentType": "image/jpeg",
+  "documentBytes": 285,
+  "opApprove": {
+    "userId": "ramesh",
+    "status": "approved",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "capacityKg": 600,
+    "phone": "9876500000",
+    "maxDistanceKm": 10,
+    "freeFrom": "00:00",
+    "freeUntil": "23:59",
+    "online": false,
+    "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reviewCenterName": "Shirur Center",
+    "rejectionReason": null,
+    "ratingCount": 0,
+    "deliveriesDone": 0,
+    "submittedAt": "2026-09-24T16:50:32.835Z",
+    "reviewedAt": "2026-09-24T16:50:32.891Z",
+    "createdAt": "2026-09-24T16:50:32.684Z",
+    "name": "Ramesh Patil",
+    "village": "Shirur",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratingAvg": 0,
+    "vehicleLabel": "Pickup / small van"
+  },
+  "partnerOnline": {
+    "userId": "ramesh",
+    "status": "approved",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "capacityKg": 600,
+    "phone": "9876500000",
+    "maxDistanceKm": 10,
+    "freeFrom": "00:00",
+    "freeUntil": "23:59",
+    "online": true,
+    "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reviewCenterName": "Shirur Center",
+    "rejectionReason": null,
+    "ratingCount": 0,
+    "deliveriesDone": 0,
+    "submittedAt": "2026-09-24T16:50:32.835Z",
+    "reviewedAt": "2026-09-24T16:50:32.891Z",
+    "createdAt": "2026-09-24T16:50:32.684Z",
+    "name": "Ramesh Patil",
+    "village": "Shirur",
+    "days": [
+      0,
+      1,
+      2,
+      3,
+      4,
+      5,
+      6
+    ],
+    "ratingAvg": 0,
+    "vehicleLabel": "Pickup / small van",
+    "documents": {
+      "licence": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.782Z"
+      },
+      "rc": {
+        "contentType": "image/jpeg",
+        "sizeBytes": 285,
+        "uploadedAt": "2026-09-24T16:50:32.817Z"
+      }
+    },
+    "missing": [],
+    "canSubmit": false
+  },
+  "quote": {
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "centerName": "Shirur Center",
+    "centerVillage": "Shirur",
+    "available": true,
+    "fee": 60,
+    "weightKg": 40,
+    "roadKm": 6.5,
+    "maxRoadKm": 20,
+    "suggestedVehicle": "pickup",
+    "partnersFree": 1,
+    "note": "A delivery partner nearby is free right now.",
+    "payment": "You pay the goods and the delivery fee in cash to the delivery partner when it arrives."
+  },
+  "orderPlaced": {
+    "id": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "pending",
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "createdAt": "2026-09-24T16:50:33.022Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.022Z",
+    "originLatitude": 18.545,
+    "originLongitude": 74,
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "delivery": {
+      "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "status": "open",
+      "stage": "Finding a delivery partner",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": null,
+      "partnerLocation": null,
+      "dropCode": null,
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": true,
+      "rated": false,
+      "searchUntil": "2026-09-24T17:35:33.022Z"
+    }
+  },
+  "partnerOffers": [
+    {
+      "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "status": "open",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "items": "1 x Vermicompost",
+      "feePayer": "receiver",
+      "tripId": null,
+      "pickup": {
+        "label": "Shirur Center, Shirur",
+        "centerName": "Shirur Center",
+        "village": "Shirur",
+        "latitude": 18.5,
+        "longitude": 74
+      },
+      "drop": {
+        "village": "Shirur"
+      },
+      "mine": false,
+      "offerExpiresAt": "2026-09-24T16:54:33.022Z"
+    }
+  ],
+  "partnerAccepted": {
+    "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+    "kind": "center_order",
+    "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "status": "assigned",
+    "fee": 60,
+    "weightKg": 40,
+    "distanceKm": 6.5,
+    "items": "1 x Vermicompost",
+    "feePayer": "receiver",
+    "tripId": null,
+    "pickup": {
+      "label": "Shirur Center, Shirur",
+      "centerName": "Shirur Center",
+      "village": "Shirur",
+      "latitude": 18.5,
+      "longitude": 74
+    },
+    "drop": {
+      "village": "Shirur",
+      "label": "Near the temple",
+      "latitude": 18.545,
+      "longitude": 74,
+      "phone": "9876543210",
+      "note": ""
+    },
+    "mine": true,
+    "buyerName": "Farmer",
+    "handoverCode": "0920",
+    "cashToCollect": 510,
+    "collectFeeFrom": "receiver",
+    "goodsAmount": 450,
+    "centerPhone": "",
+    "assignedAt": "2026-09-24T16:50:33.088Z",
+    "pickedUpAt": null,
+    "deliveredAt": null
+  },
+  "partnerActive": [
+    {
+      "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "status": "assigned",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "items": "1 x Vermicompost",
+      "feePayer": "receiver",
+      "tripId": null,
+      "pickup": {
+        "label": "Shirur Center, Shirur",
+        "centerName": "Shirur Center",
+        "village": "Shirur",
+        "latitude": 18.5,
+        "longitude": 74
+      },
+      "drop": {
+        "village": "Shirur",
+        "label": "Near the temple",
+        "latitude": 18.545,
+        "longitude": 74,
+        "phone": "9876543210",
+        "note": ""
+      },
+      "mine": true,
+      "buyerName": "Farmer",
+      "handoverCode": "0920",
+      "cashToCollect": 510,
+      "collectFeeFrom": "receiver",
+      "goodsAmount": 450,
+      "centerPhone": "",
+      "assignedAt": "2026-09-24T16:50:33.088Z",
+      "pickedUpAt": null,
+      "deliveredAt": null
+    }
+  ],
+  "opDeliveries": [
+    {
+      "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "status": "assigned",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "goodsAmount": 450,
+      "dropVillage": "Shirur",
+      "createdAt": "2026-09-24T16:50:33.026Z",
+      "assignedAt": "2026-09-24T16:50:33.088Z",
+      "pickedUpAt": null,
+      "deliveredAt": null,
+      "searchUntil": "2026-09-24T17:35:33.022Z",
+      "needsDriverSince": null,
+      "partnerId": "ramesh",
+      "partnerName": "Ramesh Patil",
+      "partnerPhone": "9876500000",
+      "vehicleType": "pickup",
+      "vehicleNumber": "MH12AB1234",
+      "ratingAvg": 0,
+      "offersPending": 0,
+      "buyerName": "Farmer",
+      "cashToCollect": 510,
+      "needsDriver": false
+    }
+  ],
+  "orderAssigned": {
+    "id": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "pending",
+    "createdAt": "2026-09-24T16:50:33.022Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.022Z",
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "surplusLotId": null,
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "delivery": {
+      "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "status": "assigned",
+      "stage": "Your delivery partner is on the way to the center",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": {
+        "name": "Ramesh Patil",
+        "vehicleType": "pickup",
+        "vehicleLabel": "Pickup / small van",
+        "vehicleNumber": "MH12AB1234",
+        "ratingAvg": 0,
+        "ratingCount": 0,
+        "deliveriesDone": 0,
+        "phone": "9876500000"
+      },
+      "partnerLocation": null,
+      "dropCode": "4455",
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": true,
+      "rated": false,
+      "searchUntil": null
+    }
+  },
+  "opHandover": {
+    "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+    "kind": "center_order",
+    "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "status": "in_transit",
+    "fee": 60,
+    "weightKg": 40,
+    "distanceKm": 6.5,
+    "goodsAmount": 450,
+    "dropVillage": "Shirur",
+    "createdAt": "2026-09-24T16:50:33.026Z",
+    "assignedAt": "2026-09-24T16:50:33.088Z",
+    "pickedUpAt": "2026-09-24T16:50:33.130Z",
+    "deliveredAt": null,
+    "searchUntil": "2026-09-24T17:35:33.022Z",
+    "needsDriverSince": null,
+    "partnerId": "ramesh",
+    "partnerName": "Ramesh Patil",
+    "partnerPhone": "9876500000",
+    "vehicleType": "pickup",
+    "vehicleNumber": "MH12AB1234",
+    "ratingAvg": 0,
+    "offersPending": 0,
+    "buyerName": "Farmer",
+    "cashToCollect": 510,
+    "needsDriver": false
+  },
+  "orderInTransit": {
+    "id": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "readyForPickup",
+    "createdAt": "2026-09-24T16:50:33.022Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.022Z",
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "surplusLotId": null,
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "delivery": {
+      "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "status": "in_transit",
+      "stage": "Your order is on its way to you",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": {
+        "name": "Ramesh Patil",
+        "vehicleType": "pickup",
+        "vehicleLabel": "Pickup / small van",
+        "vehicleNumber": "MH12AB1234",
+        "ratingAvg": 0,
+        "ratingCount": 0,
+        "deliveriesDone": 0,
+        "phone": "9876500000"
+      },
+      "partnerLocation": null,
+      "dropCode": "4455",
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": false,
+      "rated": false,
+      "searchUntil": null
+    }
+  },
+  "partnerInTransit": [
+    {
+      "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "status": "in_transit",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "items": "1 x Vermicompost",
+      "feePayer": "receiver",
+      "tripId": null,
+      "pickup": {
+        "label": "Shirur Center, Shirur",
+        "centerName": "Shirur Center",
+        "village": "Shirur",
+        "latitude": 18.5,
+        "longitude": 74
+      },
+      "drop": {
+        "village": "Shirur",
+        "label": "Near the temple",
+        "latitude": 18.545,
+        "longitude": 74,
+        "phone": "9876543210",
+        "note": ""
+      },
+      "mine": true,
+      "buyerName": "Farmer",
+      "handoverCode": null,
+      "cashToCollect": 510,
+      "collectFeeFrom": "receiver",
+      "goodsAmount": 450,
+      "centerPhone": "",
+      "assignedAt": "2026-09-24T16:50:33.088Z",
+      "pickedUpAt": "2026-09-24T16:50:33.130Z",
+      "deliveredAt": null
+    }
+  ],
+  "orderTracked": {
+    "id": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "readyForPickup",
+    "createdAt": "2026-09-24T16:50:33.022Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.022Z",
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "surplusLotId": null,
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "delivery": {
+      "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "status": "in_transit",
+      "stage": "Your order is on its way to you",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": {
+        "name": "Ramesh Patil",
+        "vehicleType": "pickup",
+        "vehicleLabel": "Pickup / small van",
+        "vehicleNumber": "MH12AB1234",
+        "ratingAvg": 0,
+        "ratingCount": 0,
+        "deliveriesDone": 0,
+        "phone": "9876500000"
+      },
+      "partnerLocation": {
+        "latitude": 18.53,
+        "longitude": 74,
+        "updatedAt": "2026-09-24T16:50:33.158Z"
+      },
+      "dropCode": "4455",
+      "nextStop": "you",
+      "distanceToNextStopKm": 2.2,
+      "etaMinutes": 4,
+      "canSwitchToPickup": false,
+      "rated": false,
+      "searchUntil": null
+    }
+  },
+  "partnerDelivered": {
+    "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+    "kind": "center_order",
+    "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "status": "delivered",
+    "fee": 60,
+    "weightKg": 40,
+    "distanceKm": 6.5,
+    "items": "1 x Vermicompost",
+    "feePayer": "receiver",
+    "tripId": null,
+    "pickup": {
+      "label": "Shirur Center, Shirur",
+      "centerName": "Shirur Center",
+      "village": "Shirur",
+      "latitude": 18.5,
+      "longitude": 74
+    },
+    "drop": {
+      "village": "Shirur",
+      "label": "Near the temple",
+      "latitude": 18.545,
+      "longitude": 74,
+      "phone": "9876543210",
+      "note": ""
+    },
+    "mine": true,
+    "buyerName": "Farmer",
+    "handoverCode": null,
+    "cashToCollect": 510,
+    "collectFeeFrom": "receiver",
+    "goodsAmount": 450,
+    "centerPhone": "",
+    "assignedAt": "2026-09-24T16:50:33.088Z",
+    "pickedUpAt": "2026-09-24T16:50:33.130Z",
+    "deliveredAt": "2026-09-24T16:50:33.168Z"
+  },
+  "orderDelivered": {
+    "id": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "completed",
+    "createdAt": "2026-09-24T16:50:33.022Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.022Z",
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "surplusLotId": null,
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "delivery": {
+      "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "status": "delivered",
+      "stage": "Delivered",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": {
+        "name": "Ramesh Patil",
+        "vehicleType": "pickup",
+        "vehicleLabel": "Pickup / small van",
+        "vehicleNumber": "MH12AB1234",
+        "ratingAvg": 0,
+        "ratingCount": 0,
+        "deliveriesDone": 1,
+        "phone": "9876500000"
+      },
+      "partnerLocation": null,
+      "dropCode": null,
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": false,
+      "rated": false,
+      "searchUntil": null
+    }
+  },
+  "wallet": {
+    "earned": 60,
+    "owed": 450,
+    "owedByCenter": [
+      {
+        "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+        "centerName": "Shirur Center",
+        "owed": 450
+      }
+    ],
+    "entries": [
+      {
+        "id": "led-c53e5230-61b1-4697-930f-4de3f61f564f",
+        "kind": "goods_owed",
+        "amount": 450,
+        "note": "Cash for the goods, to hand to the center",
+        "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+        "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+        "createdAt": "2026-09-24T16:50:33.172Z"
+      },
+      {
+        "id": "led-f205cf33-c8b6-40f7-bcac-2719f683888b",
+        "kind": "fee_earned",
+        "amount": 60,
+        "note": "Delivery fee",
+        "jobId": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+        "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+        "createdAt": "2026-09-24T16:50:33.172Z"
+      }
+    ],
+    "deliveriesDone": 1,
+    "ratingAvg": 0,
+    "ratingCount": 0,
+    "cancellations": 0
+  },
+  "opCash": [
+    {
+      "partnerId": "ramesh",
+      "name": "Ramesh Patil",
+      "phone": "9876500000",
+      "owed": 450
+    }
+  ],
+  "opCashSettled": [
+    {
+      "partnerId": "ramesh",
+      "name": "Ramesh Patil",
+      "phone": "9876500000",
+      "owed": 250
+    }
+  ],
+  "orderOpen": {
+    "id": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "pending",
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "createdAt": "2026-09-24T16:50:33.224Z",
+    "pickupOtp": null,
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.224Z",
+    "originLatitude": 18.545,
+    "originLongitude": 74,
+    "fulfilment": "delivery",
+    "deliveryFee": 60,
+    "totalAmount": 450,
+    "payableAmount": 510,
+    "itemCount": 1,
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "delivery": {
+      "jobId": "job-df48b007-2fb6-49e0-992a-8d07bb8aaee9",
+      "kind": "center_order",
+      "status": "open",
+      "stage": "Finding a delivery partner",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": null,
+      "partnerLocation": null,
+      "dropCode": null,
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": true,
+      "rated": false,
+      "searchUntil": "2026-09-24T17:35:33.224Z"
+    }
+  },
+  "opDeliveryOpen": {
+    "id": "job-df48b007-2fb6-49e0-992a-8d07bb8aaee9",
+    "kind": "center_order",
+    "orderId": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+    "status": "open",
+    "fee": 60,
+    "weightKg": 40,
+    "distanceKm": 6.5,
+    "goodsAmount": 450,
+    "dropVillage": "Shirur",
+    "createdAt": "2026-09-24T16:50:33.227Z",
+    "assignedAt": null,
+    "pickedUpAt": null,
+    "deliveredAt": null,
+    "searchUntil": "2026-09-24T17:35:33.224Z",
+    "needsDriverSince": "2026-09-24T16:50:33.224Z",
+    "partnerId": null,
+    "partnerName": null,
+    "partnerPhone": null,
+    "vehicleType": null,
+    "vehicleNumber": null,
+    "ratingAvg": null,
+    "offersPending": 0,
+    "buyerName": "Farmer",
+    "cashToCollect": 510,
+    "needsDriver": true
+  },
+  "orderSwitched": {
+    "id": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+    "customerName": "Farmer",
+    "type": "appOrder",
+    "status": "pending",
+    "createdAt": "2026-09-24T16:50:33.224Z",
+    "pickupOtp": "8014",
+    "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+    "reservedUntil": "2026-09-29T16:50:33.224Z",
+    "fulfilment": "pickup",
+    "deliveryFee": 0,
+    "items": [
+      {
+        "productId": "p-vermicompost",
+        "surplusLotId": null,
+        "productName": "Vermicompost",
+        "quantity": 1,
+        "unitPrice": 450
+      }
+    ],
+    "center": {
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "name": "Shirur Center",
+      "village": "Shirur",
+      "phone": ""
+    },
+    "totalAmount": 450,
+    "payableAmount": 450,
+    "itemCount": 1,
+    "delivery": {
+      "jobId": "job-df48b007-2fb6-49e0-992a-8d07bb8aaee9",
+      "kind": "center_order",
+      "status": "cancelled",
+      "stage": "Delivery cancelled",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "payableAmount": 510,
+      "pickup": {
+        "latitude": 18.5,
+        "longitude": 74,
+        "label": "Shirur Center, Shirur"
+      },
+      "drop": {
+        "latitude": 18.545,
+        "longitude": 74,
+        "label": "Near the temple"
+      },
+      "partner": null,
+      "partnerLocation": null,
+      "dropCode": null,
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": false,
+      "rated": false,
+      "searchUntil": null
+    }
+  },
+  "candidates": [],
+  "trip": {
+    "id": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+    "partnerId": "ramesh",
+    "fromLatitude": 18.51,
+    "fromLongitude": 74,
+    "fromLabel": "Shirur",
+    "toLatitude": 18.56,
+    "toLongitude": 74,
+    "toLabel": "Talegaon",
+    "date": "2026-09-24",
+    "spareKg": 60,
+    "note": "Going to the market",
+    "status": "open",
+    "usedKg": 0,
+    "bookings": 0,
+    "leftKg": 60
+  },
+  "myTrips": [
+    {
+      "id": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+      "partnerId": "ramesh",
+      "fromLatitude": 18.51,
+      "fromLongitude": 74,
+      "fromLabel": "Shirur",
+      "toLatitude": 18.56,
+      "toLongitude": 74,
+      "toLabel": "Talegaon",
+      "date": "2026-09-24",
+      "spareKg": 60,
+      "note": "Going to the market",
+      "status": "open",
+      "usedKg": 0,
+      "bookings": 0,
+      "leftKg": 60
+    }
+  ],
+  "board": [
+    {
+      "id": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+      "partnerId": "ramesh",
+      "fromLatitude": 18.51,
+      "fromLongitude": 74,
+      "fromLabel": "Shirur",
+      "toLatitude": 18.56,
+      "toLongitude": 74,
+      "toLabel": "Talegaon",
+      "date": "2026-09-24",
+      "spareKg": 60,
+      "note": "Going to the market",
+      "status": "open",
+      "usedKg": 0,
+      "bookings": 0,
+      "partnerName": "Ramesh Patil",
+      "vehicleType": "pickup",
+      "ratingAvg": 0,
+      "ratingCount": 0,
+      "deliveriesDone": 1,
+      "leftKg": 60,
+      "fromKm": 0.2
+    }
+  ],
+  "loadQuote": {
+    "available": true,
+    "fee": 60,
+    "weightKg": 30,
+    "roadKm": 6.6,
+    "maxRoadKm": 20,
+    "suggestedVehicle": "bike",
+    "partnersFree": 1,
+    "note": "A delivery partner nearby is free right now.",
+    "payment": "The delivery fee is paid in cash to the delivery partner. You decide who pays it: the sender when it is collected, or the receiver on arrival."
+  },
+  "loadPlaced": {
+    "jobId": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+    "kind": "p2p",
+    "status": "open",
+    "stage": "Finding a delivery partner",
+    "fee": 60,
+    "weightKg": 30,
+    "distanceKm": 6.6,
+    "payableAmount": 60,
+    "description": "Two sacks of seed potatoes",
+    "feePayer": "sender",
+    "receiverPhone": "9822054321",
+    "senderPhone": "9822012345",
+    "canCancel": true,
+    "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+    "pickup": {
+      "latitude": 18.512,
+      "longitude": 74,
+      "label": "My farm"
+    },
+    "drop": {
+      "latitude": 18.558,
+      "longitude": 74,
+      "label": "Uncle farm"
+    },
+    "partner": null,
+    "partnerLocation": null,
+    "dropCode": null,
+    "nextStop": null,
+    "distanceToNextStopKm": null,
+    "etaMinutes": null,
+    "canSwitchToPickup": false,
+    "rated": false,
+    "searchUntil": "2026-09-24T18:30:00.000Z"
+  },
+  "partnerLoadOffers": [
+    {
+      "id": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+      "kind": "p2p",
+      "orderId": null,
+      "status": "open",
+      "fee": 60,
+      "weightKg": 30,
+      "distanceKm": 6.6,
+      "items": "Two sacks of seed potatoes",
+      "feePayer": "sender",
+      "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+      "pickup": {
+        "label": "My farm",
+        "centerName": null,
+        "village": null,
+        "latitude": 18.512,
+        "longitude": 74
+      },
+      "drop": {
+        "village": "Talegaon"
+      },
+      "mine": false,
+      "offerExpiresAt": "2026-09-24T18:30:00.000Z"
+    }
+  ],
+  "partnerLoadAccepted": {
+    "id": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+    "kind": "p2p",
+    "orderId": null,
+    "status": "assigned",
+    "fee": 60,
+    "weightKg": 30,
+    "distanceKm": 6.6,
+    "items": "Two sacks of seed potatoes",
+    "feePayer": "sender",
+    "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+    "pickup": {
+      "label": "My farm",
+      "centerName": null,
+      "village": null,
+      "latitude": 18.512,
+      "longitude": 74,
+      "phone": "9822012345",
+      "note": ""
+    },
+    "drop": {
+      "village": "Talegaon",
+      "label": "Uncle farm",
+      "latitude": 18.558,
+      "longitude": 74,
+      "phone": "9822054321",
+      "note": ""
+    },
+    "mine": true,
+    "buyerName": "Farmer",
+    "handoverCode": "6900",
+    "cashToCollect": 60,
+    "collectFeeFrom": "sender",
+    "goodsAmount": 0,
+    "centerPhone": "",
+    "assignedAt": "2026-09-24T16:50:33.337Z",
+    "pickedUpAt": null,
+    "deliveredAt": null
+  },
+  "loadAssigned": {
+    "jobId": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+    "kind": "p2p",
+    "status": "assigned",
+    "stage": "Your delivery partner is coming to collect it",
+    "fee": 60,
+    "weightKg": 30,
+    "distanceKm": 6.6,
+    "payableAmount": 60,
+    "description": "Two sacks of seed potatoes",
+    "feePayer": "sender",
+    "receiverPhone": "9822054321",
+    "senderPhone": "9822012345",
+    "canCancel": true,
+    "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+    "pickup": {
+      "latitude": 18.512,
+      "longitude": 74,
+      "label": "My farm"
+    },
+    "drop": {
+      "latitude": 18.558,
+      "longitude": 74,
+      "label": "Uncle farm"
+    },
+    "partner": {
+      "name": "Ramesh Patil",
+      "vehicleType": "pickup",
+      "vehicleLabel": "Pickup / small van",
+      "vehicleNumber": "MH12AB1234",
+      "ratingAvg": 0,
+      "ratingCount": 0,
+      "deliveriesDone": 1,
+      "phone": "9876500000"
+    },
+    "partnerLocation": null,
+    "dropCode": "4346",
+    "nextStop": null,
+    "distanceToNextStopKm": null,
+    "etaMinutes": null,
+    "canSwitchToPickup": false,
+    "rated": false,
+    "searchUntil": null
+  },
+  "loadInTransit": {
+    "jobId": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+    "kind": "p2p",
+    "status": "in_transit",
+    "stage": "On its way to the receiver",
+    "fee": 60,
+    "weightKg": 30,
+    "distanceKm": 6.6,
+    "payableAmount": 60,
+    "description": "Two sacks of seed potatoes",
+    "feePayer": "sender",
+    "receiverPhone": "9822054321",
+    "senderPhone": "9822012345",
+    "canCancel": false,
+    "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+    "pickup": {
+      "latitude": 18.512,
+      "longitude": 74,
+      "label": "My farm"
+    },
+    "drop": {
+      "latitude": 18.558,
+      "longitude": 74,
+      "label": "Uncle farm"
+    },
+    "partner": {
+      "name": "Ramesh Patil",
+      "vehicleType": "pickup",
+      "vehicleLabel": "Pickup / small van",
+      "vehicleNumber": "MH12AB1234",
+      "ratingAvg": 0,
+      "ratingCount": 0,
+      "deliveriesDone": 1,
+      "phone": "9876500000"
+    },
+    "partnerLocation": null,
+    "dropCode": "4346",
+    "nextStop": null,
+    "distanceToNextStopKm": null,
+    "etaMinutes": null,
+    "canSwitchToPickup": false,
+    "rated": false,
+    "searchUntil": null
+  },
+  "myLoads": [
+    {
+      "jobId": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+      "kind": "p2p",
+      "status": "in_transit",
+      "stage": "On its way to the receiver",
+      "fee": 60,
+      "weightKg": 30,
+      "distanceKm": 6.6,
+      "payableAmount": 60,
+      "description": "Two sacks of seed potatoes",
+      "feePayer": "sender",
+      "receiverPhone": "9822054321",
+      "senderPhone": "9822012345",
+      "canCancel": false,
+      "tripId": "trip-2d94749d-b78b-4a55-876b-ef6dc0f7c433",
+      "pickup": {
+        "latitude": 18.512,
+        "longitude": 74,
+        "label": "My farm"
+      },
+      "drop": {
+        "latitude": 18.558,
+        "longitude": 74,
+        "label": "Uncle farm"
+      },
+      "partner": {
+        "name": "Ramesh Patil",
+        "vehicleType": "pickup",
+        "vehicleLabel": "Pickup / small van",
+        "vehicleNumber": "MH12AB1234",
+        "ratingAvg": 0,
+        "ratingCount": 0,
+        "deliveriesDone": 1,
+        "phone": "9876500000"
+      },
+      "partnerLocation": null,
+      "dropCode": "4346",
+      "nextStop": null,
+      "distanceToNextStopKm": null,
+      "etaMinutes": null,
+      "canSwitchToPickup": false,
+      "rated": false,
+      "searchUntil": null
+    }
+  ],
+  "adminDeliveries": [
+    {
+      "id": "job-1d5be4b8-8217-43f7-9706-4ff42a4fd97b",
+      "kind": "p2p",
+      "orderId": null,
+      "status": "in_transit",
+      "fee": 60,
+      "weightKg": 30,
+      "distanceKm": 6.6,
+      "goodsAmount": 0,
+      "dropVillage": "Talegaon",
+      "createdAt": "2026-09-24T16:50:33.318Z",
+      "assignedAt": "2026-09-24T16:50:33.337Z",
+      "pickedUpAt": "2026-09-24T16:50:33.355Z",
+      "deliveredAt": null,
+      "searchUntil": "2026-09-24T18:30:00.000Z",
+      "needsDriverSince": null,
+      "partnerId": "ramesh",
+      "partnerName": "Ramesh Patil",
+      "partnerPhone": "9876500000",
+      "vehicleType": "pickup",
+      "vehicleNumber": "MH12AB1234",
+      "ratingAvg": 0,
+      "offersPending": 0,
+      "buyerName": "Farmer",
+      "centerId": null,
+      "centerName": null,
+      "cashToCollect": 60,
+      "needsDriver": false
+    },
+    {
+      "id": "job-df48b007-2fb6-49e0-992a-8d07bb8aaee9",
+      "kind": "center_order",
+      "orderId": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+      "status": "cancelled",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "goodsAmount": 450,
+      "dropVillage": "Shirur",
+      "createdAt": "2026-09-24T16:50:33.227Z",
+      "assignedAt": null,
+      "pickedUpAt": null,
+      "deliveredAt": null,
+      "searchUntil": "2026-09-24T17:35:33.224Z",
+      "needsDriverSince": "2026-09-24T16:50:33.224Z",
+      "partnerId": null,
+      "partnerName": null,
+      "partnerPhone": null,
+      "vehicleType": null,
+      "vehicleNumber": null,
+      "ratingAvg": null,
+      "offersPending": 0,
+      "buyerName": "Farmer",
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "centerName": "Shirur Center",
+      "cashToCollect": 510,
+      "needsDriver": false
+    },
+    {
+      "id": "job-12337d05-dd58-46b3-8c4f-61c746ba739d",
+      "kind": "center_order",
+      "orderId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "status": "delivered",
+      "fee": 60,
+      "weightKg": 40,
+      "distanceKm": 6.5,
+      "goodsAmount": 450,
+      "dropVillage": "Shirur",
+      "createdAt": "2026-09-24T16:50:33.026Z",
+      "assignedAt": "2026-09-24T16:50:33.088Z",
+      "pickedUpAt": "2026-09-24T16:50:33.130Z",
+      "deliveredAt": "2026-09-24T16:50:33.168Z",
+      "searchUntil": "2026-09-24T17:35:33.022Z",
+      "needsDriverSince": null,
+      "partnerId": "ramesh",
+      "partnerName": "Ramesh Patil",
+      "partnerPhone": "9876500000",
+      "vehicleType": "pickup",
+      "vehicleNumber": "MH12AB1234",
+      "ratingAvg": 0,
+      "offersPending": 0,
+      "buyerName": "Farmer",
+      "centerId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "centerName": "Shirur Center",
+      "cashToCollect": 510,
+      "needsDriver": false
+    }
+  ],
+  "adminPartners": [
+    {
+      "userId": "ramesh",
+      "status": "approved",
+      "vehicleType": "pickup",
+      "vehicleNumber": "MH12AB1234",
+      "capacityKg": 600,
+      "phone": "9876500000",
+      "maxDistanceKm": 10,
+      "freeFrom": "00:00",
+      "freeUntil": "23:59",
+      "online": true,
+      "reviewCenterId": "center-d2040ebb-c3f6-4dca-a77b-c7c590bca2a7",
+      "reviewCenterName": "Shirur Center",
+      "rejectionReason": null,
+      "ratingCount": 0,
+      "deliveriesDone": 1,
+      "submittedAt": "2026-09-24T16:50:32.835Z",
+      "reviewedAt": "2026-09-24T16:50:32.891Z",
+      "createdAt": "2026-09-24T16:50:32.684Z",
+      "name": "Ramesh Patil",
+      "village": "Shirur",
+      "days": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "ratingAvg": 0,
+      "vehicleLabel": "Pickup / small van"
+    }
+  ],
+  "adminOverview": {
+    "people": {
+      "operators": {
+        "active": 1,
+        "suspended": 0,
+        "unassigned": 0,
+        "total": 1
+      },
+      "farmers": {
+        "active": 0,
+        "suspended": 0,
+        "total": 0
+      }
+    },
+    "centers": {
+      "active": 1,
+      "suspended": 0,
+      "withoutOperator": 0,
+      "total": 1
+    },
+    "orders": {
+      "pending": 1,
+      "readyForPickup": 0,
+      "today": 2
+    },
+    "restockRequests": {
+      "pending": 0
+    },
+    "lowStockItems": 0,
+    "lowStockUnattended": 0,
+    "discrepanciesOpen": 0,
+    "surplus": {
+      "activeLots": 0,
+      "units": 0
+    },
+    "delivery": {
+      "jobs": {
+        "waiting": 0,
+        "needDriver": 0,
+        "onTheRoad": 1,
+        "deliveredToday": 1
+      },
+      "partners": {
+        "pending": 0,
+        "approved": 1,
+        "online": 1
+      },
+      "cashOwed": 250
+    }
+  },
+  "notifications": [
+    {
+      "id": "notif-1332ac20-7b43-4d7b-af99-fe5eba6f3fb7",
+      "type": "delivery",
+      "title": "Delivery cancelled",
+      "body": "Please collect your order at Shirur Center, Shirur. Your pickup code is 8014. You will not be charged the delivery fee.",
+      "refId": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+      "createdAt": "2026-09-24T16:50:33.263Z",
+      "read": false
+    },
+    {
+      "id": "notif-76f64a85-247c-48ef-9531-2ad0b74037c9",
+      "type": "order",
+      "title": "Order placed",
+      "body": "We are finding a delivery partner. Delivery fee Rs 60, paid in cash when it arrives. If nobody is free you can collect it at Shirur Center, Shirur.",
+      "refId": "order-c8bc449f-fc0d-4455-a6d1-565cb71bf91e",
+      "createdAt": "2026-09-24T16:50:33.227Z",
+      "read": false
+    },
+    {
+      "id": "notif-fff26a0b-c59d-4ba5-bbfa-ea202736a23f",
+      "type": "delivery",
+      "title": "Delivered",
+      "body": "Thank you! Ramesh Patil delivered your order. Please rate the delivery.",
+      "refId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "createdAt": "2026-09-24T16:50:33.172Z",
+      "read": false
+    },
+    {
+      "id": "notif-156ec8b8-fc06-41e9-99ec-57b885be92a0",
+      "type": "delivery",
+      "title": "Your order is on its way",
+      "body": "Ramesh Patil has collected it. When it arrives, give them your delivery code 4455 and pay Rs 510 in cash.",
+      "refId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "createdAt": "2026-09-24T16:50:33.134Z",
+      "read": false
+    },
+    {
+      "id": "notif-060cd287-b394-4fcf-b044-686ea34e70cf",
+      "type": "delivery",
+      "title": "A delivery partner is on the way to the center",
+      "body": "Ramesh Patil (Pickup / small van, MH12AB1234) will bring your order. Keep your delivery code ready.",
+      "refId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "createdAt": "2026-09-24T16:50:33.092Z",
+      "read": false
+    },
+    {
+      "id": "notif-20c7af1e-677d-4313-bcb5-2d5354f4e983",
+      "type": "order",
+      "title": "Order placed",
+      "body": "We are finding a delivery partner. Delivery fee Rs 60, paid in cash when it arrives. If nobody is free you can collect it at Shirur Center, Shirur.",
+      "refId": "order-5e416321-2484-4426-9ad9-0633240db4f0",
+      "createdAt": "2026-09-24T16:50:33.026Z",
+      "read": false
+    }
+  ]
+}
