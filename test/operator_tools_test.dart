@@ -11,6 +11,7 @@ import 'package:khaadsetu_version1/core/auth/session_profile.dart';
 import 'package:khaadsetu_version1/core/network/api_client.dart';
 import 'package:khaadsetu_version1/core/routing/route_paths.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
+import 'package:khaadsetu_version1/features/delivery/presentation/providers/delivery_providers.dart';
 import 'package:khaadsetu_version1/features/farmer/marketplace/domain/entities/product.dart';
 import 'package:khaadsetu_version1/features/farmer/marketplace/presentation/providers/marketplace_providers.dart';
 import 'package:khaadsetu_version1/features/farmer/notifications/data/datasources/notifications_api_data_source.dart';
@@ -34,6 +35,7 @@ import 'package:khaadsetu_version1/features/operator/orders/presentation/screens
 import 'package:khaadsetu_version1/features/operator/presentation/widgets/operator_notification_bell.dart';
 import 'package:khaadsetu_version1/core/responsive/responsive_layout.dart';
 
+import 'support/delivery_fakes.dart';
 import 'support/farmer_fakes.dart' show neemCake;
 import 'support/operator_fakes.dart';
 
@@ -478,9 +480,15 @@ void main() {
         GoRoute(path: RoutePaths.operatorInventory, builder: (context, _) => const Text('operator inventory')),
         GoRoute(path: '${RoutePaths.farmerOrders}/:orderId', builder: (context, state) => Text('farmer order ${state.pathParameters['orderId']}')),
         GoRoute(path: RoutePaths.farmerMarketplaceProductPattern, builder: (context, state) => Text('product ${state.pathParameters['productId']}')),
+        GoRoute(path: RoutePaths.farmerDeliver, builder: (context, _) => const Text('delivery hub')),
+        GoRoute(path: '${RoutePaths.farmerLoads}/:id', builder: (context, state) => Text('load ${state.pathParameters['id']}')),
       ]);
       await tester.pumpWidget(ProviderScope(
-        overrides: [notificationsRepositoryProvider.overrideWithValue(repo), sessionProfileProvider.overrideWith((ref) async => me(role))],
+        overrides: [
+          notificationsRepositoryProvider.overrideWithValue(repo),
+          deliveryRepositoryProvider.overrideWithValue(FakeDeliveryRepository()..loads = [aTracking(jobId: 'job-mine', p2p: true)]),
+          sessionProfileProvider.overrideWith((ref) async => me(role)),
+        ],
         child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
       ));
       await tester.pumpAndSettle();
@@ -527,6 +535,37 @@ void main() {
       await tester.tap(find.text('Low stock: Neem Cake'));
       await tester.pumpAndSettle();
       expect(find.text('operator inventory'), findsOneWidget);
+    });
+
+    testWidgets('a delivery notice about an order opens that order for the buyer', (tester) async {
+      await pump(tester, AppRole.farmer, [note('1', NotificationType.delivery, title: 'Your order is on its way', refId: 'order-42')]);
+      await tester.tap(find.text('Your order is on its way'));
+      await tester.pumpAndSettle();
+      expect(find.text('farmer order order-42'), findsOneWidget);
+    });
+
+    testWidgets('a notice about my own load opens the load, one about a job offered to me opens the delivery screen', (tester) async {
+      await pump(tester, AppRole.farmer, [
+        note('2', NotificationType.delivery, title: 'A partner is collecting your load', refId: 'job-mine'),
+        note('3', NotificationType.delivery, title: 'Delivery job: Rs 60', refId: 'job-offered'),
+      ]);
+      await tester.tap(find.text('A partner is collecting your load'));
+      await tester.pumpAndSettle();
+      expect(find.text('load job-mine'), findsOneWidget);
+    });
+
+    testWidgets('a job offered to me opens the delivery screen', (tester) async {
+      await pump(tester, AppRole.farmer, [note('3', NotificationType.delivery, title: 'Delivery job: Rs 60', refId: 'job-offered')]);
+      await tester.tap(find.text('Delivery job: Rs 60'));
+      await tester.pumpAndSettle();
+      expect(find.text('delivery hub'), findsOneWidget);
+    });
+
+    testWidgets('an operator opening a delivery notice about an order goes to that order', (tester) async {
+      await pump(tester, AppRole.operator, [note('1', NotificationType.delivery, title: 'A delivery partner is coming', refId: 'order-42')]);
+      await tester.tap(find.text('A delivery partner is coming'));
+      await tester.pumpAndSettle();
+      expect(find.text('operator order order-42'), findsOneWidget);
     });
 
     testWidgets('a farmer opening "back in stock" goes to that product, ready to reserve', (tester) async {

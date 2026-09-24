@@ -12,6 +12,10 @@ enum NotificationType {
   stock,
   restock,
   account,
+
+  /// A home delivery or a load being carried: what an order's delivery partner
+  /// is doing, a job offer, an application decision, cash recorded.
+  delivery,
   other;
 
   static NotificationType parse(Object? raw) =>

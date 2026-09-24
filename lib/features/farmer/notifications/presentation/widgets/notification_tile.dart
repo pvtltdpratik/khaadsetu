@@ -106,6 +106,7 @@ class NotificationTile extends StatelessWidget {
     NotificationType.stock => Icons.inventory_2_outlined,
     NotificationType.restock => Icons.local_shipping_outlined,
     NotificationType.account => Icons.manage_accounts_outlined,
+    NotificationType.delivery => Icons.local_shipping_rounded,
     NotificationType.other => Icons.notifications_none_rounded,
   };
 

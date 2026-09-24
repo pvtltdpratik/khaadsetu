@@ -364,7 +364,7 @@ class FakeDeliveryRepository implements DeliveryRepository {
   Future<List<DeliveryTracking>> myLoads() async => loads;
 
   @override
-  Future<DeliveryTracking> load(String jobId) async => loads.firstWhere((l) => l.jobId == jobId, orElse: () => aTracking(jobId: jobId, p2p: true));
+  Future<DeliveryTracking> load(String jobId) async => loads.firstWhere((l) => l.jobId == jobId, orElse: () => throw ApiException('Request not found', statusCode: 404));
 
   @override
   Future<DeliveryTracking> cancelLoad(String jobId) async => _guard('cancelLoad:$jobId', () => aTracking(jobId: jobId, status: DeliveryStatus.cancelled, p2p: true));
