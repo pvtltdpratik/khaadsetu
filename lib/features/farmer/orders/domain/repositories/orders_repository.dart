@@ -1,3 +1,4 @@
+import '../../../../delivery/domain/entities/delivery_models.dart';
 import '../../../centers/domain/entities/nearby_center.dart';
 import '../entities/farmer_order.dart';
 
@@ -30,8 +31,10 @@ abstract class OrdersRepository {
 
   /// Reserves [items] for pickup. With [centerId] the farmer's own choice is
   /// used; without it the server assigns the best center that has everything,
-  /// judged from [location]. Throws [OutOfStockException] when nothing fits.
-  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location});
+  /// judged from [location]. With [delivery] the order is brought to that
+  /// address by a delivery partner instead of being collected.
+  /// Throws [OutOfStockException] when nothing fits.
+  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery});
 
   Future<List<FarmerOrder>> myOrders();
 

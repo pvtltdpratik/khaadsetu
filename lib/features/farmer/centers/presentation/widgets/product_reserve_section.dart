@@ -6,6 +6,9 @@ import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/price_format.dart';
+import '../../../../delivery/domain/entities/delivery_models.dart';
+import '../../../../delivery/presentation/providers/delivery_providers.dart';
+import '../../../../delivery/presentation/widgets/delivery_option.dart';
 import '../../../marketplace/domain/entities/product.dart';
 import '../../../orders/domain/repositories/orders_repository.dart';
 import '../../../orders/presentation/providers/orders_providers.dart';
@@ -34,6 +37,28 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
   int _quantity = 1;
   String? _pickedCenterId;
   bool _placing = false;
+
+  // Collect at the center (the default), or have a delivery partner bring it.
+  bool _home = false;
+  final _phone = TextEditingController();
+  final _note = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    _phone.addListener(_changed);
+  }
+
+  void _changed() {
+    if (_home && mounted) setState(() {});
+  }
+
+  @override
+  void dispose() {
+    _phone.dispose();
+    _note.dispose();
+    super.dispose();
+  }
 
   Cart get _cart => Cart([CartLine(widget.product.id, _quantity)]);
 
@@ -72,6 +97,19 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
     );
   }
 
+  DeliveryAddress? _address(NearbyResult? result) {
+    final where = result?.location;
+    if (!_home || where == null) return null;
+    return DeliveryAddress(
+      latitude: where.latitude,
+      longitude: where.longitude,
+      phone: _phone.text.trim(),
+      label: where.label ?? '',
+      village: where.label ?? '',
+      note: _note.text.trim(),
+    );
+  }
+
   Future<void> _place(NearbyResult? result, String? centerId) async {
     setState(() => _placing = true);
     try {
@@ -79,6 +117,7 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
             items: _cart.lines,
             centerId: centerId,
             location: result?.location,
+            delivery: _address(result),
           );
       ref
         ..invalidate(myOrdersProvider)
@@ -162,6 +201,11 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
     final centerId = pickedOk ? _pickedCenterId : message.centerId;
     final selected = centerId == null ? null : result.centers.where((c) => c.center.centerId == centerId).firstOrNull;
 
+    // For a home delivery the button waits for a quote that says yes, and a number to call.
+    final quoteArgs = QuoteArgs(items: _cart.lines, location: result.location, centerId: centerId);
+    final quote = _home && centerId != null ? ref.watch(deliveryQuoteProvider(quoteArgs)).value : null;
+    final deliveryReady = !_home || (quote != null && quote.available && isValidMobile(_phone.text));
+
     final (icon, color) = switch (message.kind) {
       AvailabilityKind.readyForPickup => (Icons.check_circle_rounded, colors.success),
       AvailabilityKind.closedNow => (Icons.schedule_rounded, colors.warning),
@@ -198,15 +242,32 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
             ),
           ),
         ],
+        if (centerId != null && message.canReserve) ...[
+          AppSpacing.gapMd,
+          DeliveryOption(
+            homeDelivery: _home,
+            onChanged: (v) => setState(() => _home = v),
+            enabled: !_placing,
+            phone: _phone,
+            note: _note,
+            placeLabel: result.location.label ?? 'your location',
+            quote: _home ? ref.watch(deliveryQuoteProvider(quoteArgs)) : const AsyncLoading(),
+            onRetry: () => ref.invalidate(deliveryQuoteProvider(quoteArgs)),
+          ),
+        ],
         AppSpacing.gapMd,
         Wrap(
           spacing: AppSpacing.sm,
           runSpacing: AppSpacing.sm,
           children: [
             FilledButton.icon(
-              onPressed: centerId == null || _placing ? null : () => _place(result, centerId),
-              icon: _placing ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Icon(Icons.shopping_bag_outlined),
-              label: Text(message.kind == AvailabilityKind.closedNow ? 'Reserve now, collect later' : 'Reserve for pickup'),
+              onPressed: centerId == null || _placing || !deliveryReady ? null : () => _place(result, centerId),
+              icon: _placing ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : Icon(_home ? Icons.local_shipping_outlined : Icons.shopping_bag_outlined),
+              label: Text(_home
+                  ? (quote?.fee == null ? 'Order home delivery' : 'Order home delivery · ${formatRupees(quote!.fee!)}')
+                  : message.kind == AvailabilityKind.closedNow
+                      ? 'Reserve now, collect later'
+                      : 'Reserve for pickup'),
             ),
             OutlinedButton.icon(
               onPressed: _placing ? null : (result.centers.length > 1 ? _chooseCenter : () => context.push(RoutePaths.farmerCenters, extra: NearbyCentersArgs(cart: _cart))),
@@ -221,7 +282,9 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
         ],
         AppSpacing.gapSm,
         Text(
-          'Reserving holds your items for 5 days. You pay at the center when you collect.',
+          _home
+              ? 'Your items are held for you. You pay the goods and the delivery fee in cash when the delivery partner brings them.'
+              : 'Reserving holds your items for 5 days. You pay at the center when you collect.',
           style: text.bodySmall?.copyWith(color: colors.textMuted),
         ),
       ],

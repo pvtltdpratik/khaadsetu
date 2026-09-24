@@ -1,3 +1,4 @@
+import 'package:khaadsetu_version1/features/delivery/domain/entities/delivery_models.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/nearby_center.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/surplus_offer.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/repositories/centers_repository.dart';
@@ -148,6 +149,8 @@ FarmerOrder farmerOrder(
   String? otp = '4821',
   String centerName = 'Center a',
   String phone = '98220 00000',
+  DeliveryTracking? delivery,
+  double deliveryFee = 0,
 }) =>
     FarmerOrder(
       id: id,
@@ -158,6 +161,8 @@ FarmerOrder farmerOrder(
       pickupOtp: status.isActive ? otp : null,
       reservedUntil: DateTime(2026, 9, 29),
       center: OrderCenter(centerId: 'a', name: centerName, village: 'Village a', phone: phone),
+      deliveryFee: deliveryFee,
+      delivery: delivery,
     );
 
 class FakeOrdersRepository implements OrdersRepository {
@@ -184,7 +189,7 @@ class FakeOrdersRepository implements OrdersRepository {
     return order;
   }
 
-  final placed = <({List<CartLine> items, String? centerId, FarmerLocation? location})>[];
+  final placed = <({List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery})>[];
   final cancelled = <String>[];
 
   /// Called for each placement; throw an [OutOfStockException] to simulate a lost race.
@@ -192,8 +197,8 @@ class FakeOrdersRepository implements OrdersRepository {
   List<FarmerOrder> orders = [];
 
   @override
-  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location}) async {
-    placed.add((items: items, centerId: centerId, location: location));
+  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery}) async {
+    placed.add((items: items, centerId: centerId, location: location, delivery: delivery));
     final order = onPlace(placed.length, centerId);
     orders = [order, ...orders]; // it now exists, so the detail page can load it
     return order;
