@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:equatable/equatable.dart';
 
 // Everything the app knows about home delivery, in one place: what a delivery
@@ -125,6 +127,15 @@ class GeoPoint extends Equatable {
   final double latitude;
   final double longitude;
   final String label;
+
+  /// Straight-line distance to [other] in km.
+  double distanceKm(GeoPoint other) {
+    double rad(double d) => d * math.pi / 180;
+    final dLat = rad(other.latitude - latitude);
+    final dLon = rad(other.longitude - longitude);
+    final a = math.pow(math.sin(dLat / 2), 2) + math.cos(rad(latitude)) * math.cos(rad(other.latitude)) * math.pow(math.sin(dLon / 2), 2);
+    return 6371 * 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a));
+  }
 
   @override
   List<Object?> get props => [latitude, longitude, label];

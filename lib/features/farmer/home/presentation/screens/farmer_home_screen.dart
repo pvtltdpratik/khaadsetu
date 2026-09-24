@@ -90,6 +90,16 @@ class FarmerHomeScreen extends ConsumerWidget {
                   label: 'My Orders',
                   onTap: () => context.push(RoutePaths.farmerOrders),
                 ),
+                QuickAction(
+                  icon: Icons.local_shipping_outlined,
+                  label: 'Deliver & Earn',
+                  onTap: () => context.push(RoutePaths.farmerDeliver),
+                ),
+                QuickAction(
+                  icon: Icons.inventory_2_outlined,
+                  label: 'Send a Load',
+                  onTap: () => context.push(RoutePaths.farmerLoads),
+                ),
               ],
             ),
             ),

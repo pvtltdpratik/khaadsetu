@@ -26,6 +26,14 @@ class RoutePaths {
   static const farmerRoot = '/farmer';
   static const farmerHome = '/farmer/home';
   static const farmerNotifications = '/farmer/home/notifications';
+  // Delivering for other farmers, and having a load carried: reached from the home tab.
+  static const farmerDeliver = '/farmer/home/deliver';
+  static const farmerDeliverWallet = '/farmer/home/deliver/wallet';
+  static const farmerDeliverTrips = '/farmer/home/deliver/trips';
+  static const farmerLoads = '/farmer/home/loads';
+  static const farmerLoadNew = '/farmer/home/loads/new';
+  static String farmerLoad(String id) => '/farmer/home/loads/${Uri.encodeComponent(id)}';
+
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';
 
