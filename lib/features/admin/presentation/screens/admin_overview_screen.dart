@@ -94,6 +94,10 @@ class _OverviewBody extends StatelessWidget {
         _AttentionTile(icon: Icons.notification_important_outlined, color: colors.danger, text: '${o.lowStockUnattended} product${o.lowStockUnattended == 1 ? '' : 's'} still low a day after the operator was alerted'),
       if (o.discrepanciesOpen > 0)
         _AttentionTile(icon: Icons.fact_check_outlined, color: colors.warning, text: '${o.discrepanciesOpen} delivery report${o.discrepanciesOpen == 1 ? '' : 's'} to review', onTap: () => context.go(_query(RoutePaths.adminSupply, 'tab', 'discrepancies'))),
+      if ((o.delivery?.needDriver ?? 0) > 0)
+        _AttentionTile(icon: Icons.local_shipping_outlined, color: colors.warning, text: '${o.delivery!.needDriver} home deliver${o.delivery!.needDriver == 1 ? 'y has' : 'ies have'} no driver yet', onTap: () => context.push(RoutePaths.adminDelivery)),
+      if ((o.delivery?.partnersPending ?? 0) > 0)
+        _AttentionTile(icon: Icons.badge_outlined, color: colors.info, text: '${o.delivery!.partnersPending} delivery partner${o.delivery!.partnersPending == 1 ? '' : 's'} waiting for a village center to check', onTap: () => context.push(RoutePaths.adminDelivery)),
       if (o.lowStockItems > 0)
         _AttentionTile(icon: Icons.inventory_2_outlined, color: colors.danger, text: '${o.lowStockItems} product${o.lowStockItems == 1 ? '' : 's'} running low across centers'),
     ];
@@ -141,6 +145,18 @@ class _OverviewBody extends StatelessWidget {
         onTap: () => context.go(_query(RoutePaths.adminSupply, 'tab', 'surplus')),
       ),
       _StatCard(
+        icon: Icons.local_shipping_rounded,
+        title: 'Home delivery',
+        total: o.delivery?.onTheRoad ?? 0,
+        totalLabel: 'on the road',
+        lines: [
+          _Line('Waiting for a driver', o.delivery?.waiting ?? 0, colors.warning, () => context.push(RoutePaths.adminDelivery)),
+          _Line('Delivered today', o.delivery?.deliveredToday ?? 0, colors.success, () => context.push(RoutePaths.adminDelivery)),
+          _Line('Partners approved', o.delivery?.partnersApproved ?? 0, colors.info, () => context.push(RoutePaths.adminDelivery)),
+        ],
+        onTap: () => context.push(RoutePaths.adminDelivery),
+      ),
+      _StatCard(
         icon: Icons.receipt_long_rounded,
         title: 'Orders',
         total: o.ordersToday,
@@ -171,7 +187,7 @@ class _OverviewBody extends StatelessWidget {
         AppSpacing.gapMd,
         ResponsiveRow(spacing: AppSpacing.md, children: [for (var i = 2; i < 4; i++) FadeSlideIn(delay: Motion.delayFor(attention.length + i), child: cards[i])]),
         AppSpacing.gapMd,
-        ResponsiveRow(spacing: AppSpacing.md, children: [FadeSlideIn(delay: Motion.delayFor(attention.length + 4), child: cards[4]), const SizedBox.shrink()]),
+        ResponsiveRow(spacing: AppSpacing.md, children: [for (var i = 4; i < 6; i++) FadeSlideIn(delay: Motion.delayFor(attention.length + i), child: cards[i])]),
       ],
     );
   }

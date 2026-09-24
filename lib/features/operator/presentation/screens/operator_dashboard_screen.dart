@@ -13,6 +13,7 @@ import '../../../../core/widgets/app_button.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/sign_out_button.dart';
+import '../../../delivery/management/presentation/operator_deliveries_tile.dart';
 import '../../center/presentation/widgets/my_center_card.dart';
 import '../widgets/operator_notification_bell.dart';
 import '../../inventory/domain/entities/inventory_item.dart';
@@ -56,6 +57,8 @@ class OperatorDashboardScreen extends ConsumerWidget {
               expand: true,
               onPressed: () => context.push(RoutePaths.operatorOrdersNew),
             ),
+            AppSpacing.gapSm,
+            const OperatorDeliveriesTile(),
             AppSpacing.gapLg,
             ResponsiveRow(
               spacing: AppSpacing.md,

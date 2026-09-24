@@ -2,6 +2,8 @@ import 'dart:typed_data';
 
 import 'package:khaadsetu_version1/core/network/api_client.dart';
 import 'package:khaadsetu_version1/features/delivery/domain/entities/delivery_models.dart';
+import 'package:khaadsetu_version1/features/delivery/management/domain/management_models.dart';
+import 'package:khaadsetu_version1/features/delivery/management/domain/management_repository.dart';
 import 'package:khaadsetu_version1/features/delivery/domain/repositories/delivery_repository.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/nearby_center.dart';
 
@@ -385,3 +387,181 @@ class FakeDeliveryRepository implements DeliveryRepository {
 
 /// An [ApiException] worded like the server's, for wrong-code tests.
 ApiException wrongCodeError(int left) => ApiException('That code is wrong. $left ${left == 1 ? 'try' : 'tries'} left.', statusCode: 400);
+
+// ---------------------------------------------------------------------------
+// The operator's and admin's side
+// ---------------------------------------------------------------------------
+
+ManagedDelivery managedDelivery(
+  String id, {
+  DeliveryStatus status = DeliveryStatus.open,
+  bool needsDriver = false,
+  String? partner,
+  String? center,
+  int offers = 0,
+  bool p2p = false,
+}) =>
+    ManagedDelivery(
+      id: id,
+      isP2p: p2p,
+      status: status,
+      fee: 60,
+      weightKg: 40,
+      distanceKm: 6.5,
+      goodsAmount: p2p ? 0 : 1200,
+      cashToCollect: p2p ? 60 : 1260,
+      dropVillage: 'Shirur',
+      buyerName: 'Suresh',
+      needsDriver: needsDriver,
+      offersPending: offers,
+      centerName: center,
+      partnerId: partner == null ? null : 'p-$partner',
+      partnerName: partner,
+      partnerPhone: partner == null ? null : '9876500000',
+      vehicleType: partner == null ? null : VehicleType.pickup,
+      vehicleNumber: partner == null ? null : 'MH12AB1234',
+      ratingAvg: partner == null ? null : 4.6,
+    );
+
+PartnerApplication application(
+  String id, {
+  PartnerStatus status = PartnerStatus.pending,
+  String name = 'Ramesh Patil',
+  bool licence = true,
+  bool rc = true,
+  String? rejection,
+  List<PartnerEvent> events = const [],
+}) =>
+    PartnerApplication(
+      userId: id,
+      name: name,
+      village: 'Shirur',
+      status: status,
+      vehicleType: VehicleType.pickup,
+      vehicleNumber: 'MH12AB1234',
+      capacityKg: 600,
+      phone: '9876500000',
+      maxDistanceKm: 10,
+      days: const [0, 1, 2, 3, 4, 5],
+      freeFrom: '06:00',
+      freeUntil: '20:00',
+      online: false,
+      reviewCenterName: 'Center a',
+      rejectionReason: rejection,
+      ratingAvg: 0,
+      ratingCount: 0,
+      deliveriesDone: 0,
+      submittedAt: DateTime(2026, 9, 24),
+      licence: licence ? const PartnerDocument(contentType: 'image/png', sizeBytes: 100) : null,
+      rc: rc ? const PartnerDocument(contentType: 'image/png', sizeBytes: 100) : null,
+      events: events,
+    );
+
+/// The smallest valid PNG, standing in for a photographed licence.
+final tinyPng = Uint8List.fromList([
+  0x89, 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x48, 0x44, 0x52, 0x00, 0x00, 0x00, 0x01, 0x00, 0x00, 0x00, 0x01, 0x08, 0x06, 0x00, 0x00, 0x00, 0x1F, 0x15, 0xC4,
+  0x89, 0x00, 0x00, 0x00, 0x0D, 0x49, 0x44, 0x41, 0x54, 0x78, 0x9C, 0x63, 0xF8, 0xFF, 0xFF, 0x3F, 0x00, 0x05, 0xFE, 0x02, 0xFE, 0xA7, 0x35, 0x81, 0x84, 0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4E,
+  0x44, 0xAE, 0x42, 0x60, 0x82,
+]);
+
+class FakeManagementRepository implements DeliveryManagementRepository {
+  FakeManagementRepository({this.scope = ManagementScope.operator});
+
+  final ManagementScope scope;
+  Object? error;
+  final calls = <String>[];
+
+  T _guard<T>(String call, T Function() run) {
+    calls.add(call);
+    if (error != null) {
+      final e = error!;
+      error = null;
+      throw e;
+    }
+    return run();
+  }
+
+  List<ManagedDelivery> deliveryList = [];
+  final deliveryFilters = <DeliveryStatus?>[];
+
+  @override
+  Future<List<ManagedDelivery>> deliveries({DeliveryStatus? status}) async {
+    deliveryFilters.add(status);
+    return deliveryList.where((d) => status == null || d.status == status).toList();
+  }
+
+  List<PartnerApplication> applications = [];
+  final partnerFilters = <PartnerStatus?>[];
+
+  @override
+  Future<List<PartnerApplication>> partners({PartnerStatus? status, String? query}) async {
+    partnerFilters.add(status);
+    return applications.where((a) => (status == null || a.status == status) && (query == null || a.name.toLowerCase().contains(query.toLowerCase()))).toList();
+  }
+
+  @override
+  Future<PartnerApplication> partner(String userId) async => applications.firstWhere((a) => a.userId == userId);
+
+  @override
+  Future<Uint8List> document(String userId, String kind) async => tinyPng;
+
+  final reviews = <({String userId, ReviewAction action, String? note})>[];
+
+  @override
+  Future<PartnerApplication> review(String userId, ReviewAction action, {String? note}) async => _guard('review:${action.name}', () {
+        reviews.add((userId: userId, action: action, note: note));
+        final now = switch (action) {
+          ReviewAction.approve || ReviewAction.reactivate => PartnerStatus.approved,
+          ReviewAction.reject => PartnerStatus.rejected,
+          ReviewAction.suspend => PartnerStatus.suspended,
+        };
+        final old = applications.firstWhere((a) => a.userId == userId);
+        final updated = application(userId, status: now, name: old.name, rejection: action == ReviewAction.reject ? note : null);
+        applications = [for (final a in applications) if (a.userId == userId) updated else a];
+        return updated;
+      });
+
+  List<AssignCandidate> candidateList = [];
+
+  @override
+  Future<List<AssignCandidate>> candidates(String jobId) async => candidateList;
+
+  final assigned = <({String jobId, String partnerId})>[];
+
+  @override
+  Future<ManagedDelivery> assign(String jobId, String partnerId) async => _guard('assign', () {
+        assigned.add((jobId: jobId, partnerId: partnerId));
+        final updated = managedDelivery(jobId, status: DeliveryStatus.assigned, partner: 'Ganesh');
+        deliveryList = [for (final d in deliveryList) if (d.id == jobId) updated else d];
+        return updated;
+      });
+
+  final handovers = <({String jobId, String otp})>[];
+
+  @override
+  Future<ManagedDelivery> handover(String jobId, String otp) async => _guard('handover', () {
+        handovers.add((jobId: jobId, otp: otp));
+        final updated = managedDelivery(jobId, status: DeliveryStatus.inTransit, partner: 'Ganesh');
+        deliveryList = [for (final d in deliveryList) if (d.id == jobId) updated else d];
+        return updated;
+      });
+
+  List<CashOwed> cash = [];
+  final settled = <({String partnerId, double amount})>[];
+
+  @override
+  Future<List<CashOwed>> cashOwed() async => cash;
+
+  @override
+  Future<List<CashOwed>> settleCash(String partnerId, double amount, {String note = ''}) async => _guard('settle', () {
+        settled.add((partnerId: partnerId, amount: amount));
+        cash = [
+          for (final c in cash)
+            if (c.partnerId == partnerId)
+              if (c.owed - amount > 0) CashOwed(partnerId: c.partnerId, name: c.name, phone: c.phone, owed: c.owed - amount) else ...const <CashOwed>[]
+            else
+              c,
+        ];
+        return cash;
+      });
+}

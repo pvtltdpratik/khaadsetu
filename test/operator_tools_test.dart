@@ -481,6 +481,7 @@ void main() {
         GoRoute(path: '${RoutePaths.farmerOrders}/:orderId', builder: (context, state) => Text('farmer order ${state.pathParameters['orderId']}')),
         GoRoute(path: RoutePaths.farmerMarketplaceProductPattern, builder: (context, state) => Text('product ${state.pathParameters['productId']}')),
         GoRoute(path: RoutePaths.farmerDeliver, builder: (context, _) => const Text('delivery hub')),
+        GoRoute(path: RoutePaths.operatorDeliveries, builder: (context, _) => const Text('deliveries board')),
         GoRoute(path: '${RoutePaths.farmerLoads}/:id', builder: (context, state) => Text('load ${state.pathParameters['id']}')),
       ]);
       await tester.pumpWidget(ProviderScope(
@@ -559,6 +560,13 @@ void main() {
       await tester.tap(find.text('Delivery job: Rs 60'));
       await tester.pumpAndSettle();
       expect(find.text('delivery hub'), findsOneWidget);
+    });
+
+    testWidgets('an operator opening a notice about an application or a driverless delivery goes to the deliveries board', (tester) async {
+      await pump(tester, AppRole.operator, [note('1', NotificationType.delivery, title: 'A delivery partner applied', refId: 'farmer-user-id')]);
+      await tester.tap(find.text('A delivery partner applied'));
+      await tester.pumpAndSettle();
+      expect(find.text('deliveries board'), findsOneWidget);
     });
 
     testWidgets('an operator opening a delivery notice about an order goes to that order', (tester) async {

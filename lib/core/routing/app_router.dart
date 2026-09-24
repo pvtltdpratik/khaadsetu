@@ -32,6 +32,8 @@ import '../../features/farmer/community/presentation/screens/create_post_screen.
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
+import '../../features/delivery/management/domain/management_models.dart';
+import '../../features/delivery/management/presentation/delivery_management_screen.dart';
 import '../../features/delivery/presentation/screens/delivery_hub_screen.dart';
 import '../../features/delivery/presentation/screens/loads_screens.dart';
 import '../../features/delivery/presentation/screens/trips_screen.dart';
@@ -238,6 +240,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
           ),
         ],
       ),
+
+      // Home delivery: the operator's own center, and the admin's view of every center.
+      GoRoute(path: RoutePaths.operatorDeliveries, builder: (context, state) => const DeliveryManagementScreen(scope: ManagementScope.operator)),
+      GoRoute(path: RoutePaths.adminDelivery, builder: (context, state) => const DeliveryManagementScreen(scope: ManagementScope.admin)),
 
       // --- Platform admin panel ---
       GoRoute(
