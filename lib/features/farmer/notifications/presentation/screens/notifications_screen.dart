@@ -10,6 +10,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../delivery/presentation/providers/delivery_providers.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../domain/entities/app_notification.dart';
 import '../providers/notifications_providers.dart';
@@ -58,10 +59,33 @@ class NotificationsScreen extends ConsumerWidget {
         }
       case NotificationType.restock:
         if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
+      case NotificationType.delivery:
+        await _openDelivery(context, ref, refId);
       case NotificationType.account:
       case NotificationType.other:
         break; // the text says it all
     }
+  }
+
+  /// A delivery notice points at an order (to the buyer, or the center), or at a
+  /// job: a load I sent, or a job I am doing as the partner. Which of those a job
+  /// id is depends on who is asking, so the server is asked whether it is my load.
+  Future<void> _openDelivery(BuildContext context, WidgetRef ref, String refId) async {
+    if (refId.startsWith('order-')) {
+      context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
+      return;
+    }
+    if (_isOperator(ref)) return; // application and cash notices: the text says it
+    if (refId.startsWith('job-')) {
+      try {
+        await ref.read(deliveryRepositoryProvider).load(refId);
+        if (context.mounted) context.push(RoutePaths.farmerLoad(refId));
+        return;
+      } catch (_) {
+        // Not my load, so it is a job for me as the partner.
+      }
+    }
+    if (context.mounted) context.push(RoutePaths.farmerDeliver);
   }
 
   bool _isOperator(WidgetRef ref) => ref.read(sessionProfileProvider).value?.role == AppRole.operator;
