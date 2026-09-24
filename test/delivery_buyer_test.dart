@@ -213,6 +213,7 @@ void main() {
       await _pumpOrder(tester, order, d);
 
       expect(find.text('Delivered'), findsWidgets);
+      expect(find.byKey(const Key('delivered-check')), findsOneWidget, reason: 'a finished delivery gets its moment');
       await tester.tap(find.text('Rate the delivery'));
       await tester.pumpAndSettle();
       expect(find.text('Send'), findsOneWidget);

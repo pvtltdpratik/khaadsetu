@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/pressable.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -22,7 +23,8 @@ class OperatorDeliveriesTile extends ConsumerWidget {
       if (attention != null && attention.needDriver > 0) '${attention.needDriver} need${attention.needDriver == 1 ? 's' : ''} a driver',
       if (attention != null && attention.applications > 0) '${attention.applications} application${attention.applications == 1 ? '' : 's'} to check',
     ];
-    return Material(
+    return Pressable(
+      child: Material(
       color: colors.surface,
       borderRadius: BorderRadius.circular(14),
       child: InkWell(
@@ -50,6 +52,7 @@ class OperatorDeliveriesTile extends ConsumerWidget {
             Icon(Icons.chevron_right_rounded, color: colors.textMuted),
           ]),
         ),
+      ),
       ),
     );
   }

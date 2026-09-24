@@ -5,6 +5,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/animation/fade_slide_in.dart';
+import '../../../../core/animation/pressable.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
@@ -359,7 +360,8 @@ class _LinkTile extends StatelessWidget {
     final colors = context.colors;
     return Padding(
       padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-      child: Material(
+      child: Pressable(
+        child: Material(
         color: colors.surface,
         borderRadius: BorderRadius.circular(14),
         child: InkWell(
@@ -381,6 +383,7 @@ class _LinkTile extends StatelessWidget {
             ]),
           ),
         ),
+      ),
       ),
     );
   }
