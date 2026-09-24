@@ -74,6 +74,13 @@ class DeliveryTrackingCard extends StatelessWidget {
               ),
             ],
           ),
+          if (d.status == DeliveryStatus.delivered)
+            Center(
+              child: Padding(
+                padding: const EdgeInsets.only(top: AppSpacing.sm),
+                child: PopIn(child: Icon(Icons.check_circle_rounded, key: const Key('delivered-check'), size: 56, color: colors.success)),
+              ),
+            ),
           if (!ended) ...[
             AppSpacing.gapSm,
             _Steps(labels: d.isP2p ? _loadSteps : _orderSteps, current: _step),
