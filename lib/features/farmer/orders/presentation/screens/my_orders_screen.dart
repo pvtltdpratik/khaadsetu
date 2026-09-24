@@ -10,6 +10,7 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../delivery/presentation/widgets/live_refresh.dart';
 import '../providers/orders_providers.dart';
 import '../widgets/order_card.dart';
 
@@ -94,9 +95,15 @@ class FarmerOrderDetailScreen extends ConsumerWidget {
         appBar: AppBar(title: const Text('Your order')),
         body: SafeArea(
           child: order.when(
+            // Refreshing in the background keeps what is on screen (the map, the code).
+            skipLoadingOnReload: true,
             loading: () => const AppLoadingIndicator(),
             error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(orderProvider(orderId))),
-            data: (o) => ListView(
+            // A delivery on its way updates itself: where the partner is, who took it.
+            data: (o) => LiveRefresh(
+              active: o.isHomeDelivery,
+              onTick: () => ref.invalidate(orderProvider(orderId)),
+              child: ListView(
               children: [
                 ContentContainer(
                   maxWidth: 720,
@@ -110,6 +117,7 @@ class FarmerOrderDetailScreen extends ConsumerWidget {
                   ),
                 ),
               ],
+            ),
             ),
           ),
         ),

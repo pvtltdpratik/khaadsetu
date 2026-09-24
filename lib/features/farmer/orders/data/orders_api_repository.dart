@@ -1,4 +1,5 @@
 import '../../../../core/network/api_client.dart';
+import '../../../delivery/domain/entities/delivery_models.dart';
 import '../../centers/domain/entities/nearby_center.dart';
 import '../domain/entities/farmer_order.dart';
 import '../domain/repositories/orders_repository.dart';
@@ -9,11 +10,12 @@ class OrdersApiRepository implements OrdersRepository {
   final ApiClient _api;
 
   @override
-  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location}) async {
+  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery}) async {
     try {
       final json = await _api.post('/v1/orders', body: {
         'items': [for (final l in items) {'productId': l.productId, 'quantity': l.quantity}],
         'centerId': ?centerId,
+        if (delivery != null) ...{'fulfilment': 'delivery', 'deliveryAddress': delivery.toJson()},
         if (location != null) ...{
           'latitude': location.latitude,
           'longitude': location.longitude,

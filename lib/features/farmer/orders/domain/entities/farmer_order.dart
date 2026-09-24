@@ -1,5 +1,7 @@
 import 'package:equatable/equatable.dart';
 
+import '../../../../delivery/domain/entities/delivery_models.dart';
+
 enum FarmerOrderStatus {
   pending,
   readyForPickup,
@@ -72,6 +74,8 @@ class FarmerOrder extends Equatable {
     this.pickupOtp,
     this.reservedUntil,
     this.center,
+    this.deliveryFee = 0,
+    this.delivery,
   });
 
   factory FarmerOrder.fromJson(Map<String, dynamic> json) {
@@ -85,6 +89,8 @@ class FarmerOrder extends Equatable {
       pickupOtp: json['pickupOtp'] as String?,
       reservedUntil: json['reservedUntil'] == null ? null : DateTime.parse(json['reservedUntil'] as String).toLocal(),
       center: center == null ? null : OrderCenter.fromJson(center),
+      deliveryFee: (json['deliveryFee'] as num?)?.toDouble() ?? 0,
+      delivery: json['delivery'] == null ? null : DeliveryTracking.fromJson(json['delivery'] as Map<String, dynamic>),
     );
   }
 
@@ -101,8 +107,21 @@ class FarmerOrder extends Equatable {
   final DateTime? reservedUntil;
   final OrderCenter? center;
 
+  /// What bringing it home costs (0 for a pickup).
+  final double deliveryFee;
+
+  /// Who is bringing it and where they are, for an order that has a delivery
+  /// (also kept after it fell back to pickup, so the story can be told).
+  final DeliveryTracking? delivery;
+
+  /// Being brought home: the pickup code is not used and the delivery card takes over.
+  bool get isHomeDelivery => delivery != null && delivery!.status != DeliveryStatus.fallback && delivery!.status != DeliveryStatus.cancelled;
+
+  /// Goods plus the delivery fee: what is paid in cash on arrival.
+  double get payableAmount => totalAmount + deliveryFee;
+
   int get itemCount => items.fold(0, (sum, i) => sum + i.quantity);
 
   @override
-  List<Object?> get props => [id, status, createdAt, items, totalAmount, pickupOtp, reservedUntil, center];
+  List<Object?> get props => [id, status, createdAt, items, totalAmount, pickupOtp, reservedUntil, center, deliveryFee, delivery];
 }

@@ -5,6 +5,10 @@ import '../../../../../core/animation/pop_in.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/price_format.dart';
+import '../../../../delivery/domain/entities/delivery_models.dart';
+import '../../../../delivery/presentation/providers/delivery_providers.dart';
+import '../../../../delivery/presentation/widgets/delivery_tracking_card.dart';
+import '../../../../delivery/presentation/widgets/rating_sheet.dart';
 import '../../../centers/presentation/widgets/contact_actions.dart';
 import '../../domain/entities/farmer_order.dart';
 import '../providers/orders_providers.dart';
@@ -45,10 +49,50 @@ class OrderCard extends ConsumerWidget {
     }
   }
 
+  void _refresh(WidgetRef ref) => ref
+    ..invalidate(myOrdersProvider)
+    ..invalidate(orderProvider(order.id))
+    ..invalidate(deliveryTrackingProvider(order.id));
+
+  Future<void> _switchToPickup(BuildContext context, WidgetRef ref) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Collect it yourself?'),
+        content: const Text('The delivery is called off and you will not pay the delivery fee. You will get a pickup code to read out at the village center.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Keep the delivery')),
+          FilledButton(onPressed: () => Navigator.pop(context, true), child: const Text('I will collect it')),
+        ],
+      ),
+    );
+    if (ok != true) return;
+    try {
+      await ref.read(deliveryRepositoryProvider).switchToPickup(order.id);
+      _refresh(ref);
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Delivery cancelled. Collect it at the center.')));
+    } catch (err) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
+    }
+  }
+
+  Future<void> _rate(BuildContext context, WidgetRef ref) async {
+    final rating = await showRatingDialog(context, title: 'How was the delivery?');
+    if (rating == null) return;
+    try {
+      await ref.read(deliveryRepositoryProvider).rateDelivery(orderId: order.id, stars: rating.stars, comment: rating.comment);
+      _refresh(ref);
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Thank you for rating')));
+    } catch (err) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
+    }
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final colors = context.colors;
     final text = Theme.of(context).textTheme;
+    final delivery = order.delivery;
     final statusColor = switch (order.status) {
       FarmerOrderStatus.pending => colors.info,
       FarmerOrderStatus.readyForPickup => colors.success,
@@ -99,17 +143,38 @@ class OrderCard extends ConsumerWidget {
                   Text(formatRupees(order.totalAmount), style: text.titleSmall),
                 ],
               ),
+              if (order.isHomeDelivery) ...[
+                const SizedBox(height: AppSpacing.xs),
+                Row(children: [
+                  Expanded(child: Text('Home delivery', style: text.bodyMedium)),
+                  Text(formatRupees(order.deliveryFee), key: const Key('order-delivery-fee'), style: text.bodyMedium),
+                ]),
+                const SizedBox(height: AppSpacing.xs),
+                Row(children: [
+                  Expanded(child: Text('To pay in cash on arrival', style: text.titleSmall)),
+                  Text(formatRupees(order.payableAmount), key: const Key('order-payable'), style: text.titleSmall),
+                ]),
+              ],
               if (center != null) ...[
                 AppSpacing.gapSm,
                 Row(
                   children: [
                     Icon(Icons.storefront_rounded, size: 18, color: colors.primary),
                     const SizedBox(width: AppSpacing.sm),
-                    Expanded(child: Text('Collect from ${center.name}, ${center.village}', style: text.bodyMedium)),
+                    Expanded(child: Text('${order.isHomeDelivery ? 'Comes from' : 'Collect from'} ${center.name}, ${center.village}', style: text.bodyMedium)),
                   ],
                 ),
               ],
-              if (order.status.isActive && order.pickupOtp != null) ...[
+              if (delivery != null && (order.isHomeDelivery || delivery.status == DeliveryStatus.delivered)) ...[
+                AppSpacing.gapMd,
+                DeliveryTrackingCard(
+                  delivery: delivery,
+                  goodsAmount: order.totalAmount,
+                  onSwitchToPickup: () => _switchToPickup(context, ref),
+                  onRate: () => _rate(context, ref),
+                ),
+              ],
+              if (!order.isHomeDelivery && order.status.isActive && order.pickupOtp != null) ...[
                 AppSpacing.gapMd,
                 Container(
                   width: double.infinity,
@@ -129,7 +194,7 @@ class OrderCard extends ConsumerWidget {
                   ),
                 ),
               ],
-              if (order.status.isActive || (center?.phone.isNotEmpty ?? false)) ...[
+              if ((order.status.isActive && delivery?.status != DeliveryStatus.inTransit) || (center?.phone.isNotEmpty ?? false)) ...[
                 AppSpacing.gapSm,
                 Wrap(
                   spacing: AppSpacing.sm,
@@ -137,7 +202,7 @@ class OrderCard extends ConsumerWidget {
                   children: [
                     if (center != null && center.phone.isNotEmpty)
                       OutlinedButton.icon(onPressed: () => callPhone(context, center.phone), icon: const Icon(Icons.call_rounded, size: 18), label: const Text('Call center')),
-                    if (order.status.isActive)
+                    if (order.status.isActive && delivery?.status != DeliveryStatus.inTransit)
                       TextButton.icon(
                         onPressed: () => _cancel(context, ref),
                         icon: Icon(Icons.close_rounded, size: 18, color: colors.danger),
