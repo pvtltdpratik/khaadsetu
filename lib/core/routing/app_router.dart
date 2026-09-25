@@ -17,6 +17,13 @@ import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/farmer/home/presentation/screens/farmer_home_screen.dart';
 import '../../features/farmer/notifications/presentation/screens/notifications_screen.dart';
 import '../../features/farmer/presentation/farmer_shell.dart';
+import '../../features/farmer/profile/domain/profile_models.dart';
+import '../../features/farmer/profile/presentation/screens/address_form_screen.dart';
+import '../../features/farmer/profile/presentation/screens/addresses_screen.dart';
+import '../../features/farmer/profile/presentation/screens/contact_screen.dart';
+import '../../features/farmer/profile/presentation/screens/farm_details_screen.dart';
+import '../../features/farmer/profile/presentation/screens/my_activity_screen.dart';
+import '../../features/farmer/profile/presentation/screens/profile_screen.dart';
 import '../../features/farmer/soil_health/presentation/screens/soil_scan_capture_screen.dart';
 import '../../features/farmer/soil_health/presentation/screens/soil_scan_history_screen.dart';
 import '../../features/farmer/soil_health/presentation/screens/soil_scan_result_screen.dart';
@@ -244,6 +251,26 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                       schemeId: state.pathParameters['schemeId']!,
                     ),
                   ),
+                ],
+              ),
+            ],
+          ),
+          StatefulShellBranch(
+            routes: [
+              GoRoute(
+                path: RoutePaths.farmerProfile,
+                builder: (context, state) => const ProfileScreen(),
+                routes: [
+                  GoRoute(path: 'contact', builder: (context, state) => const ContactScreen()),
+                  GoRoute(
+                    path: 'addresses',
+                    builder: (context, state) => const AddressesScreen(),
+                    routes: [
+                      GoRoute(path: 'edit', builder: (context, state) => AddressFormScreen(existing: state.extra is SavedAddress ? state.extra! as SavedAddress : null)),
+                    ],
+                  ),
+                  GoRoute(path: 'activity', builder: (context, state) => const MyActivityScreen()),
+                  GoRoute(path: 'farm', builder: (context, state) => const FarmDetailsScreen()),
                 ],
               ),
             ],

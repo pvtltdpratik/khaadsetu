@@ -1,11 +1,17 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
+import '../../../../../core/location/place_namer.dart';
+import '../../../../../core/routing/route_paths.dart';
+import '../../../centers/domain/entities/nearby_center.dart';
+import '../../../centers/presentation/providers/centers_providers.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/farmer_profile.dart';
 
-/// "Namaste, {name}" + village, with a notification bell showing an unread
-/// badge. Custom rather than a Material [AppBar] so the greeting can carry
+/// "Namaste, {name}" + where the farmer is right now (from the phone's GPS), with a
+/// notification bell showing an unread badge. Custom rather than a Material [AppBar] so the greeting can carry
 /// more warmth than an app bar title allows.
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key, required this.profile, required this.onNotificationsTap});
@@ -15,7 +21,6 @@ class HomeHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
     return Row(
       children: [
         Expanded(
@@ -28,23 +33,7 @@ class HomeHeader extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: AppSpacing.xxs),
-              Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Icon(Icons.location_on_outlined, size: 16, color: colors.textMuted),
-                  const SizedBox(width: AppSpacing.xxs),
-                  Flexible(
-                    child: Text(
-                      profile.village,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context)
-                          .textTheme
-                          .bodyMedium
-                          ?.copyWith(color: colors.textMuted),
-                    ),
-                  ),
-                ],
-              ),
+              const CurrentLocationLine(),
             ],
           ),
         ),
@@ -99,6 +88,61 @@ class _NotificationBell extends StatelessWidget {
                 ),
             ],
           ),
+        ),
+      ),
+    );
+  }
+}
+
+/// Where the farmer is now, read from the phone's GPS and named ("Shirur, Pune"). Tap to read
+/// the GPS again. With no GPS it asks the farmer to set their location rather than guessing one.
+class CurrentLocationLine extends ConsumerWidget {
+  const CurrentLocationLine({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final style = Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted);
+    final place = ref.watch(currentPlaceProvider);
+    final location = ref.watch(farmerLocationProvider);
+
+    Future<void> refresh() async {
+      final message = await ref.read(farmerLocationProvider.notifier).useGps();
+      ref.invalidate(currentPlaceProvider);
+      if (message != null && context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
+    }
+
+    late final IconData icon;
+    late final String label;
+    late final VoidCallback? onTap;
+    if (place.isLoading || location.isLoading) {
+      icon = Icons.location_searching;
+      label = 'Finding your location…';
+      onTap = null;
+    } else if (location.value == null) {
+      icon = Icons.location_off_outlined;
+      label = 'Set your location';
+      onTap = () => context.push(RoutePaths.farmerChooseVillage);
+    } else {
+      final loc = location.value!;
+      final name = place.value?.short ?? '';
+      icon = loc.source == LocationSource.gps ? Icons.my_location : Icons.location_on_outlined;
+      label = name.isNotEmpty ? name : (loc.source == LocationSource.gps ? 'Your current location' : (loc.label ?? 'Your location'));
+      onTap = refresh;
+    }
+    return InkWell(
+      key: const Key('current-location'),
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(8),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(vertical: AppSpacing.xxs),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 16, color: colors.textMuted),
+            const SizedBox(width: AppSpacing.xxs),
+            Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: style)),
+          ],
         ),
       ),
     );
