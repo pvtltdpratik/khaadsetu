@@ -25,6 +25,37 @@ android {
         versionName = flutter.versionName
     }
 
+    // Lets each flavor set its own app name with resValue (off by default in newer Android Gradle plugins).
+    buildFeatures {
+        resValues = true
+    }
+
+    // Four apps from one codebase (see lib/main_*.dart and build_all.bat / build_all.sh).
+    // Each has its own applicationId, so they install side by side, and its own name and icon.
+    flavorDimensions += "app"
+    productFlavors {
+        create("farmer") {
+            dimension = "app"
+            applicationId = "com.shetsamruddhi.farmer"
+            resValue("string", "app_name", "शेतसमृद्धी")
+        }
+        create("center") {
+            dimension = "app"
+            applicationId = "com.shetsamruddhi.center"
+            resValue("string", "app_name", "शेतसमृद्धी Center")
+        }
+        create("admin") {
+            dimension = "app"
+            applicationId = "com.shetsamruddhi.admin"
+            resValue("string", "app_name", "शेतसमृद्धी Admin")
+        }
+        create("dev") {
+            dimension = "app"
+            applicationId = "com.shetsamruddhi.dev"
+            resValue("string", "app_name", "शेतसमृद्धी DEV")
+        }
+    }
+
     buildTypes {
         release {
             // TODO: Add your own signing config for the release build.
