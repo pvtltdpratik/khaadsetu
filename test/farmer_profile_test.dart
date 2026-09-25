@@ -289,7 +289,7 @@ void main() {
 
     test('every question the screen asks is one the server accepts', () {
       const serverKeys = {
-        'category', 'gender', 'dateOfBirth', 'landOwnership', 'nameInLandRecords', 'hasBankAccount', 'hasAadhaar', 'hasKcc', 'hasCropLoan', 'irrigation',
+        'category', 'gender', 'dateOfBirth', 'landOwnership', 'nameInLandRecords', 'hasBankAccount', 'hasAadhaar', 'hasKcc', 'hasCropLoan', 'soilType', 'irrigation',
         'primaryCrops', 'ownsPumpset', 'ownsTractor', 'hasSchoolChildren', 'isIncomeTaxPayer', 'isGovtEmployee', 'hasPensionOf10kOrMore',
         'holdsConstitutionalPost', 'isRegisteredProfessional', 'isNri', 'isInstitutionalLandholder', 'practisesOrganic', 'inFarmerGroup',
       };

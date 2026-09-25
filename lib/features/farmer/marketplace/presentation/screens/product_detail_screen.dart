@@ -11,6 +11,7 @@ import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../centers/presentation/widgets/product_reserve_section.dart';
 import '../../../centers/presentation/widgets/product_surplus_section.dart';
+import '../../../../reviews/presentation/widgets/agronomic_reviews_section.dart';
 import '../../domain/entities/product.dart';
 import '../providers/marketplace_providers.dart';
 import '../widgets/npk_composition_chart.dart';
@@ -129,7 +130,11 @@ class _DetailBody extends ConsumerWidget {
         AppSpacing.gapSm,
         NpkCompositionChart(percentages: product.npkPercentages),
         AppSpacing.gapLg,
-        Text('Reviews (${product.reviewCount})', style: Theme.of(context).textTheme.titleMedium),
+        if (product.category == ProductCategory.organic || product.category == ProductCategory.fertilizer) ...[
+          AgronomicReviewsSection(productId: product.id, productName: product.name),
+          AppSpacing.gapLg,
+        ],
+        Text('Comments (${product.reviewCount})', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
         reviewsAsync.when(
           data: (reviews) => reviews.isEmpty

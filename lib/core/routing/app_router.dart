@@ -40,6 +40,10 @@ import '../../features/farmer/community/presentation/screens/create_post_screen.
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/resale/presentation/admin/resale_admin_screen.dart';
+import '../../features/reviews/presentation/log_fertilizer_screen.dart';
+import '../../features/reviews/presentation/my_logs_screen.dart';
+import '../../features/reviews/presentation/phase_screens.dart';
+import '../../features/reviews/presentation/predict_and_calculate_screens.dart';
 import '../../features/resale/presentation/farmer/farmer_wallet_screen.dart';
 import '../../features/resale/presentation/operator/cash_payouts_screen.dart';
 import '../../features/resale/presentation/operator/inspection_screen.dart';
@@ -285,6 +289,18 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'farm', builder: (context, state) => const FarmDetailsScreen()),
                   GoRoute(path: 'schemes', builder: (context, state) => const SchemesScreen()),
                   GoRoute(path: 'wallet', builder: (context, state) => const FarmerWalletScreen()),
+                  GoRoute(path: 'rewards', builder: (context, state) => const RewardsScreen()),
+                  GoRoute(path: 'predict/:productId', builder: (context, state) => YieldPredictionScreen(productId: state.pathParameters['productId']!)),
+                  GoRoute(path: 'calculator', builder: (context, state) => ProfitCalculatorScreen(productId: state.uri.queryParameters['product'])),
+                  GoRoute(
+                    path: 'log',
+                    builder: (context, state) => const MyLogsScreen(),
+                    routes: [
+                      GoRoute(path: 'new/:productId', builder: (context, state) => LogFertilizerScreen(productId: state.pathParameters['productId']!)),
+                      GoRoute(path: ':reviewId/mid', builder: (context, state) => MidSeasonScreen(reviewId: state.pathParameters['reviewId']!)),
+                      GoRoute(path: ':reviewId/harvest', builder: (context, state) => HarvestScreen(reviewId: state.pathParameters['reviewId']!)),
+                    ],
+                  ),
                   GoRoute(
                     path: 'sell',
                     builder: (context, state) => const SellSurplusHubScreen(),
