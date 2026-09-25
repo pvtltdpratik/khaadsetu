@@ -94,6 +94,10 @@ class _OverviewBody extends StatelessWidget {
         _AttentionTile(icon: Icons.notification_important_outlined, color: colors.danger, text: '${o.lowStockUnattended} product${o.lowStockUnattended == 1 ? '' : 's'} still low a day after the operator was alerted'),
       if (o.discrepanciesOpen > 0)
         _AttentionTile(icon: Icons.fact_check_outlined, color: colors.warning, text: '${o.discrepanciesOpen} delivery report${o.discrepanciesOpen == 1 ? '' : 's'} to review', onTap: () => context.go(_query(RoutePaths.adminSupply, 'tab', 'discrepancies'))),
+      if (o.resaleDisputesOpen > 0)
+        _AttentionTile(icon: Icons.flag_outlined, color: colors.danger, text: '${o.resaleDisputesOpen} complaint${o.resaleDisputesOpen == 1 ? '' : 's'} about surplus goods to decide', onTap: () => context.push(RoutePaths.adminResale)),
+      if (o.resaleUpiPending > 0)
+        _AttentionTile(icon: Icons.currency_rupee_rounded, color: colors.warning, text: '${o.resaleUpiPending} UPI payout${o.resaleUpiPending == 1 ? '' : 's'} to send to farmers', onTap: () => context.push(RoutePaths.adminResale)),
       if ((o.delivery?.needDriver ?? 0) > 0)
         _AttentionTile(icon: Icons.local_shipping_outlined, color: colors.warning, text: '${o.delivery!.needDriver} home deliver${o.delivery!.needDriver == 1 ? 'y has' : 'ies have'} no driver yet', onTap: () => context.push(RoutePaths.adminDelivery)),
       if ((o.delivery?.partnersPending ?? 0) > 0)
@@ -155,6 +159,17 @@ class _OverviewBody extends StatelessWidget {
           _Line('Partners approved', o.delivery?.partnersApproved ?? 0, colors.info, () => context.push(RoutePaths.adminDelivery)),
         ],
         onTap: () => context.push(RoutePaths.adminDelivery),
+      ),
+      _StatCard(
+        icon: Icons.recycling_rounded,
+        title: 'Farmer resale',
+        total: o.resaleListingsOpen,
+        totalLabel: 'listings open',
+        lines: [
+          _Line('Complaints to decide', o.resaleDisputesOpen, colors.danger, () => context.push(RoutePaths.adminResale)),
+          _Line('UPI payouts to send', o.resaleUpiPending, colors.warning, () => context.push(RoutePaths.adminResale)),
+        ],
+        onTap: () => context.push(RoutePaths.adminResale),
       ),
       _StatCard(
         icon: Icons.receipt_long_rounded,

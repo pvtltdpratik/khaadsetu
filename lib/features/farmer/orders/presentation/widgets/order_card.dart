@@ -10,6 +10,7 @@ import '../../../../delivery/presentation/providers/delivery_providers.dart';
 import '../../../../delivery/presentation/widgets/delivery_tracking_card.dart';
 import '../../../../delivery/presentation/widgets/rating_sheet.dart';
 import '../../../../payments/presentation/payments_providers.dart';
+import '../../../../resale/presentation/resale_providers.dart';
 import '../../../centers/presentation/widgets/contact_actions.dart';
 import '../../domain/entities/farmer_order.dart';
 import '../providers/orders_providers.dart';
@@ -45,6 +46,18 @@ class OrderCard extends ConsumerWidget {
         ..invalidate(myOrdersProvider)
         ..invalidate(orderProvider(order.id));
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Order cancelled')));
+    } catch (err) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
+    }
+  }
+
+  /// A complaint about surplus goods, within 48 hours of collecting them; the platform reviews it.
+  Future<void> _reportProblem(BuildContext context, WidgetRef ref) async {
+    final reason = await showDialog<String>(context: context, builder: (context) => const _ProblemDialog());
+    if (reason == null || !context.mounted) return;
+    try {
+      await ref.read(resaleRepositoryProvider).raiseDispute(orderId: order.id, reason: reason);
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Sent. The platform will review it and tell you.')));
     } catch (err) {
       if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$err')));
     }
@@ -199,7 +212,7 @@ class OrderCard extends ConsumerWidget {
                   ),
                 ),
               ],
-              if ((order.status.isActive && delivery?.status != DeliveryStatus.inTransit) || (center?.phone.isNotEmpty ?? false)) ...[
+              if ((order.status.isActive && delivery?.status != DeliveryStatus.inTransit) || (center?.phone.isNotEmpty ?? false) || (order.status == FarmerOrderStatus.completed && order.items.any((i) => i.isSurplus))) ...[
                 AppSpacing.gapSm,
                 Wrap(
                   spacing: AppSpacing.sm,
@@ -213,6 +226,20 @@ class OrderCard extends ConsumerWidget {
                         onPressed: () => payForOrder(context, ref, order.id),
                         icon: const Icon(Icons.lock_outline_rounded, size: 18),
                         label: Text('Pay ${formatRupees(order.totalAmount)} online'),
+                      ),
+                    if (order.canPayOnline && (ref.watch(farmerWalletProvider).value?.balance ?? 0) >= order.totalAmount)
+                      OutlinedButton.icon(
+                        key: const Key('pay-wallet'),
+                        onPressed: () => payFromWallet(context, ref, order.id),
+                        icon: const Icon(Icons.account_balance_wallet_outlined, size: 18),
+                        label: const Text('Pay from wallet'),
+                      ),
+                    if (order.status == FarmerOrderStatus.completed && order.items.any((i) => i.isSurplus))
+                      TextButton.icon(
+                        key: const Key('report-problem'),
+                        onPressed: () => _reportProblem(context, ref),
+                        icon: Icon(Icons.flag_outlined, size: 18, color: colors.danger),
+                        label: Text('Report a problem', style: TextStyle(color: colors.danger)),
                       ),
                     if (order.status.isActive && delivery?.status != DeliveryStatus.inTransit)
                       TextButton.icon(
@@ -258,6 +285,43 @@ class _PaymentBadge extends StatelessWidget {
           ),
         ),
       ]),
+    );
+  }
+}
+
+/// Asks what was wrong with the surplus goods. The controller lives in the dialog, so it is never used after being disposed.
+class _ProblemDialog extends StatefulWidget {
+  const _ProblemDialog();
+
+  @override
+  State<_ProblemDialog> createState() => _ProblemDialogState();
+}
+
+class _ProblemDialogState extends State<_ProblemDialog> {
+  final _reason = TextEditingController();
+
+  @override
+  void dispose() {
+    _reason.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text('What was wrong?'),
+      content: TextField(
+        key: const Key('problem-reason'),
+        controller: _reason,
+        maxLines: 4,
+        maxLength: 500,
+        onChanged: (_) => setState(() {}),
+        decoration: const InputDecoration(hintText: 'For example: it was damp and clumped, not as described'),
+      ),
+      actions: [
+        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
+        FilledButton(key: const Key('problem-send'), onPressed: _reason.text.trim().length >= 5 ? () => Navigator.pop(context, _reason.text.trim()) : null, child: const Text('Send')),
+      ],
     );
   }
 }

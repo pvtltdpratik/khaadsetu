@@ -39,6 +39,15 @@ import '../../features/farmer/orders/presentation/screens/my_orders_screen.dart'
 import '../../features/farmer/community/presentation/screens/create_post_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
+import '../../features/resale/presentation/admin/resale_admin_screen.dart';
+import '../../features/resale/presentation/farmer/farmer_wallet_screen.dart';
+import '../../features/resale/presentation/operator/cash_payouts_screen.dart';
+import '../../features/resale/presentation/operator/inspection_screen.dart';
+import '../../features/resale/presentation/operator/resale_queue_screen.dart';
+import '../../features/resale/presentation/operator/resale_review_screen.dart';
+import '../../features/resale/presentation/farmer/resale_listing_screen.dart';
+import '../../features/resale/presentation/farmer/sell_surplus_form_screen.dart';
+import '../../features/resale/presentation/farmer/sell_surplus_hub_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/schemes_list_view.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
 import '../../features/auth/presentation/screens/dev_role_picker_screen.dart';
@@ -275,6 +284,16 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'activity', builder: (context, state) => const MyActivityScreen()),
                   GoRoute(path: 'farm', builder: (context, state) => const FarmDetailsScreen()),
                   GoRoute(path: 'schemes', builder: (context, state) => const SchemesScreen()),
+                  GoRoute(path: 'wallet', builder: (context, state) => const FarmerWalletScreen()),
+                  GoRoute(
+                    path: 'sell',
+                    builder: (context, state) => const SellSurplusHubScreen(),
+                    routes: [
+                      // Before ':listingId', so "new" is not read as a listing id.
+                      GoRoute(path: 'new', builder: (context, state) => const SellSurplusFormScreen()),
+                      GoRoute(path: ':listingId', builder: (context, state) => ResaleListingScreen(listingId: state.pathParameters['listingId']!)),
+                    ],
+                  ),
                 ],
               ),
             ],
@@ -285,6 +304,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Home delivery: the operator's own center, and the admin's view of every center.
       GoRoute(path: RoutePaths.operatorDeliveries, builder: (context, state) => const DeliveryManagementScreen(scope: ManagementScope.operator)),
       GoRoute(path: RoutePaths.adminDelivery, builder: (context, state) => const DeliveryManagementScreen(scope: ManagementScope.admin)),
+      GoRoute(path: RoutePaths.adminResale, builder: (context, state) => const ResaleAdminScreen()),
 
       // --- Platform admin panel ---
       GoRoute(
@@ -393,7 +413,6 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
                   ),
-                  GoRoute(path: 'assistant', builder: (context, state) => const AssistantScreen()),
                   GoRoute(
                     path: 'deliver',
                     builder: (context, state) => const DeliveryHubScreen(),
@@ -449,6 +468,20 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(
                     path: 'surplus',
                     builder: (context, state) => const SurplusScreen(),
+                  ),
+                  GoRoute(
+                    path: 'resale',
+                    builder: (context, state) => const ResaleQueueScreen(),
+                    routes: [
+                      // 'new' and 'cash' before ':listingId', so they are not read as a listing id.
+                      GoRoute(path: 'new', builder: (context, state) => const InspectionScreen()),
+                      GoRoute(path: 'cash', builder: (context, state) => const CashPayoutsScreen()),
+                      GoRoute(
+                        path: ':listingId',
+                        builder: (context, state) => ResaleReviewScreen(listingId: state.pathParameters['listingId']!),
+                        routes: [GoRoute(path: 'inspect', builder: (context, state) => InspectionScreen(listingId: state.pathParameters['listingId']!))],
+                      ),
+                    ],
                   ),
                 ],
               ),

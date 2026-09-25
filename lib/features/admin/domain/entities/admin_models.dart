@@ -41,6 +41,9 @@ class AdminOverview extends Equatable {
     this.surplusActiveLots = 0,
     this.surplusUnits = 0,
     this.delivery,
+    this.resaleDisputesOpen = 0,
+    this.resaleUpiPending = 0,
+    this.resaleListingsOpen = 0,
   });
 
   factory AdminOverview.fromJson(Map<String, dynamic> json) {
@@ -63,6 +66,9 @@ class AdminOverview extends Equatable {
       surplusActiveLots: (((json['surplus'] as Map<String, dynamic>?)?['activeLots'] as num?) ?? 0).toInt(),
       surplusUnits: (((json['surplus'] as Map<String, dynamic>?)?['units'] as num?) ?? 0).toInt(),
       delivery: json['delivery'] == null ? null : DeliverySummary.fromJson(json['delivery'] as Map<String, dynamic>),
+      resaleDisputesOpen: (((json['resale'] as Map<String, dynamic>?)?['disputesOpen'] as num?) ?? 0).toInt(),
+      resaleUpiPending: (((json['resale'] as Map<String, dynamic>?)?['upiPending'] as num?) ?? 0).toInt(),
+      resaleListingsOpen: (((json['resale'] as Map<String, dynamic>?)?['listingsOpen'] as num?) ?? 0).toInt(),
     );
   }
 
@@ -91,11 +97,16 @@ class AdminOverview extends Equatable {
   /// Null when talking to an older server.
   final DeliverySummary? delivery;
 
+  /// Farmers' resale: complaints to decide, UPI payouts to send, and listings still open.
+  final int resaleDisputesOpen;
+  final int resaleUpiPending;
+  final int resaleListingsOpen;
+
   @override
   List<Object?> get props => [
         operators, farmers, centersActive, centersSuspended, centersWithoutOperator,
         ordersPending, ordersReadyForPickup, ordersToday, restockPending, lowStockItems, lowStockUnattended, discrepanciesOpen,
-        surplusActiveLots, surplusUnits, delivery,
+        surplusActiveLots, surplusUnits, delivery, resaleDisputesOpen, resaleUpiPending, resaleListingsOpen,
       ];
 }
 

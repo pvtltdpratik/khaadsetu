@@ -6,7 +6,11 @@ enum SurplusCondition {
   opened('opened', 'Opened pack'),
   returned('returned', 'Returned'),
   damagedPackaging('damaged_packaging', 'Damaged packaging'),
-  other('other', 'Other');
+  other('other', 'Other'),
+
+  /// Only farmers' resale lots have these two; a center does not choose them.
+  sealed('sealed', 'Sealed, unopened'),
+  partiallyUsed('partially_used', 'Partially used');
 
   const SurplusCondition(this.api, this.label);
 
@@ -14,6 +18,9 @@ enum SurplusCondition {
   final String label;
 
   static SurplusCondition parse(String? raw) => values.firstWhere((c) => c.api == raw, orElse: () => other);
+
+  /// What an operator can pick when marking their own stock down.
+  static const forCenters = [nearExpiry, opened, returned, damagedPackaging, other];
 }
 
 /// Where a lot stands. Only [active] lots can be bought.

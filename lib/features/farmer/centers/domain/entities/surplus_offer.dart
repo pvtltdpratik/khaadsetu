@@ -4,12 +4,13 @@ import '../../../../operator/surplus/domain/entities/surplus_lot.dart';
 
 /// The village center that holds a surplus offer.
 class SurplusCenter extends Equatable {
-  const SurplusCenter({required this.centerId, required this.name, required this.village, required this.phone, required this.isOpen});
+  const SurplusCenter({required this.centerId, required this.name, required this.village, required this.phone, required this.isOpen, this.district = ''});
 
   factory SurplusCenter.fromJson(Map<String, dynamic> json) => SurplusCenter(
         centerId: json['centerId'] as String,
         name: json['name'] as String,
         village: (json['village'] as String?) ?? '',
+        district: (json['district'] as String?) ?? '',
         phone: (json['phone'] as String?) ?? '',
         isOpen: json['isOpen'] != false,
       );
@@ -17,6 +18,7 @@ class SurplusCenter extends Equatable {
   final String centerId;
   final String name;
   final String village;
+  final String district;
   final String phone;
 
   /// Whether the operator has the shop switched on. A closed center can still
@@ -24,7 +26,7 @@ class SurplusCenter extends Equatable {
   final bool isOpen;
 
   @override
-  List<Object?> get props => [centerId, name, village, phone, isOpen];
+  List<Object?> get props => [centerId, name, village, district, phone, isOpen];
 }
 
 /// A batch of discounted units a farmer can reserve for pickup: cheaper than
@@ -44,6 +46,9 @@ class SurplusOffer extends Equatable {
     required this.estimatedTravelMinutes,
     this.bestBefore,
     this.note = '',
+    this.isFarmerResale = false,
+    this.inspected = true,
+    this.verifiedPurchase = false,
   });
 
   factory SurplusOffer.fromJson(Map<String, dynamic> json) => SurplusOffer(
@@ -60,6 +65,9 @@ class SurplusOffer extends Equatable {
         center: SurplusCenter.fromJson(json['center'] as Map<String, dynamic>),
         distanceKm: (json['distanceKm'] as num).toDouble(),
         estimatedTravelMinutes: (json['estimatedTravelMinutes'] as num).toInt(),
+        isFarmerResale: json['isFarmerResale'] as bool? ?? false,
+        inspected: json['inspected'] as bool? ?? true,
+        verifiedPurchase: json['verifiedPurchase'] as bool? ?? false,
       );
 
   final String lotId;
@@ -80,9 +88,18 @@ class SurplusOffer extends Equatable {
   /// From distance alone (no road data), so show it as "about".
   final int estimatedTravelMinutes;
 
+  /// Sold by another farmer (not the center's own stock).
+  final bool isFarmerResale;
+
+  /// The village center has checked the goods in person. False while a farmer's listing is live but not yet handed in.
+  final bool inspected;
+
+  /// Backed by the seller's own platform order.
+  final bool verifiedPurchase;
+
   /// How much cheaper than the regular price, as a whole percent.
   int get discountPercent => catalogPrice <= 0 ? 0 : ((1 - unitPrice / catalogPrice) * 100).round();
 
   @override
-  List<Object?> get props => [lotId, productId, productName, unit, catalogPrice, unitPrice, available, condition, bestBefore, note, center, distanceKm, estimatedTravelMinutes];
+  List<Object?> get props => [lotId, productId, productName, unit, catalogPrice, unitPrice, available, condition, bestBefore, note, center, distanceKm, estimatedTravelMinutes, isFarmerResale, inspected, verifiedPurchase];
 }

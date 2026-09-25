@@ -50,6 +50,10 @@ class RoutePaths {
   static const farmerProfileActivity = '/farmer/profile/activity';
   static const farmerProfileFarm = '/farmer/profile/farm';
   static const farmerSchemes = '/farmer/profile/schemes';
+  static const farmerSellSurplus = '/farmer/profile/sell';
+  static const farmerSellSurplusNew = '/farmer/profile/sell/new';
+  static String farmerSellSurplusListing(String id) => '/farmer/profile/sell/${Uri.encodeComponent(id)}';
+  static const farmerWallet = '/farmer/profile/wallet';
 
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';
@@ -103,6 +107,13 @@ class RoutePaths {
 
   static const operatorInventory = '/operator/inventory';
   static const operatorSurplus = '/operator/inventory/surplus';
+  // Farmers' leftover fertilizer, checked and taken in at the center.
+  static const operatorResale = '/operator/inventory/resale';
+  static const operatorResaleWalkIn = '/operator/inventory/resale/new';
+  static const operatorResaleCash = '/operator/inventory/resale/cash';
+  static String operatorResaleListing(String id) => '/operator/inventory/resale/${Uri.encodeComponent(id)}';
+  static String operatorResaleInspect(String id) => '/operator/inventory/resale/${Uri.encodeComponent(id)}/inspect';
+  static const adminResale = '/admin/resale';
 
   static const operatorFarmers = '/operator/farmers';
   static const operatorFarmerDetailPattern = '/operator/farmers/:farmerId';
