@@ -201,7 +201,7 @@ class _CreateSurplusSheetState extends ConsumerState<CreateSurplusSheet> {
             initialValue: _condition,
             isExpanded: true,
             decoration: const InputDecoration(labelText: 'Why is it cheaper'),
-            items: [for (final c in SurplusCondition.values) DropdownMenuItem(value: c, child: Text(c.label))],
+            items: [for (final c in SurplusCondition.forCenters) DropdownMenuItem(value: c, child: Text(c.label))],
             onChanged: _submitting ? null : (c) => setState(() => _condition = c ?? _condition),
           ),
           AppSpacing.gapSm,

@@ -75,6 +75,8 @@ class ProfileScreen extends ConsumerWidget {
                 FadeSlideIn(
                   index: 3,
                   child: _Section(title: 'Sell, earn and grow', children: [
+                    _Row(icon: Icons.recycling_outlined, title: 'Sell surplus fertilizer', subtitle: 'Get money back for what you did not use', onTap: () => context.push(RoutePaths.farmerSellSurplus)),
+                    _Row(icon: Icons.account_balance_wallet_outlined, title: 'My wallet', subtitle: 'Earnings and refunds', onTap: () => context.push(RoutePaths.farmerWallet)),
                     _Row(icon: Icons.local_shipping_outlined, title: 'Deliver & Earn', subtitle: 'Carry loads for other farmers', onTap: () => context.push(RoutePaths.farmerDeliver)),
                     _Row(icon: Icons.inventory_2_outlined, title: 'Send a Load', subtitle: 'Have something carried for you', onTap: () => context.push(RoutePaths.farmerLoads)),
                   ]),

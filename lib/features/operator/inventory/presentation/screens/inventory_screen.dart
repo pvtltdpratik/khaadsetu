@@ -55,6 +55,12 @@ class InventoryScreen extends ConsumerWidget {
                 children: [
                   Expanded(child: Text('Inventory', style: Theme.of(context).textTheme.headlineSmall)),
                   IconButton(
+                    key: const Key('farmer-resale'),
+                    tooltip: 'Farmer resale',
+                    icon: const Icon(Icons.recycling_outlined),
+                    onPressed: () => context.go(RoutePaths.operatorResale),
+                  ),
+                  IconButton(
                     tooltip: 'Surplus stock',
                     icon: const Icon(Icons.sell_outlined),
                     onPressed: () => context.go(RoutePaths.operatorSurplus),

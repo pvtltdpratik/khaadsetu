@@ -44,6 +44,20 @@ class SurplusOfferCard extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          if (o.isFarmerResale)
+            Padding(
+              padding: const EdgeInsets.only(bottom: AppSpacing.xs),
+              child: Row(children: [
+                Container(
+                  key: const Key('surplus-tag'),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                  decoration: BoxDecoration(color: colors.warning, borderRadius: BorderRadius.circular(4)),
+                  child: Text('SURPLUS', style: text.labelSmall?.copyWith(color: colors.onWarning, fontWeight: FontWeight.w800, letterSpacing: 0.6)),
+                ),
+                const SizedBox(width: AppSpacing.xs),
+                Expanded(child: Text('Sold by a farmer from ${o.center.district.isEmpty ? o.center.village : o.center.district}', style: text.labelSmall?.copyWith(color: colors.textMuted))),
+              ]),
+            ),
           Row(
             children: [
               Expanded(child: Text(o.productName, style: text.titleSmall)),
@@ -77,7 +91,12 @@ class SurplusOfferCard extends ConsumerWidget {
             '${o.condition.label}${o.bestBefore == null ? '' : ' · best before ${_date(o.bestBefore!)}'} · ${o.available} available',
             style: text.bodyMedium,
           ),
-          if (o.note.isNotEmpty) Text(o.note, style: text.bodySmall?.copyWith(color: colors.textMuted)),
+          if (o.note.isNotEmpty && !o.isFarmerResale) Text(o.note, style: text.bodySmall?.copyWith(color: colors.textMuted)),
+          if (o.isFarmerResale) ...[
+            const SizedBox(height: AppSpacing.xs),
+            _Trust(key: const Key('trust-purchase'), ok: o.verifiedPurchase, yes: 'Original purchase: verified platform order', no: 'Original purchase not verified'),
+            _Trust(key: const Key('trust-inspected'), ok: o.inspected, yes: 'Inspected by ${o.center.name}', no: 'Not inspected yet: the seller brings it in after you order, and you collect it once it is checked'),
+          ],
           AppSpacing.gapXs,
           Row(
             children: [
@@ -206,6 +225,28 @@ class _ReserveSurplusDialogState extends ConsumerState<ReserveSurplusDialog> {
             child: _busy ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)) : const Text('Reserve for pickup'),
           ),
       ],
+    );
+  }
+}
+
+/// One line of the trust checklist on a farmer's resale: a tick, or a plain "not yet".
+class _Trust extends StatelessWidget {
+  const _Trust({super.key, required this.ok, required this.yes, required this.no});
+
+  final bool ok;
+  final String yes;
+  final String no;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 2),
+      child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
+        Icon(ok ? Icons.check_circle_rounded : Icons.schedule_rounded, size: 15, color: ok ? colors.success : colors.warning),
+        const SizedBox(width: AppSpacing.xs),
+        Expanded(child: Text(ok ? yes : no, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: ok ? colors.textPrimary : colors.textMuted))),
+      ]),
     );
   }
 }

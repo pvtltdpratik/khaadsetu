@@ -25,6 +25,11 @@ class FakePaymentsRepository implements PaymentsRepository {
   @override
   Future<PaymentConfig> config() async => PaymentConfig(enabled: enabled, keyId: enabled ? 'rzp_test_public' : '');
 
+  final walletPaid = <String>[];
+
+  @override
+  Future<void> payFromWallet(String orderId) async => walletPaid.add(orderId);
+
   @override
   Future<PaymentSession> start(String orderId) async {
     if (startError != null) throw startError!;

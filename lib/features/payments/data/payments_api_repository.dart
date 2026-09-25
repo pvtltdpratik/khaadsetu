@@ -14,6 +14,11 @@ class PaymentsApiRepository implements PaymentsRepository {
   Future<PaymentSession> start(String orderId) async => PaymentSession.fromJson(await _api.post('/v1/payments/orders', body: {'orderId': orderId}) as Map<String, dynamic>);
 
   @override
+  Future<void> payFromWallet(String orderId) async {
+    await _api.post('/v1/payments/wallet', body: {'orderId': orderId});
+  }
+
+  @override
   Future<void> verify({required String razorpayOrderId, required String razorpayPaymentId, required String signature}) async {
     await _api.post('/v1/payments/verify', body: {
       'razorpayOrderId': razorpayOrderId,

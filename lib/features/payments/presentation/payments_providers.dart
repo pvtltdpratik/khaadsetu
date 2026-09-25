@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/network/api_client_provider.dart';
 import '../../farmer/orders/presentation/providers/orders_providers.dart';
+import '../../resale/presentation/resale_providers.dart';
 import '../data/payments_api_repository.dart';
 import '../data/razorpay_checkout.dart';
 import '../domain/payment_models.dart';
@@ -20,6 +21,23 @@ final paymentConfigProvider = FutureProvider.autoDispose<PaymentConfig>((ref) as
     return const PaymentConfig(enabled: false);
   }
 });
+
+/// Pays the order's goods from the wallet. Returns true when it worked; otherwise says why.
+Future<bool> payFromWallet(BuildContext context, WidgetRef ref, String farmerOrderId) async {
+  final messenger = ScaffoldMessenger.of(context);
+  try {
+    await ref.read(paymentsRepositoryProvider).payFromWallet(farmerOrderId);
+    ref
+      ..invalidate(myOrdersProvider)
+      ..invalidate(orderProvider(farmerOrderId))
+      ..invalidate(farmerWalletProvider);
+    messenger.showSnackBar(const SnackBar(content: Text('Paid from your wallet.')));
+    return true;
+  } catch (err) {
+    messenger.showSnackBar(SnackBar(content: Text('$err')));
+    return false;
+  }
+}
 
 /// Takes the farmer through paying for the order [farmerOrderId] online: the server prepares the
 /// payment, Razorpay's checkout collects it, and the server verifies what came back. Shows the
