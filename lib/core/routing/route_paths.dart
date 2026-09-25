@@ -61,6 +61,7 @@ class RoutePaths {
   static String farmerLogHarvest(String reviewId) => '/farmer/profile/log/${Uri.encodeComponent(reviewId)}/harvest';
   static const farmerRewards = '/farmer/profile/rewards';
   static String farmerYieldPredict(String productId) => '/farmer/profile/predict/${Uri.encodeComponent(productId)}';
+  static const farmerOrganic = '/farmer/profile/organic';
   static const farmerCalculator = '/farmer/profile/calculator';
   static String farmerCalculatorFor(String productId) => '/farmer/profile/calculator?product=${Uri.encodeComponent(productId)}';
 
