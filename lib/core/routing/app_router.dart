@@ -38,6 +38,7 @@ import '../../features/farmer/orders/presentation/screens/my_orders_screen.dart'
 import '../../features/farmer/community/presentation/screens/create_post_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
+import '../../features/farmer/schemes/presentation/screens/schemes_list_view.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
 import '../../features/auth/presentation/screens/dev_role_picker_screen.dart';
 import '../../features/delivery/management/domain/management_models.dart';
@@ -271,6 +272,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   ),
                   GoRoute(path: 'activity', builder: (context, state) => const MyActivityScreen()),
                   GoRoute(path: 'farm', builder: (context, state) => const FarmDetailsScreen()),
+                  GoRoute(path: 'schemes', builder: (context, state) => const SchemesScreen()),
                 ],
               ),
             ],

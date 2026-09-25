@@ -57,7 +57,7 @@ class ProfileScreen extends ConsumerWidget {
                       _Tile(icon: Icons.receipt_long_outlined, label: 'My Orders', onTap: () => context.push(RoutePaths.farmerOrders)),
                       _Tile(icon: Icons.location_on_outlined, label: 'Addresses', onTap: () => context.push(RoutePaths.farmerProfileAddresses)),
                       _Tile(icon: Icons.forum_outlined, label: 'My Posts', onTap: () => context.push(RoutePaths.farmerProfileActivity)),
-                      _Tile(icon: Icons.notifications_outlined, label: 'Notifications', onTap: () => context.push(RoutePaths.farmerNotifications)),
+                      _Tile(icon: Icons.account_balance_outlined, label: 'Schemes', onTap: () => context.push(RoutePaths.farmerSchemes)),
                     ],
                   ),
                 ),
@@ -83,6 +83,7 @@ class ProfileScreen extends ConsumerWidget {
                 FadeSlideIn(
                   index: 4,
                   child: _Section(title: 'More', children: [
+                    _Row(icon: Icons.notifications_outlined, title: 'Notifications', onTap: () => context.push(RoutePaths.farmerNotifications)),
                     _Row(icon: Icons.history_outlined, title: 'Soil scan history', onTap: () => context.push(RoutePaths.farmerSoilScanHistory)),
                   ]),
                 ),
