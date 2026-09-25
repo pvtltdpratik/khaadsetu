@@ -41,6 +41,14 @@ class RoutePaths {
   static const farmerLoadNew = '/farmer/home/loads/new';
   static String farmerLoad(String id) => '/farmer/home/loads/${Uri.encodeComponent(id)}';
 
+  // The profile tab and what hangs off it.
+  static const farmerProfile = '/farmer/profile';
+  static const farmerProfileContact = '/farmer/profile/contact';
+  static const farmerProfileAddresses = '/farmer/profile/addresses';
+  static const farmerProfileAddressNew = '/farmer/profile/addresses/edit';
+  static const farmerProfileActivity = '/farmer/profile/activity';
+  static const farmerProfileFarm = '/farmer/profile/farm';
+
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';
 

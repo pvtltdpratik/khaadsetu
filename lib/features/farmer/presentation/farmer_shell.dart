@@ -37,6 +37,11 @@ const _destinations = [
     selectedIcon: Icons.groups_rounded,
     label: 'Community',
   ),
+  _FarmerDestination(
+    icon: Icons.person_outline,
+    selectedIcon: Icons.person_rounded,
+    label: 'Profile',
+  ),
 ];
 
 /// Persistent chrome for the Farmer App's 4 top-level sections: bottom nav on
