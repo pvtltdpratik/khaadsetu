@@ -37,6 +37,7 @@ class RoutePaths {
   static const farmerDeliver = '/farmer/home/deliver';
   static const farmerDeliverWallet = '/farmer/home/deliver/wallet';
   static const farmerDeliverTrips = '/farmer/home/deliver/trips';
+  static const farmerAssistant = '/farmer/home/assistant';
   static const farmerLoads = '/farmer/home/loads';
   static const farmerLoadNew = '/farmer/home/loads/new';
   static String farmerLoad(String id) => '/farmer/home/loads/${Uri.encodeComponent(id)}';

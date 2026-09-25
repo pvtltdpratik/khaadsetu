@@ -76,6 +76,11 @@ class FarmerHomeScreen extends ConsumerWidget {
                   onTap: () => context.go(RoutePaths.farmerMarketplace),
                 ),
                 QuickAction(
+                  icon: Icons.smart_toy_outlined,
+                  label: 'Ask AI',
+                  onTap: () => context.push(RoutePaths.farmerAssistant),
+                ),
+                QuickAction(
                   icon: Icons.groups_outlined,
                   label: 'Community',
                   onTap: () => context.go(RoutePaths.farmerCommunity),

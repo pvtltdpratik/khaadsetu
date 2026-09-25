@@ -16,6 +16,7 @@ import '../../features/auth/presentation/screens/sign_in_screen.dart';
 import '../../features/auth/presentation/screens/sign_up_screen.dart';
 import '../../features/farmer/home/presentation/screens/farmer_home_screen.dart';
 import '../../features/farmer/notifications/presentation/screens/notifications_screen.dart';
+import '../../features/assistant/presentation/assistant_screen.dart';
 import '../../features/farmer/presentation/farmer_shell.dart';
 import '../../features/farmer/profile/domain/profile_models.dart';
 import '../../features/farmer/profile/presentation/screens/address_form_screen.dart';
@@ -138,6 +139,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
                   ),
+                  GoRoute(path: 'assistant', builder: (context, state) => const AssistantScreen()),
                   GoRoute(
                     path: 'deliver',
                     builder: (context, state) => const DeliveryHubScreen(),
@@ -391,6 +393,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
                   ),
+                  GoRoute(path: 'assistant', builder: (context, state) => const AssistantScreen()),
                   GoRoute(
                     path: 'deliver',
                     builder: (context, state) => const DeliveryHubScreen(),

@@ -83,6 +83,7 @@ class ProfileScreen extends ConsumerWidget {
                 FadeSlideIn(
                   index: 4,
                   child: _Section(title: 'More', children: [
+                    _Row(icon: Icons.smart_toy_outlined, title: 'Farming assistant', subtitle: 'Ask in Marathi, Hindi or English', onTap: () => context.push(RoutePaths.farmerAssistant)),
                     _Row(icon: Icons.notifications_outlined, title: 'Notifications', onTap: () => context.push(RoutePaths.farmerNotifications)),
                     _Row(icon: Icons.history_outlined, title: 'Soil scan history', onTap: () => context.push(RoutePaths.farmerSoilScanHistory)),
                   ]),
