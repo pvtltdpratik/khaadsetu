@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/auth/session_profile.dart';
+import '../../../../core/flavor/app_flavor.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -105,6 +106,33 @@ class SuspendedScreen extends StatelessWidget {
             'Please contact the platform administrator.',
         onRefresh: () => ref.invalidate(sessionProfileProvider),
       ),
+    );
+  }
+}
+
+/// Signed in with a kind of account this APK is not for.
+class WrongAppScreen extends StatelessWidget {
+  const WrongAppScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Consumer(
+      builder: (context, ref, _) {
+        final me = ref.watch(sessionProfileProvider).value;
+        final flavor = ref.watch(appFlavorProvider);
+        final theirs = me == null ? 'a different kind of account' : 'a ${roleLabel(me)} account';
+        final use = switch (me?.role) {
+          AppRole.admin => 'the Admin app',
+          AppRole.operator => 'the Center app',
+          _ => me?.isPendingOperator == true ? 'the Center app' : 'the Farmer app',
+        };
+        return _AccountStateScreen(
+          icon: Icons.phonelink_lock_rounded,
+          iconColor: (c) => c.warning,
+          title: 'This is the wrong app for this account',
+          message: 'You are signed in with $theirs, but this is ${flavor.title}. Please use $use, or sign out and sign in with a different account.',
+        );
+      },
     );
   }
 }
