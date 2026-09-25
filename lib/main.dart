@@ -1,12 +1,6 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'bootstrap.dart';
+import 'core/flavor/app_flavor.dart';
 
-import 'app.dart';
-import 'core/auth/supabase_config.dart';
-
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  await Supabase.initialize(url: SupabaseConfig.url, publishableKey: SupabaseConfig.publishableKey);
-  runApp(const ProviderScope(child: ShetSamrudhiApp()));
-}
+/// The everything-allowed entry point (`flutter run` with no flavor). The four
+/// APKs use `main_farmer.dart`, `main_center.dart`, `main_admin.dart` and `main_dev.dart`.
+Future<void> main() => runShetSamrudhi(AppFlavor.all);

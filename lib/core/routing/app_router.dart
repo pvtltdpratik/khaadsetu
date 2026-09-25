@@ -32,6 +32,7 @@ import '../../features/farmer/community/presentation/screens/create_post_screen.
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/operator/earnings/presentation/screens/earnings_screen.dart';
+import '../../features/auth/presentation/screens/dev_role_picker_screen.dart';
 import '../../features/delivery/management/domain/management_models.dart';
 import '../../features/delivery/management/presentation/delivery_management_screen.dart';
 import '../../features/delivery/presentation/screens/delivery_hub_screen.dart';
@@ -48,6 +49,7 @@ import '../../features/operator/orders/presentation/screens/walk_in_pos_screen.d
 import '../../features/operator/presentation/operator_shell.dart';
 import '../../features/operator/presentation/screens/operator_dashboard_screen.dart';
 import '../auth/auth_providers.dart';
+import '../flavor/app_flavor.dart';
 import '../auth/session_profile.dart';
 import 'route_paths.dart';
 
@@ -73,7 +75,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Signed in: route by the server's word (null while it is still loading),
       // so a farmer never lands in the operator app, an operator never in the
       // admin panel, and so on.
-      return redirectForSession(ref.read(sessionProfileProvider).value, state.matchedLocation);
+      return redirectForSession(ref.read(sessionProfileProvider).value, state.matchedLocation, flavor: ref.read(appFlavorProvider));
     },
     routes: [
       GoRoute(
@@ -83,6 +85,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       GoRoute(
         path: RoutePaths.suspended,
         builder: (context, state) => const SuspendedScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.wrongApp,
+        builder: (context, state) => const WrongAppScreen(),
+      ),
+      GoRoute(
+        path: RoutePaths.devPicker,
+        builder: (context, state) => const DevRolePickerScreen(),
       ),
       GoRoute(
         path: RoutePaths.pendingOperator,

@@ -5,6 +5,12 @@ class RoutePaths {
 
   static const root = '/';
   static const suspended = '/suspended';
+
+  /// Signed in with a kind of account this APK is not for (e.g. an operator in the farmer app).
+  static const wrongApp = '/wrong-app';
+
+  /// The test build's role picker.
+  static const devPicker = '/dev';
   static const pendingOperator = '/pending-operator';
 
   // Platform admin panel.

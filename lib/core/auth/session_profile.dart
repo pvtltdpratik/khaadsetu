@@ -1,6 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../flavor/app_flavor.dart';
 import '../network/api_client_provider.dart';
 import '../routing/route_paths.dart';
 import 'auth_providers.dart';
@@ -100,12 +101,25 @@ final FutureProvider<SessionProfile?> sessionProfileProvider = FutureProvider<Se
 /// [me] is null while their profile is still loading (or failed): until we
 /// know who they are, the only place to be is the gate screen at the root.
 ///
+/// [flavor] is which APK this is: a farmer build lets only farmers in, and so on
+/// (see [AppFlavor]). The unrestricted default is what tests and plain `main.dart` use.
+///
 /// Pure so every rule can be unit-tested without a router.
-String? redirectForSession(SessionProfile? me, String location) {
+String? redirectForSession(SessionProfile? me, String location, {AppFlavor flavor = AppFlavor.all}) {
   bool within(String prefix) => location == prefix || location.startsWith('$prefix/');
 
   if (me == null) return location == RoutePaths.root ? null : RoutePaths.root;
   if (me.isSuspended) return location == RoutePaths.suspended ? null : RoutePaths.suspended;
+
+  // The right account in the wrong APK: say so, rather than showing a dashboard it was not built for.
+  if (!_flavorAllows(flavor, me)) return location == RoutePaths.wrongApp ? null : RoutePaths.wrongApp;
+
+  // The test build starts on its role picker, and dashboards are opened from there
+  // (so back returns to it).
+  if (flavor.isDev) {
+    if (location == RoutePaths.devPicker) return null;
+    if (location == RoutePaths.root || location == RoutePaths.signIn || location == RoutePaths.signUp) return RoutePaths.devPicker;
+  }
 
   final String home;
   final bool allowed;
@@ -125,3 +139,19 @@ String? redirectForSession(SessionProfile? me, String location) {
   }
   return allowed ? null : home;
 }
+
+/// Which accounts an APK is for. An operator whose center has not been assigned yet
+/// counts as a center account, so they see their "waiting" screen in the center app.
+bool _flavorAllows(AppFlavor flavor, SessionProfile me) => switch (flavor) {
+      AppFlavor.all || AppFlavor.dev => true,
+      AppFlavor.farmer => me.role == AppRole.farmer && !me.isPendingOperator,
+      AppFlavor.center => me.role == AppRole.operator || me.isPendingOperator,
+      AppFlavor.admin => me.role == AppRole.admin,
+    };
+
+/// A person's kind of account in words, for messages.
+String roleLabel(SessionProfile me) => switch (me.role) {
+      AppRole.admin => 'platform admin',
+      AppRole.operator => 'village center operator',
+      AppRole.farmer => me.isPendingOperator ? 'village center operator (waiting for a center)' : 'farmer',
+    };
