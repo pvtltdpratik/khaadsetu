@@ -15,6 +15,7 @@ import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/sign_out_button.dart';
 import '../../../delivery/management/presentation/operator_deliveries_tile.dart';
 import '../../center/presentation/widgets/my_center_card.dart';
+import '../widgets/operator_insights.dart';
 import '../widgets/operator_notification_bell.dart';
 import '../../inventory/domain/entities/inventory_item.dart';
 import '../../inventory/presentation/providers/inventory_providers.dart';
@@ -51,6 +52,7 @@ class OperatorDashboardScreen extends ConsumerWidget {
               error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(ordersProvider)),
             ),
             AppSpacing.gapLg,
+            if (ordersAsync.value != null) ...[RecentActivity(orders: ordersAsync.value!), AppSpacing.gapLg],
             AppButton(
               label: 'New walk-in sale',
               icon: Icons.add_shopping_cart_rounded,
@@ -66,7 +68,7 @@ class OperatorDashboardScreen extends ConsumerWidget {
               children: [
                 ordersAsync.when(
                   data: (orders) => _PendingPickups(
-                    orders: orders.where((o) => o.status == OrderStatus.readyForPickup).toList(),
+                    orders: (orders.where((o) => o.status == OrderStatus.readyForPickup).toList()..sort((a, b) => a.createdAt.compareTo(b.createdAt))),
                   ),
                   loading: () => const AppLoadingIndicator(),
                   error: (err, _) => AppErrorView(message: '$err'),

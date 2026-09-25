@@ -9,6 +9,7 @@ import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../orders/domain/entities/order.dart';
 import '../../../orders/presentation/providers/orders_providers.dart';
+import '../../../presentation/widgets/operator_insights.dart';
 import '../providers/earnings_providers.dart';
 
 class EarningsScreen extends ConsumerWidget {
@@ -96,6 +97,8 @@ class _EarningsBody extends StatelessWidget {
             );
           },
         ),
+        AppSpacing.gapLg,
+        WeeklySalesChart(orders: orders),
         AppSpacing.gapLg,
         Text('Recent completed sales', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,
