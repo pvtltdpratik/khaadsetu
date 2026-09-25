@@ -9,6 +9,7 @@ import '../../../../delivery/domain/entities/delivery_models.dart';
 import '../../../../delivery/presentation/providers/delivery_providers.dart';
 import '../../../../delivery/presentation/widgets/delivery_tracking_card.dart';
 import '../../../../delivery/presentation/widgets/rating_sheet.dart';
+import '../../../../payments/presentation/payments_providers.dart';
 import '../../../centers/presentation/widgets/contact_actions.dart';
 import '../../domain/entities/farmer_order.dart';
 import '../providers/orders_providers.dart';
@@ -155,6 +156,10 @@ class OrderCard extends ConsumerWidget {
                   Text(formatRupees(order.payableAmount), key: const Key('order-payable'), style: text.titleSmall),
                 ]),
               ],
+              if (order.paymentStatus != PaymentStatus.unpaid) ...[
+                AppSpacing.gapSm,
+                _PaymentBadge(status: order.paymentStatus, amount: order.totalAmount),
+              ],
               if (center != null) ...[
                 AppSpacing.gapSm,
                 Row(
@@ -202,6 +207,13 @@ class OrderCard extends ConsumerWidget {
                   children: [
                     if (center != null && center.phone.isNotEmpty)
                       OutlinedButton.icon(onPressed: () => callPhone(context, center.phone), icon: const Icon(Icons.call_rounded, size: 18), label: const Text('Call center')),
+                    if (order.canPayOnline && (ref.watch(paymentConfigProvider).value?.enabled ?? false))
+                      FilledButton.icon(
+                        key: const Key('pay-online'),
+                        onPressed: () => payForOrder(context, ref, order.id),
+                        icon: const Icon(Icons.lock_outline_rounded, size: 18),
+                        label: Text('Pay ${formatRupees(order.totalAmount)} online'),
+                      ),
                     if (order.status.isActive && delivery?.status != DeliveryStatus.inTransit)
                       TextButton.icon(
                         onPressed: () => _cancel(context, ref),
@@ -215,6 +227,37 @@ class OrderCard extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// "Paid online" (nothing to pay for the goods) or "Refunded".
+class _PaymentBadge extends StatelessWidget {
+  const _PaymentBadge({required this.status, required this.amount});
+
+  final PaymentStatus status;
+  final double amount;
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final paid = status == PaymentStatus.paid;
+    final color = paid ? colors.success : colors.info;
+    return Container(
+      key: const Key('payment-badge'),
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+      decoration: BoxDecoration(color: color.withValues(alpha: 0.12), borderRadius: BorderRadius.circular(12)),
+      child: Row(children: [
+        Icon(paid ? Icons.verified_rounded : Icons.replay_rounded, size: 18, color: color),
+        const SizedBox(width: AppSpacing.sm),
+        Expanded(
+          child: Text(
+            paid ? 'Paid online ${formatRupees(amount)}. Nothing to pay for the goods.' : 'Refund of ${formatRupees(amount)} is on its way to your account.',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(color: color),
+          ),
+        ),
+      ]),
     );
   }
 }
