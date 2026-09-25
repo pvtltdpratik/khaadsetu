@@ -48,6 +48,7 @@ class RoutePaths {
   static const farmerProfileAddressNew = '/farmer/profile/addresses/edit';
   static const farmerProfileActivity = '/farmer/profile/activity';
   static const farmerProfileFarm = '/farmer/profile/farm';
+  static const farmerSchemes = '/farmer/profile/schemes';
 
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';

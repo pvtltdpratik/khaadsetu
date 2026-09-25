@@ -1,6 +1,7 @@
 import '../../../../../core/network/api_client.dart';
 import '../../domain/entities/gov_scheme.dart';
 import '../../domain/entities/scheme_application.dart';
+import '../../domain/entities/scheme_eligibility_result.dart';
 
 /// The scheme directory and each device's applications live on the server.
 /// Eligibility (land-holding cap, deadline) is enforced there again on apply,
@@ -11,13 +12,22 @@ class SchemesApiDataSource {
   final ApiClient _api;
 
   Future<List<GovScheme>> fetchSchemes() async {
-    final list = await _api.get('/v1/schemes') as List;
+    // The whole catalog is small, so it is fetched in one go.
+    final list = await _api.get('/v1/schemes', query: {'limit': '200'}) as List;
     return list.map((e) => _parseScheme(e as Map<String, dynamic>)).toList();
   }
 
   Future<GovScheme> fetchSchemeById(String id) async {
     return _parseScheme(await _api.get('/v1/schemes/$id') as Map<String, dynamic>);
   }
+
+  Future<Map<String, SchemeEligibilityResult>> fetchEligibilitySummary() async {
+    final list = await _api.get('/v1/schemes/eligibility') as List;
+    return {for (final e in list) (e as Map<String, dynamic>)['schemeId'] as String: SchemeEligibilityResult.fromJson(e)};
+  }
+
+  Future<SchemeEligibilityResult> fetchEligibility(String id) async =>
+      SchemeEligibilityResult.fromJson(await _api.get('/v1/schemes/$id/eligibility') as Map<String, dynamic>);
 
   Future<SchemeApplication> fetchApplicationStatus(String schemeId) async {
     return _parseApplication(await _api.get('/v1/schemes/$schemeId/application') as Map<String, dynamic>);
@@ -39,6 +49,15 @@ class SchemesApiDataSource {
       eligibilityCriteria: (json['eligibilityCriteria'] as List).cast<String>(),
       maxLandHoldingHectares: (json['maxLandHoldingHectares'] as num?)?.toDouble(),
       applicationDeadline: deadline == null ? null : DateTime.parse(deadline).toLocal(),
+      level: json['level'] as String? ?? 'central',
+      sector: json['sector'] as String? ?? 'General',
+      audience: json['audience'] as String? ?? 'farmer',
+      components: ((json['components'] as List?) ?? const [])
+          .map((e) => SchemeComponent(title: (e as Map<String, dynamic>)['title'] as String, assistance: e['assistance'] as String))
+          .toList(),
+      howToApply: json['howToApply'] as String? ?? '',
+      contact: json['contact'] as String? ?? '',
+      website: json['website'] as String? ?? '',
     );
   }
 

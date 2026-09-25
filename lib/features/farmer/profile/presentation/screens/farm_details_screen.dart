@@ -8,6 +8,7 @@ import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
 import '../../../home/presentation/providers/home_providers.dart';
+import '../../../schemes/presentation/providers/schemes_providers.dart';
 import '../../domain/profile_models.dart';
 import '../providers/profile_providers.dart';
 
@@ -167,6 +168,9 @@ class _FormState extends ConsumerState<_Form> {
       if (land != null) await ref.read(profileRepositoryProvider).saveLandHolding(land);
       ref.invalidate(farmDetailsProvider);
       ref.invalidate(farmerProfileProvider);
+      // New answers change how every scheme is judged.
+      ref.invalidate(eligibilitySummaryProvider);
+      ref.invalidate(schemeEligibilityProvider);
       if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Saved. Schemes will use these answers.')));
       setState(() => _saving = false);
