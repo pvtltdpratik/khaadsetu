@@ -151,6 +151,7 @@ FarmerOrder farmerOrder(
   String phone = '98220 00000',
   DeliveryTracking? delivery,
   double deliveryFee = 0,
+  PaymentStatus paymentStatus = PaymentStatus.unpaid,
 }) =>
     FarmerOrder(
       id: id,
@@ -163,6 +164,7 @@ FarmerOrder farmerOrder(
       center: OrderCenter(centerId: 'a', name: centerName, village: 'Village a', phone: phone),
       deliveryFee: deliveryFee,
       delivery: delivery,
+      paymentStatus: paymentStatus,
     );
 
 class FakeOrdersRepository implements OrdersRepository {

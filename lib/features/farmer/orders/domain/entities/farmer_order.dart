@@ -1,3 +1,4 @@
+// ignore_for_file: prefer_initializing_formals (a private field with a public named parameter)
 import 'package:equatable/equatable.dart';
 
 import '../../../../delivery/domain/entities/delivery_models.dart';
@@ -19,6 +20,17 @@ enum FarmerOrderStatus {
 
   /// Still holding stock for the farmer, so it can be cancelled and the code is live.
   bool get isActive => this == FarmerOrderStatus.pending || this == FarmerOrderStatus.readyForPickup;
+}
+
+/// Whether the goods were paid online (Razorpay). Delivery fees are always paid in cash.
+enum PaymentStatus {
+  unpaid,
+  paid,
+
+  /// Paid, then the order was cancelled or expired and the money is on its way back.
+  refunded;
+
+  static PaymentStatus parse(Object? raw) => values.firstWhere((s) => s.name == raw, orElse: () => PaymentStatus.unpaid);
 }
 
 class OrderLine extends Equatable {
@@ -76,7 +88,9 @@ class FarmerOrder extends Equatable {
     this.center,
     this.deliveryFee = 0,
     this.delivery,
-  });
+    this.paymentStatus = PaymentStatus.unpaid,
+    double? payableAmount,
+  }) : _payableAmount = payableAmount;
 
   factory FarmerOrder.fromJson(Map<String, dynamic> json) {
     final center = json['center'] as Map<String, dynamic>?;
@@ -91,6 +105,8 @@ class FarmerOrder extends Equatable {
       center: center == null ? null : OrderCenter.fromJson(center),
       deliveryFee: (json['deliveryFee'] as num?)?.toDouble() ?? 0,
       delivery: json['delivery'] == null ? null : DeliveryTracking.fromJson(json['delivery'] as Map<String, dynamic>),
+      paymentStatus: PaymentStatus.parse(json['paymentStatus']),
+      payableAmount: (json['payableAmount'] as num?)?.toDouble(),
     );
   }
 
@@ -117,11 +133,20 @@ class FarmerOrder extends Equatable {
   /// Being brought home: the pickup code is not used and the delivery card takes over.
   bool get isHomeDelivery => delivery != null && delivery!.status != DeliveryStatus.fallback && delivery!.status != DeliveryStatus.cancelled;
 
-  /// Goods plus the delivery fee: what is paid in cash on arrival.
-  double get payableAmount => totalAmount + deliveryFee;
+  final PaymentStatus paymentStatus;
+  final double? _payableAmount;
+
+  bool get isPaidOnline => paymentStatus == PaymentStatus.paid;
+
+  /// Still to pay in cash: the goods unless they were paid online, plus the delivery fee.
+  /// The server works this out; the fallback is the same sum.
+  double get payableAmount => _payableAmount ?? ((isPaidOnline ? 0 : totalAmount) + deliveryFee);
+
+  /// Whether "Pay online" can still be offered: the order is open, unpaid and not already on its way.
+  bool get canPayOnline => status.isActive && paymentStatus == PaymentStatus.unpaid && totalAmount > 0 && delivery?.status != DeliveryStatus.inTransit;
 
   int get itemCount => items.fold(0, (sum, i) => sum + i.quantity);
 
   @override
-  List<Object?> get props => [id, status, createdAt, items, totalAmount, pickupOtp, reservedUntil, center, deliveryFee, delivery];
+  List<Object?> get props => [id, status, createdAt, items, totalAmount, pickupOtp, reservedUntil, center, deliveryFee, delivery, paymentStatus, _payableAmount];
 }
