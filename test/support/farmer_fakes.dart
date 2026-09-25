@@ -191,7 +191,7 @@ class FakeOrdersRepository implements OrdersRepository {
     return order;
   }
 
-  final placed = <({List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery})>[];
+  final placed = <({List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery, String? coupon})>[];
   final cancelled = <String>[];
 
   /// Called for each placement; throw an [OutOfStockException] to simulate a lost race.
@@ -199,8 +199,8 @@ class FakeOrdersRepository implements OrdersRepository {
   List<FarmerOrder> orders = [];
 
   @override
-  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery}) async {
-    placed.add((items: items, centerId: centerId, location: location, delivery: delivery));
+  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery, String? couponCode}) async {
+    placed.add((items: items, centerId: centerId, location: location, delivery: delivery, coupon: couponCode));
     final order = onPlace(placed.length, centerId);
     orders = [order, ...orders]; // it now exists, so the detail page can load it
     return order;

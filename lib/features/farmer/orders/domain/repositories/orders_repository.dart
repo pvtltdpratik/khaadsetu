@@ -34,7 +34,9 @@ abstract class OrdersRepository {
   /// judged from [location]. With [delivery] the order is brought to that
   /// address by a delivery partner instead of being collected.
   /// Throws [OutOfStockException] when nothing fits.
-  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery});
+  ///
+  /// [couponCode] takes a percentage off the regular products (a reward for logging a harvest).
+  Future<FarmerOrder> place({required List<CartLine> items, String? centerId, FarmerLocation? location, DeliveryAddress? delivery, String? couponCode});
 
   Future<List<FarmerOrder>> myOrders();
 

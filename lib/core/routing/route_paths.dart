@@ -54,6 +54,15 @@ class RoutePaths {
   static const farmerSellSurplusNew = '/farmer/profile/sell/new';
   static String farmerSellSurplusListing(String id) => '/farmer/profile/sell/${Uri.encodeComponent(id)}';
   static const farmerWallet = '/farmer/profile/wallet';
+  // The structured fertilizer log, what it earns, the yield prediction and the profit calculator.
+  static const farmerLog = '/farmer/profile/log';
+  static String farmerLogFertilizer(String productId) => '/farmer/profile/log/new/${Uri.encodeComponent(productId)}';
+  static String farmerLogMid(String reviewId) => '/farmer/profile/log/${Uri.encodeComponent(reviewId)}/mid';
+  static String farmerLogHarvest(String reviewId) => '/farmer/profile/log/${Uri.encodeComponent(reviewId)}/harvest';
+  static const farmerRewards = '/farmer/profile/rewards';
+  static String farmerYieldPredict(String productId) => '/farmer/profile/predict/${Uri.encodeComponent(productId)}';
+  static const farmerCalculator = '/farmer/profile/calculator';
+  static String farmerCalculatorFor(String productId) => '/farmer/profile/calculator?product=${Uri.encodeComponent(productId)}';
 
   static const farmerSoilScan = '/farmer/soil-scan';
   static const farmerSoilScanHistory = '/farmer/soil-scan/history';

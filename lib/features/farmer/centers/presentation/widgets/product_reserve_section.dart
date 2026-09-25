@@ -9,6 +9,7 @@ import '../../../../../core/utils/price_format.dart';
 import '../../../../delivery/domain/entities/delivery_models.dart';
 import '../../../../delivery/presentation/providers/delivery_providers.dart';
 import '../../../../delivery/presentation/widgets/delivery_option.dart';
+import '../../../../reviews/presentation/review_providers.dart';
 import '../../../marketplace/domain/entities/product.dart';
 import '../../../orders/domain/repositories/orders_repository.dart';
 import '../../../orders/presentation/providers/orders_providers.dart';
@@ -37,6 +38,9 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
   int _quantity = 1;
   String? _pickedCenterId;
   bool _placing = false;
+
+  /// A coupon the farmer earned by logging a harvest, taken off this order.
+  String? _coupon;
 
   // Collect at the center (the default), or have a delivery partner bring it.
   bool _home = false;
@@ -110,6 +114,26 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
     );
   }
 
+  /// "Use my 5% coupon": only shown when the farmer has an unused one.
+  List<Widget> _couponPicker(AppColorTokens colors, TextTheme text) {
+    final coupons = ref.watch(rewardsProvider).value?.usableCoupons ?? const [];
+    if (coupons.isEmpty) return const [];
+    return [
+      AppSpacing.gapSm,
+      Text('Use a coupon', style: text.labelMedium),
+      Wrap(spacing: AppSpacing.sm, children: [
+        for (final c in coupons)
+          FilterChip(
+            key: Key('coupon-${c.code}'),
+            avatar: const Icon(Icons.local_offer_outlined, size: 16),
+            label: Text('${c.percent.toStringAsFixed(0)}% off · ${c.code}'),
+            selected: _coupon == c.code,
+            onSelected: _placing ? null : (on) => setState(() => _coupon = on ? c.code : null),
+          ),
+      ]),
+    ];
+  }
+
   Future<void> _place(NearbyResult? result, String? centerId) async {
     setState(() => _placing = true);
     try {
@@ -118,7 +142,9 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
             centerId: centerId,
             location: result?.location,
             delivery: _address(result),
+            couponCode: _coupon,
           );
+      if (_coupon != null) ref.invalidate(rewardsProvider);
       ref
         ..invalidate(myOrdersProvider)
         ..invalidate(nearbyCentersProvider);
@@ -255,6 +281,7 @@ class _ProductReserveSectionState extends ConsumerState<ProductReserveSection> {
             onRetry: () => ref.invalidate(deliveryQuoteProvider(quoteArgs)),
           ),
         ],
+        ..._couponPicker(colors, text),
         AppSpacing.gapMd,
         Wrap(
           spacing: AppSpacing.sm,

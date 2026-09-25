@@ -60,6 +60,7 @@ const detailGroups = [
   DetailGroup('Your land', Icons.terrain_outlined, [
     DetailQuestion.choice('landOwnership', 'How do you hold your land?', {'owner': 'I own it', 'tenant': 'Tenant', 'sharecropper': 'Sharecropper', 'none': 'No land'}),
     DetailQuestion.yesNo('nameInLandRecords', 'Is your name in the land records (7/12 extract)?'),
+    DetailQuestion.choice('soilType', 'Soil type', {'black': 'Black cotton', 'red': 'Red', 'alluvial': 'Alluvial', 'laterite': 'Laterite', 'sandy': 'Sandy', 'other': 'Other'}),
     DetailQuestion.choice('irrigation', 'Main source of water', {'rainfed': 'Rain only', 'well': 'Well', 'borewell': 'Borewell', 'canal': 'Canal', 'drip': 'Drip', 'sprinkler': 'Sprinkler'}),
     DetailQuestion.multi('primaryCrops', 'Crops you grow', cropChoices),
     DetailQuestion.yesNo('practisesOrganic', 'Do you farm organically?'),
