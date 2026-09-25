@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/animation/animated_count.dart';
+import '../../../../core/animation/fade_slide_in.dart';
 import '../../../../core/responsive/responsive.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -45,7 +46,7 @@ class FarmerWalletScreen extends ConsumerWidget {
                 Text('History', style: text.titleMedium),
                 AppSpacing.gapSm,
                 if (w.entries.isEmpty) Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: Center(child: Text('Nothing yet. Sell fertilizer you did not use to add money here.', textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: colors.textMuted)))),
-                for (final e in w.entries) _EntryTile(entry: e),
+                for (var i = 0; i < w.entries.length; i++) FadeSlideIn(index: i, child: _EntryTile(entry: w.entries[i])),
               ],
             ),
           ),
