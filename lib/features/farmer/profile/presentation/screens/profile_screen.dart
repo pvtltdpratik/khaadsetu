@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../../own_products/my_listings_screen.dart';
+import '../../../../own_products/own_market_screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -75,6 +77,8 @@ class ProfileScreen extends ConsumerWidget {
                 FadeSlideIn(
                   index: 3,
                   child: _Section(title: 'Sell, earn and grow', children: [
+                    _Row(icon: Icons.eco_outlined, title: 'Sell what I make', subtitle: 'Compost, vermicompost, jeevamrut: checked by a village center', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MyListingsScreen()))),
+                    _Row(icon: Icons.storefront_outlined, title: 'Farmer-made products', subtitle: 'Buy organic products from farmers near you', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OwnMarketScreen()))),
                     _Row(icon: Icons.recycling_outlined, title: 'Sell surplus fertilizer', subtitle: 'Get money back for what you did not use', onTap: () => context.push(RoutePaths.farmerSellSurplus)),
                     _Row(icon: Icons.account_balance_wallet_outlined, title: 'My wallet', subtitle: 'Earnings and refunds', onTap: () => context.push(RoutePaths.farmerWallet)),
                     _Row(icon: Icons.fact_check_outlined, title: 'My fertilizer log', subtitle: 'Log results, earn coins, coupons and badges', onTap: () => context.push(RoutePaths.farmerLog)),
