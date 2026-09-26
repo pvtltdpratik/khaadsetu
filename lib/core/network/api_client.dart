@@ -16,6 +16,9 @@ class ApiException implements Exception {
   final String message;
   final int? statusCode;
 
+  /// The request never got an answer: no signal, or the server did not reply in time. Such a request may be tried again.
+  bool get isOffline => statusCode == null && (message.startsWith("Couldn't reach") || message.startsWith('The server took too long'));
+
   /// The server's machine-readable reason, when it sends one
   /// (e.g. `account_suspended`, `out_of_stock`).
   final String? code;

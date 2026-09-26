@@ -23,5 +23,7 @@ abstract class OrdersRepository {
     required List<OrderLineItem> items,
     String paymentMode = 'cash',
     String? customerId,
+    String? clientRef,
+    DateTime? soldAt,
   });
 }

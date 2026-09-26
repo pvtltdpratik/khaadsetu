@@ -35,24 +35,39 @@ class OrdersApiDataSource {
     required List<OrderLineItem> items,
     String paymentMode = 'cash',
     String? customerId,
+    String? clientRef,
+    DateTime? soldAt,
   }) async {
-    final json = await _api.post('/v1/operator/orders/walk-in', body: {
-      'customerName': customerName,
-      'paymentMode': paymentMode,
-      'customerId': ?customerId,
-      'items': [
-        for (final i in items)
-          {
-            // A surplus line names its lot; the server takes the product from it.
-            if (i.isSurplus) 'surplusLotId': i.surplusLotId else 'productId': ?i.productId,
-            'productName': i.productName,
-            'quantity': i.quantity,
-            'unitPrice': i.unitPrice,
-          },
-      ],
-    }) as Map<String, dynamic>;
+    final json = await _api.post('/v1/operator/orders/walk-in', body: walkInBody(customerName: customerName, items: items, paymentMode: paymentMode, customerId: customerId, clientRef: clientRef, soldAt: soldAt)) as Map<String, dynamic>;
     return _parse(json);
   }
+
+  /// What the server is sent for a walk-in sale. Also what is kept on the phone when there is no signal.
+  static Map<String, dynamic> walkInBody({
+    required String customerName,
+    required List<OrderLineItem> items,
+    String paymentMode = 'cash',
+    String? customerId,
+    String? clientRef,
+    DateTime? soldAt,
+  }) =>
+      {
+        'customerName': customerName,
+        'paymentMode': paymentMode,
+        'customerId': ?customerId,
+        'clientRef': ?clientRef,
+        if (soldAt != null) 'soldAt': soldAt.toUtc().toIso8601String(),
+        'items': [
+          for (final i in items)
+            {
+              // A surplus line names its lot; the server takes the product from it.
+              if (i.isSurplus) 'surplusLotId': i.surplusLotId else 'productId': ?i.productId,
+              'productName': i.productName,
+              'quantity': i.quantity,
+              'unitPrice': i.unitPrice,
+            },
+        ],
+      };
 
   Order _parse(Map<String, dynamic> json) {
     return Order(

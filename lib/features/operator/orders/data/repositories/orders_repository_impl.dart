@@ -27,6 +27,8 @@ class OrdersRepositoryImpl implements OrdersRepository {
     required List<OrderLineItem> items,
     String paymentMode = 'cash',
     String? customerId,
+    String? clientRef,
+    DateTime? soldAt,
   }) =>
-      _dataSource.createWalkInOrder(customerName: customerName, items: items, paymentMode: paymentMode, customerId: customerId);
+      _dataSource.createWalkInOrder(customerName: customerName, items: items, paymentMode: paymentMode, customerId: customerId, clientRef: clientRef, soldAt: soldAt);
 }

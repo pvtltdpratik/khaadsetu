@@ -18,7 +18,10 @@ import '../../../inventory/domain/entities/inventory_item.dart';
 import '../../../inventory/presentation/providers/inventory_providers.dart';
 import '../../../surplus/domain/entities/surplus_lot.dart';
 import '../../../surplus/presentation/providers/surplus_providers.dart';
+import '../../../../../core/network/api_client.dart';
+import '../../data/datasources/orders_api_data_source.dart';
 import '../../domain/entities/order.dart';
+import '../../offline/offline_sales.dart';
 import '../providers/orders_providers.dart';
 
 /// One thing the till can sell: a shelf product, or a batch of discounted
@@ -121,12 +124,27 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
         final s = sellables.firstWhere((i) => i.key == entry.key);
         return OrderLineItem(productId: s.productId, surplusLotId: s.surplusLotId, productName: s.name, quantity: entry.value, unitPrice: s.price);
       }).toList();
-      final order = await ref.read(ordersRepositoryProvider).createWalkInOrder(
-            customerName: _mode == 'credit' && _creditFarmer != null ? _creditFarmer!.name : (_customerNameController.text.trim().isEmpty ? 'Walk-in customer' : _customerNameController.text.trim()),
-            items: lineItems,
-            paymentMode: _mode,
-            customerId: _mode == 'credit' ? _creditFarmer?.id : null,
-          );
+      final name = _mode == 'credit' && _creditFarmer != null ? _creditFarmer!.name : (_customerNameController.text.trim().isEmpty ? 'Walk-in customer' : _customerNameController.text.trim());
+      final customerId = _mode == 'credit' ? _creditFarmer?.id : null;
+      // Every sale gets its own reference and time now, so if there is no signal it can be kept and sent later, once.
+      final clientRef = OfflineSalesQueue.newRef();
+      final soldAt = DateTime.now();
+      final Order order;
+      try {
+        order = await ref.read(ordersRepositoryProvider).createWalkInOrder(customerName: name, items: lineItems, paymentMode: _mode, customerId: customerId, clientRef: clientRef, soldAt: soldAt);
+      } on ApiException catch (e) {
+        // A sale on credit needs the credit book, which only the server keeps: it cannot wait offline.
+        if (!e.isOffline || _mode == 'credit') rethrow;
+        await ref.read(offlineSalesProvider.notifier).add(PendingSale(
+              clientRef: clientRef,
+              soldAt: soldAt,
+              body: OrdersApiDataSource.walkInBody(customerName: name, items: lineItems, paymentMode: _mode, customerId: customerId, clientRef: clientRef, soldAt: soldAt),
+            ));
+        if (!mounted) return;
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('No signal. The sale is saved on this phone and will be sent when you are online.')));
+        context.canPop() ? context.pop() : context.go(RoutePaths.operatorDashboard);
+        return;
+      }
       ref.invalidate(ordersProvider);
       refreshSurplus(ref); // the shelf and the lots just got lighter
       if (!mounted) return;

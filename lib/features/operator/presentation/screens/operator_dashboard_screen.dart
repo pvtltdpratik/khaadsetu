@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../orders/offline/offline_sales.dart';
 import '../../../staff/activity_log_screen.dart';
 import '../../../staff/approvals_screen.dart';
 import '../../../staff/earnings_screen.dart';
@@ -50,6 +51,7 @@ class OperatorDashboardScreen extends ConsumerWidget {
             AppSpacing.gapSm,
             const MyCenterCard(),
             AppSpacing.gapLg,
+            const OfflineSalesBanner(),
             ordersAsync.when(
               data: (orders) => _SummaryCards(orders: orders, inventoryAsync: inventoryAsync),
               loading: () => const SizedBox(height: 100, child: AppLoadingIndicator()),

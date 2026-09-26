@@ -149,7 +149,7 @@ class FakeOperatorOrdersRepository implements op.OrdersRepository {
   final walkInPayments = <({String mode, String? customerId, String customerName})>[];
 
   @override
-  Future<Order> createWalkInOrder({required String customerName, required List<OrderLineItem> items, String paymentMode = 'cash', String? customerId}) async {
+  Future<Order> createWalkInOrder({required String customerName, required List<OrderLineItem> items, String paymentMode = 'cash', String? customerId, String? clientRef, DateTime? soldAt}) async {
     walkIns.add(items);
     walkInPayments.add((mode: paymentMode, customerId: customerId, customerName: customerName));
     if (walkInError != null) throw walkInError!;

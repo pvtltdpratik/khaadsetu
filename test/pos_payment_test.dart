@@ -2,7 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:khaadsetu_version1/core/network/api_client.dart';
 import 'package:khaadsetu_version1/core/routing/route_paths.dart';
+import 'package:khaadsetu_version1/features/operator/orders/offline/offline_sales.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/features/operator/farmers/domain/entities/farmer.dart';
 import 'package:khaadsetu_version1/features/operator/farmers/presentation/providers/farmers_providers.dart';
@@ -40,6 +43,31 @@ Future<FakeOperatorOrdersRepository> pump(WidgetTester tester, {List<Farmer> far
 }
 
 void main() {
+  setUp(() => SharedPreferences.setMockInitialValues({}));
+
+  testWidgets('with no signal the sale is kept on the phone, once, with its own reference', (tester) async {
+    final orders = await pump(tester);
+    orders.walkInError = ApiException("Couldn't reach the server at x. Check your internet connection.");
+    final container = ProviderScope.containerOf(tester.element(find.byType(WalkInPosScreen)));
+    await tester.tap(find.text('Complete sale'));
+    await tester.pumpAndSettle();
+    final waiting = container.read(offlineSalesProvider);
+    expect(waiting, hasLength(1));
+    expect(waiting.single.clientRef, startsWith('sale-'));
+    expect(waiting.single.body['clientRef'], waiting.single.clientRef);
+    expect(waiting.single.body['soldAt'], isNotNull);
+  });
+
+  testWidgets('a refusal from the server is shown, not queued', (tester) async {
+    final orders = await pump(tester);
+    orders.walkInError = ApiException('Only 1 left', statusCode: 409);
+    final container = ProviderScope.containerOf(tester.element(find.byType(WalkInPosScreen)));
+    await tester.tap(find.text('Complete sale'));
+    await tester.pumpAndSettle();
+    expect(container.read(offlineSalesProvider), isEmpty);
+    expect(find.textContaining('Only 1 left'), findsOneWidget);
+  });
+
   testWidgets('a counter sale is paid in cash unless the operator says otherwise', (tester) async {
     final orders = await pump(tester);
     await tester.tap(find.text('Complete sale'));
