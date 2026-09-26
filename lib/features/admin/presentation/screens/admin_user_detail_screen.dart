@@ -8,6 +8,9 @@ import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
+import '../../../staff/admin_insight_screens.dart';
+import '../../../staff/approvals_screen.dart' show StaffScope;
+import '../../../staff/farmer_card_screen.dart';
 import '../../domain/entities/admin_models.dart';
 import '../providers/admin_providers.dart';
 import '../widgets/admin_widgets.dart';
@@ -128,6 +131,15 @@ class _BodyState extends ConsumerState<_Body> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(
+                  key: const Key('open-person-activity'),
+                  onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => isOperator && user.centerId != null ? CenterActivityScreen(centerId: user.centerId!) as Widget : FarmerCardScreen(scope: StaffScope.admin, farmerId: user.userId))),
+                  icon: const Icon(Icons.timeline_outlined),
+                  label: Text(isOperator ? 'Center activity' : 'Full card and timeline'),
+                ),
+              ),
               Row(
                 children: [
                   CircleAvatar(

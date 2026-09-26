@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../staff/admin_insight_screens.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -119,6 +120,10 @@ class _BodyState extends ConsumerState<_Body> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              Align(
+                alignment: Alignment.centerRight,
+                child: TextButton.icon(key: const Key('open-center-activity'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => CenterActivityScreen(centerId: c.centerId))), icon: const Icon(Icons.timeline_outlined), label: const Text('Center activity')),
+              ),
               Text(c.name, style: text.headlineSmall),
               Text(c.place, style: text.bodyMedium?.copyWith(color: colors.textMuted)),
               AppSpacing.gapSm,

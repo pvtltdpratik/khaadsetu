@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import '../../../staff/admin_insight_screens.dart';
+import '../../../staff/approvals_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -49,6 +51,9 @@ class AdminOverviewScreen extends ConsumerWidget {
                   AppSpacing.gapSm,
                   Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
                     OutlinedButton.icon(key: const Key('open-invoices'), onPressed: () => context.push(RoutePaths.adminInvoices), icon: const Icon(Icons.receipt_long_outlined), label: const Text('All invoices')),
+                    OutlinedButton.icon(key: const Key('open-approvals'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ApprovalsScreen(scope: StaffScope.admin))), icon: const Icon(Icons.fact_check_outlined), label: const Text('To check')),
+                    OutlinedButton.icon(key: const Key('open-community-ai'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const CommunityAiScreen())), icon: const Icon(Icons.smart_toy_outlined), label: const Text('Community AI')),
+                    OutlinedButton.icon(key: const Key('open-scheme-reach'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SchemeCoverageScreen())), icon: const Icon(Icons.account_balance_outlined), label: const Text('Scheme reach')),
                     OutlinedButton.icon(key: const Key('open-settings'), onPressed: () => context.push(RoutePaths.adminSettings), icon: const Icon(Icons.tune_rounded), label: const Text('Tax and commission')),
                   ]),
                   AppSpacing.gapMd,

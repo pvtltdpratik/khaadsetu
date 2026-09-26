@@ -8,6 +8,8 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../staff/approvals_screen.dart' show StaffScope;
+import '../../../../staff/farmer_card_screen.dart';
 import '../../domain/entities/farmer.dart';
 import '../providers/farmers_providers.dart';
 
@@ -67,6 +69,13 @@ class _FarmerBody extends StatelessWidget {
         Text(farmer.name, style: Theme.of(context).textTheme.headlineSmall),
         const SizedBox(height: AppSpacing.xxs),
         Text(farmer.village, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted)),
+        AppSpacing.gapMd,
+        OutlinedButton.icon(
+          key: const Key('open-farmer-card'),
+          onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => FarmerCardScreen(scope: StaffScope.operator, farmerId: farmer.id))),
+          icon: const Icon(Icons.badge_outlined),
+          label: const Text('Full card: orders, dues, schemes, diary'),
+        ),
         AppSpacing.gapLg,
         Row(
           children: [
