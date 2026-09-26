@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:khaadsetu_version1/features/invoices/pdf/receipt_text.dart';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -189,6 +191,7 @@ Future<void> mount(WidgetTester tester, Widget screen, FakeInvoiceRepository rep
 }
 
 void main() {
+  receiptTests();
   group('reading a bill from the server', () {
     test('the parts of a bill are read, including who it is from and to, and whether more can be paid', () {
       final i = anInvoice('a', due: 400, paid: 500, paymentStatus: 'partial', upi: 'upi://pay?pa=x');
@@ -613,6 +616,39 @@ void main() {
       await tester.tap(find.byKey(const Key('save-settings')));
       await tester.pumpAndSettle();
       expect(repo.saved.firstWhere((s) => s.$1 == 'tax').$2['pricesIncludeTax'], isFalse);
+    });
+  });
+}
+
+void receiptTests() {
+  group('the plain-text receipt for a Bluetooth printer', () {
+    test('fits the paper, shows the items and the total, and never sends letters a printer cannot draw', () {
+      final inv = anInvoice('r', buyer: 'रमेश Patil', items: [
+        {'name': 'Vermicompost 40 kg bag with a very long name that must not overflow', 'qty': 2, 'unit': 'bag', 'rate': 450, 'discount': 0, 'taxPercent': 0, 'tax': 0, 'amount': 900, 'hsn': '3101'},
+      ]);
+      for (final columns in [32, 48]) {
+        final lines = receiptText(inv, columns: columns).split('\n');
+        expect(lines.every((l) => l.length <= columns), isTrue, reason: '$columns columns: ${lines.where((l) => l.length > columns)}');
+      }
+      final text = receiptText(inv);
+      expect(text, contains('Yavatmal Center'));
+      expect(text, contains('CEN001/2026-27/00001'));
+      expect(text, contains('TOTAL'));
+      expect(text, contains('900'));
+      expect(RegExp(r'[^\x00-\x7F]').hasMatch(text), isFalse);
+      expect(text, contains('To: ????'));
+    });
+
+    test('shows what is still due', () {
+      final text = receiptText(anInvoice('r', total: 900, paid: 300, due: 600, paymentStatus: 'partial'));
+      expect(text, contains('DUE'));
+      expect(text, contains('600'));
+    });
+
+    test('the link carries the text for the RawBT app', () {
+      final uri = rawBtUri('Hello\nWorld');
+      expect(uri.scheme, 'rawbt');
+      expect(utf8.decode(base64.decode(uri.toString().split('base64,').last)), 'Hello\nWorld');
     });
   });
 }

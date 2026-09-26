@@ -10,6 +10,7 @@ import '../../../core/widgets/app_error_view.dart';
 import '../../../core/widgets/app_loading_indicator.dart';
 import '../domain/invoice_models.dart';
 import '../pdf/invoice_output.dart';
+import '../pdf/receipt_text.dart';
 import '../pdf/invoice_pdf.dart';
 import 'invoice_providers.dart';
 import 'invoice_status_chip.dart';
@@ -202,6 +203,16 @@ class _Body extends ConsumerWidget {
           onSelected: (paper) => _out(context, ref, (o) => o.print(inv, paper)),
           itemBuilder: (_) => [for (final p in InvoicePaper.values) PopupMenuItem(key: Key('print-${p.name}'), value: p, child: Text(p.label))],
           child: IgnorePointer(child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.print_outlined), label: const Text('Print'))),
+        ),
+        // A cheap Bluetooth receipt printer, through the RawBT app: plain text, sized to the paper roll.
+        PopupMenuButton<int>(
+          key: const Key('bluetooth-menu'),
+          onSelected: (columns) async {
+            final opened = await ref.read(receiptLauncherProvider)(rawBtUri(receiptText(inv, columns: columns)));
+            if (!opened && context.mounted) ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Install the RawBT app and pair your Bluetooth printer in it, then try again.')));
+          },
+          itemBuilder: (_) => const [PopupMenuItem(key: Key('bluetooth-58'), value: 32, child: Text('Bluetooth printer, 58 mm roll')), PopupMenuItem(key: Key('bluetooth-80'), value: 48, child: Text('Bluetooth printer, 80 mm roll'))],
+          child: IgnorePointer(child: OutlinedButton.icon(onPressed: () {}, icon: const Icon(Icons.bluetooth), label: const Text('Bluetooth'))),
         ),
         if (isOperator && inv.canTakePayment) FilledButton.tonalIcon(key: const Key('record-payment'), onPressed: () => _takePayment(context, ref), icon: const Icon(Icons.payments_outlined), label: const Text('Record payment')),
         if (isOperator && canCorrect && !inv.isCreditNote) OutlinedButton.icon(key: const Key('return-items'), onPressed: () => _return(context, ref), icon: const Icon(Icons.assignment_return_outlined), label: const Text('Goods returned')),
