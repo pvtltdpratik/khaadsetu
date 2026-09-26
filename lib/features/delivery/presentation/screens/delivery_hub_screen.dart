@@ -16,6 +16,8 @@ import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../farmer/centers/presentation/providers/centers_providers.dart';
 import '../../domain/entities/delivery_models.dart';
 import '../providers/delivery_providers.dart';
+import '../../../vehicles/vehicles_screen.dart';
+import '../../board/board_screen.dart';
 import '../widgets/live_refresh.dart';
 import '../widgets/partner_application_form.dart';
 import '../widgets/partner_job_cards.dart';
@@ -295,6 +297,8 @@ class _DashboardState extends ConsumerState<_Dashboard> {
           AppSpacing.gapLg,
           Text('My deliveries', style: text.titleMedium),
           AppSpacing.gapSm,
+          _LinkTile(key: const Key('open-board'), icon: Icons.local_shipping_outlined, title: 'Deliver & Earn board', subtitle: 'Every open job, with filters for distance, pay and time', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const DeliveryBoardScreen()))),
+          _LinkTile(key: const Key('open-vehicles'), icon: Icons.directions_car_outlined, title: 'My vehicles', subtitle: 'Bike, pickup, tractor or truck: papers, photos, checks', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const VehiclesScreen()))),
           _LinkTile(key: const Key('open-wallet'), icon: Icons.account_balance_wallet_outlined, title: 'My money', subtitle: 'What I earned and what I owe the center', onTap: () => context.push(RoutePaths.farmerDeliverWallet)),
           _LinkTile(key: const Key('open-trips'), icon: Icons.route_outlined, title: 'My trips', subtitle: 'Going somewhere with room to spare? Let farmers book it', onTap: () => context.push(RoutePaths.farmerDeliverTrips)),
           _LinkTile(key: const Key('open-loads'), icon: Icons.inventory_2_outlined, title: 'Send a load to a farmer', subtitle: 'Get something carried from your farm to another', onTap: () => context.push(RoutePaths.farmerLoads)),
