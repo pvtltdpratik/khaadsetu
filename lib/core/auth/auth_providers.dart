@@ -4,10 +4,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import '../../features/push/presentation/push_providers.dart';
 import 'auth_service.dart';
 
 final authServiceProvider = Provider<AuthService>((ref) {
-  return AuthService(Supabase.instance.client.auth);
+  return AuthService(Supabase.instance.client.auth, beforeSignOut: () => ref.read(pushRegistrationProvider).forget());
 });
 
 /// Rebuilds the router's redirect whenever the user signs in or out.

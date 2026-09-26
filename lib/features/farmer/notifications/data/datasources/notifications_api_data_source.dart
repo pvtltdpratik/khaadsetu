@@ -28,6 +28,7 @@ class NotificationsApiDataSource {
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
       isRead: json['read'] as bool,
       refId: json['refId'] as String?,
+      channel: json['channel'] as String? ?? 'alerts',
     );
   }
 }

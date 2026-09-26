@@ -14,6 +14,16 @@ final notificationsRepositoryProvider = Provider<NotificationsRepository>((
   );
 });
 
+/// The category chip chosen on the notifications screen; null shows everything.
+final notificationFilterProvider = NotifierProvider.autoDispose<NotificationFilter, String?>(NotificationFilter.new);
+
+class NotificationFilter extends Notifier<String?> {
+  @override
+  String? build() => null;
+
+  void choose(String? channel) => state = channel;
+}
+
 final notificationsProvider = FutureProvider.autoDispose<List<AppNotification>>(
   (ref) {
     return ref.watch(notificationsRepositoryProvider).getNotifications();

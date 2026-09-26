@@ -33,6 +33,7 @@ class AppNotification extends Equatable {
     required this.createdAt,
     required this.isRead,
     required this.refId,
+    this.channel = 'alerts',
   });
 
   final String id;
@@ -47,6 +48,9 @@ class AppNotification extends Equatable {
   /// [NotificationType.order].
   final String? refId;
 
+  /// The category the server filed it under (orders, deliveries, payments, community, schemes, alerts).
+  final String channel;
+
   @override
-  List<Object?> get props => [id, type, title, body, createdAt, isRead, refId];
+  List<Object?> get props => [id, type, title, body, createdAt, isRead, refId, channel];
 }

@@ -16,6 +16,8 @@ class RoutePaths {
   // Platform admin panel.
   static const adminRoot = '/admin';
   static const adminOverview = '/admin/overview';
+  static const adminNotifications = '/admin/overview/notifications';
+  static const adminNotificationSettings = '/admin/overview/notification-settings';
   static const adminOperators = '/admin/operators';
   static const adminFarmers = '/admin/farmers';
   static const adminCenters = '/admin/centers';
@@ -54,6 +56,7 @@ class RoutePaths {
   static const farmerSellSurplusNew = '/farmer/profile/sell/new';
   static String farmerSellSurplusListing(String id) => '/farmer/profile/sell/${Uri.encodeComponent(id)}';
   static const farmerWallet = '/farmer/profile/wallet';
+  static const farmerNotificationSettings = '/farmer/profile/notification-settings';
   // The structured fertilizer log, what it earns, the yield prediction and the profit calculator.
   static const farmerLog = '/farmer/profile/log';
   static String farmerLogFertilizer(String productId) => '/farmer/profile/log/new/${Uri.encodeComponent(productId)}';
@@ -107,6 +110,7 @@ class RoutePaths {
   // redirect into the shell's initial branch, matching `farmerRoot`.
   static const operatorRoot = '/operator';
   static const operatorDashboard = '/operator/dashboard';
+  static const operatorNotificationSettings = '/operator/dashboard/notification-settings';
   static const operatorNotifications = '/operator/dashboard/notifications';
 
   static const operatorOrders = '/operator/orders';

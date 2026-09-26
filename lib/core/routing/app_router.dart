@@ -40,6 +40,7 @@ import '../../features/farmer/community/presentation/screens/create_post_screen.
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
 import '../../features/organic/organic_screen.dart';
+import '../../features/push/presentation/notification_settings_screen.dart';
 import '../../features/resale/presentation/admin/resale_admin_screen.dart';
 import '../../features/reviews/presentation/log_fertilizer_screen.dart';
 import '../../features/reviews/presentation/my_logs_screen.dart';
@@ -290,6 +291,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'farm', builder: (context, state) => const FarmDetailsScreen()),
                   GoRoute(path: 'schemes', builder: (context, state) => const SchemesScreen()),
                   GoRoute(path: 'wallet', builder: (context, state) => const FarmerWalletScreen()),
+                  GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
                   GoRoute(path: 'organic', builder: (context, state) => const OrganicCertificationScreen()),
                   GoRoute(path: 'rewards', builder: (context, state) => const RewardsScreen()),
                   GoRoute(path: 'predict/:productId', builder: (context, state) => YieldPredictionScreen(productId: state.pathParameters['productId']!)),
@@ -337,6 +339,10 @@ final appRouterProvider = Provider<GoRouter>((ref) {
               GoRoute(
                 path: RoutePaths.adminOverview,
                 builder: (context, state) => const AdminOverviewScreen(),
+                routes: [
+                  GoRoute(path: 'notifications', builder: (context, state) => const NotificationsScreen()),
+                  GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
+                ],
               ),
             ],
           ),
@@ -431,6 +437,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     path: 'notifications',
                     builder: (context, state) => const NotificationsScreen(),
                   ),
+                  GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
                   GoRoute(
                     path: 'deliver',
                     builder: (context, state) => const DeliveryHubScreen(),

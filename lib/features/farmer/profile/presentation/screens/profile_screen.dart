@@ -78,6 +78,7 @@ class ProfileScreen extends ConsumerWidget {
                     _Row(icon: Icons.recycling_outlined, title: 'Sell surplus fertilizer', subtitle: 'Get money back for what you did not use', onTap: () => context.push(RoutePaths.farmerSellSurplus)),
                     _Row(icon: Icons.account_balance_wallet_outlined, title: 'My wallet', subtitle: 'Earnings and refunds', onTap: () => context.push(RoutePaths.farmerWallet)),
                     _Row(icon: Icons.fact_check_outlined, title: 'My fertilizer log', subtitle: 'Log results, earn coins, coupons and badges', onTap: () => context.push(RoutePaths.farmerLog)),
+                    _Row(icon: Icons.notifications_active_outlined, title: 'Notification settings', subtitle: 'Choose what buzzes your phone, and quiet hours', onTap: () => context.push(RoutePaths.farmerNotificationSettings)),
                     _Row(icon: Icons.eco_outlined, title: 'Organic certification', subtitle: 'PGS-India: steps, rules and your progress', onTap: () => context.push(RoutePaths.farmerOrganic)),
                     _Row(icon: Icons.calculate_outlined, title: 'Profit calculator', subtitle: 'Will a fertilizer pay for itself?', onTap: () => context.push(RoutePaths.farmerCalculator)),
                     _Row(icon: Icons.local_shipping_outlined, title: 'Deliver & Earn', subtitle: 'Carry loads for other farmers', onTap: () => context.push(RoutePaths.farmerDeliver)),

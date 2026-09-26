@@ -1,0 +1,8 @@
+{
+  "FIREBASE_API_KEY": "from Firebase console > Project settings > General > Your apps (apiKey)",
+  "FIREBASE_PROJECT_ID": "your-project-id",
+  "FIREBASE_SENDER_ID": "the Project number (messagingSenderId)",
+  "FIREBASE_APP_ID_FARMER": "1:000000000000:android:farmer-app-id-for-com.shetsamruddhi.farmer",
+  "FIREBASE_APP_ID_CENTER": "1:000000000000:android:center-app-id-for-com.shetsamruddhi.center",
+  "FIREBASE_APP_ID_ADMIN": "1:000000000000:android:admin-app-id-for-com.shetsamruddhi.admin"
+}

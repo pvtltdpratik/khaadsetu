@@ -13,7 +13,10 @@ import '../../../farmer/notifications/presentation/providers/notifications_provi
 /// bell gives a short shake each time that number changes, so a new order
 /// catches the eye without any sound or popup.
 class OperatorNotificationBell extends ConsumerWidget {
-  const OperatorNotificationBell({super.key});
+  const OperatorNotificationBell({super.key, this.route = RoutePaths.operatorNotifications});
+
+  /// Where the bell leads: the admin app uses the same bell for its own inbox.
+  final String route;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -25,7 +28,7 @@ class OperatorNotificationBell extends ConsumerWidget {
     );
     return IconButton(
       tooltip: unread == 0 ? 'Notifications' : '$unread unread notifications',
-      onPressed: () => context.push(RoutePaths.operatorNotifications),
+      onPressed: () => context.push(route),
       icon: unread == 0 || Motion.reduced(context)
           ? bell
           : TweenAnimationBuilder<double>(

@@ -13,6 +13,7 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../../core/widgets/sign_out_button.dart';
+import '../../../operator/presentation/widgets/operator_notification_bell.dart';
 import '../../domain/entities/admin_models.dart';
 import '../providers/admin_providers.dart';
 import '../widgets/admin_widgets.dart';
@@ -41,6 +42,7 @@ class AdminOverviewScreen extends ConsumerWidget {
                   Row(
                     children: [
                       Expanded(child: Text('Platform overview', style: Theme.of(context).textTheme.headlineSmall)),
+                      const OperatorNotificationBell(route: RoutePaths.adminNotifications),
                       if (!context.breakpoint.isTabletUp) const SignOutButton(),
                     ],
                   ),

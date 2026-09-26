@@ -10,10 +10,11 @@ import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
-import '../../../../delivery/presentation/providers/delivery_providers.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../../domain/entities/app_notification.dart';
 import '../providers/notifications_providers.dart';
+import '../../../../push/domain/push_models.dart';
+import '../notification_navigation.dart';
 import '../widgets/notification_tile.dart';
 
 class NotificationsScreen extends ConsumerWidget {
@@ -39,60 +40,23 @@ class NotificationsScreen extends ConsumerWidget {
       _refreshUnreadState(ref);
     }
 
-    final refId = n.refId;
-    if (refId == null || !context.mounted) return;
-    switch (n.type) {
-      case NotificationType.scan:
-        context.go(RoutePaths.farmerSoilScanResult(refId));
-      case NotificationType.scheme:
-        context.go(RoutePaths.farmerCommunityScheme(refId));
-      case NotificationType.order:
-        // An operator opens the order to prepare it; a farmer sees their pickup code.
-        context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
-      case NotificationType.stock:
-        // An operator's low-stock alert goes to the inventory; a farmer's
-        // "back in stock" goes to the product, ready to reserve.
-        if (_isOperator(ref)) {
-          context.go(RoutePaths.operatorInventory);
-        } else {
-          context.push(RoutePaths.farmerMarketplaceProduct(refId));
-        }
-      case NotificationType.restock:
-        if (_isOperator(ref)) context.go(RoutePaths.operatorInventory);
-      case NotificationType.delivery:
-        await _openDelivery(context, ref, refId);
-      case NotificationType.account:
-      case NotificationType.other:
-        break; // the text says it all
-    }
+    if (!context.mounted) return;
+    await openNotificationTarget(GoRouter.of(context), ref.read, n.type, n.refId);
   }
 
-  /// A delivery notice points at an order (to the buyer, or the center), or at a
-  /// job: a load I sent, or a job I am doing as the partner. Which of those a job
-  /// id is depends on who is asking, so the server is asked whether it is my load.
-  Future<void> _openDelivery(BuildContext context, WidgetRef ref, String refId) async {
-    if (refId.startsWith('order-')) {
-      context.push(_isOperator(ref) ? RoutePaths.operatorOrderDetail(refId) : RoutePaths.farmerOrder(refId));
-      return;
-    }
-    // An application to check, a delivery with no driver, cash handed over: the board has it all.
-    if (_isOperator(ref)) {
-      context.push(RoutePaths.operatorDeliveries);
-      return;
-    }
-    if (refId.startsWith('job-')) {
-      try {
-        await ref.read(deliveryRepositoryProvider).load(refId);
-        if (context.mounted) context.push(RoutePaths.farmerLoad(refId));
-        return;
-      } catch (_) {
-        // Not my load, so it is a job for me as the partner.
-      }
-    }
-    if (context.mounted) context.push(RoutePaths.farmerDeliver);
-  }
+  AppRole? _role(WidgetRef ref) => ref.read(sessionProfileProvider).value?.role;
 
-  bool _isOperator(WidgetRef ref) => ref.read(sessionProfileProvider).value?.role == AppRole.operator;
+  String _homeFor(WidgetRef ref) => switch (_role(ref)) {
+        AppRole.operator => RoutePaths.operatorDashboard,
+        AppRole.admin => RoutePaths.adminOverview,
+        _ => RoutePaths.farmerHome,
+      };
+
+  String _settingsFor(WidgetRef ref) => switch (_role(ref)) {
+        AppRole.operator => RoutePaths.operatorNotificationSettings,
+        AppRole.admin => RoutePaths.adminNotificationSettings,
+        _ => RoutePaths.farmerNotificationSettings,
+      };
 
   Future<void> _markAllRead(BuildContext context, WidgetRef ref) async {
     try {
@@ -136,7 +100,7 @@ class NotificationsScreen extends ConsumerWidget {
                     icon: const Icon(Icons.arrow_back_rounded),
                     onPressed: () => context.canPop()
                         ? context.pop()
-                        : context.go(_isOperator(ref) ? RoutePaths.operatorDashboard : RoutePaths.farmerHome),
+                        : context.go(_homeFor(ref)),
                   ),
                   AppSpacing.gapSm,
                   Expanded(
@@ -144,6 +108,12 @@ class NotificationsScreen extends ConsumerWidget {
                       'Notifications',
                       style: Theme.of(context).textTheme.titleLarge,
                     ),
+                  ),
+                  IconButton(
+                    key: const Key('notification-settings'),
+                    tooltip: 'Notification settings',
+                    icon: const Icon(Icons.tune_rounded),
+                    onPressed: () => context.push(_settingsFor(ref)),
                   ),
                   if (hasUnread)
                     TextButton(
@@ -160,22 +130,32 @@ class NotificationsScreen extends ConsumerWidget {
                     maxWidth: Breakpoints.maxContentWidth,
                   ),
                   child: notificationsAsync.when(
-                    data: (items) => items.isEmpty
-                        ? const _EmptyState()
-                        : RefreshIndicator(
-                            onRefresh: () =>
-                                ref.refresh(notificationsProvider.future),
-                            child: ListView.separated(
-                              padding: context.pagePadding,
-                              itemCount: items.length,
-                              separatorBuilder: (_, _) => AppSpacing.gapSm,
-                              itemBuilder: (context, i) => NotificationTile(
-                                notification: items[i],
-                                onTap: () =>
-                                    _openNotification(context, ref, items[i]),
-                              ),
-                            ),
+                    data: (all) {
+                      if (all.isEmpty) return const _EmptyState();
+                      final filter = ref.watch(notificationFilterProvider);
+                      final items = filter == null ? all : all.where((n) => n.channel == filter).toList();
+                      return Column(
+                        children: [
+                          _FilterChips(all: all, selected: filter),
+                          Expanded(
+                            child: items.isEmpty
+                                ? Center(child: Text('Nothing in this category', key: const Key('none-in-category'), style: Theme.of(context).textTheme.bodyMedium))
+                                : RefreshIndicator(
+                                    onRefresh: () => ref.refresh(notificationsProvider.future),
+                                    child: ListView.separated(
+                                      padding: context.pagePadding,
+                                      itemCount: items.length,
+                                      separatorBuilder: (_, _) => AppSpacing.gapSm,
+                                      itemBuilder: (context, i) => NotificationTile(
+                                        notification: items[i],
+                                        onTap: () => _openNotification(context, ref, items[i]),
+                                      ),
+                                    ),
+                                  ),
                           ),
+                        ],
+                      );
+                    },
                     loading: () => const AppLoadingIndicator(),
                     error: (err, _) => AppErrorView(
                       message: '$err',
@@ -188,6 +168,39 @@ class NotificationsScreen extends ConsumerWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// "All" and one chip per category that has something in it, with how many are unread.
+class _FilterChips extends ConsumerWidget {
+  const _FilterChips({required this.all, required this.selected});
+
+  final List<AppNotification> all;
+  final String? selected;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final present = pushChannels.where((c) => all.any((n) => n.channel == c.id)).toList();
+    if (present.length < 2) return const SizedBox.shrink();
+    int unread(String? channel) => all.where((n) => !n.isRead && (channel == null || n.channel == channel)).length;
+    Widget chip(String key, String label, String? channel) {
+      final count = unread(channel);
+      return Padding(
+        padding: const EdgeInsets.only(right: AppSpacing.sm),
+        child: ChoiceChip(
+          key: Key(key),
+          label: Text(count > 0 ? '$label ($count)' : label),
+          selected: selected == channel,
+          onSelected: (_) => ref.read(notificationFilterProvider.notifier).choose(channel),
+        ),
+      );
+    }
+
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md),
+      child: Row(children: [chip('filter-all', 'All', null), for (final c in present) chip('filter-${c.id}', c.label, c.id)]),
     );
   }
 }

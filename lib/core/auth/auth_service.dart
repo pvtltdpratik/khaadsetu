@@ -19,9 +19,12 @@ enum SignUpResult { signedIn, confirmEmail }
 /// Thin wrapper over Supabase Auth so screens never touch the SDK directly
 /// and every failure arrives as a readable [AuthFailure].
 class AuthService {
-  const AuthService(this._auth);
+  const AuthService(this._auth, {this.beforeSignOut});
 
   final GoTrueClient _auth;
+
+  /// Runs while the session still works, so this phone can be taken off the push list.
+  final Future<void> Function()? beforeSignOut;
 
   Session? get currentSession => _auth.currentSession;
   User? get currentUser => _auth.currentUser;
@@ -50,7 +53,12 @@ class AuthService {
     return response.session != null ? SignUpResult.signedIn : SignUpResult.confirmEmail;
   }
 
-  Future<void> signOut() => _guard(() => _auth.signOut());
+  Future<void> signOut() => _guard(() async {
+        try {
+          await beforeSignOut?.call();
+        } catch (_) {}
+        await _auth.signOut();
+      });
 
   /// A valid access token for the API, or null when signed out. The SDK
   /// refreshes tokens in the background; this covers the gap when the app
