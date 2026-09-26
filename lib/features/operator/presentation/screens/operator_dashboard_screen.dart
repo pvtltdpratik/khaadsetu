@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../staff/activity_log_screen.dart';
 import '../../../staff/approvals_screen.dart';
 import '../../../staff/earnings_screen.dart';
 import '../../../staff/operator_profile_screen.dart';
@@ -68,6 +69,7 @@ class OperatorDashboardScreen extends ConsumerWidget {
               OutlinedButton.icon(key: const Key('open-credit'), onPressed: () => context.push(RoutePaths.operatorCredit), icon: const Icon(Icons.book_outlined), label: const Text('Credit book')),
               OutlinedButton.icon(key: const Key('open-earnings'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OperatorEarningsScreen())), icon: const Icon(Icons.trending_up), label: const Text('Earnings')),
               OutlinedButton.icon(key: const Key('open-approvals'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ApprovalsScreen(scope: StaffScope.operator))), icon: const Icon(Icons.fact_check_outlined), label: const Text('To check')),
+              OutlinedButton.icon(key: const Key('open-my-activity'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ActivityLogScreen())), icon: const Icon(Icons.history), label: const Text('My activity')),
               OutlinedButton.icon(key: const Key('open-my-profile'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OperatorProfileScreen())), icon: const Icon(Icons.account_circle_outlined), label: const Text('My profile')),
               OutlinedButton.icon(key: const Key('open-closing'), onPressed: () => context.push(RoutePaths.operatorClosing), icon: const Icon(Icons.summarize_outlined), label: const Text('Day closing')),
             ]),
