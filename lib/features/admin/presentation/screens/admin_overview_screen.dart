@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../../../core/l10n/app_locale.dart';
 import '../../../staff/activity_log_screen.dart';
 import '../../../staff/admin_insight_screens.dart';
+import '../../../staff/vehicle_limits_screen.dart';
 import '../../../staff/approvals_screen.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -54,6 +55,7 @@ class AdminOverviewScreen extends ConsumerWidget {
                   Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
                     OutlinedButton.icon(key: const Key('open-invoices'), onPressed: () => context.push(RoutePaths.adminInvoices), icon: const Icon(Icons.receipt_long_outlined), label: const Text('All invoices')),
                     OutlinedButton.icon(key: const Key('open-activity-log'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ActivityLogScreen(scope: LogScope.everyone))), icon: const Icon(Icons.history), label: const Text('Activity log')),
+                    OutlinedButton.icon(key: const Key('open-vehicle-limits'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const VehicleLimitsScreen())), icon: const Icon(Icons.local_shipping_outlined), label: const Text('Vehicle limits')),
                     OutlinedButton.icon(key: const Key('open-approvals'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ApprovalsScreen(scope: StaffScope.admin))), icon: const Icon(Icons.fact_check_outlined), label: const Text('To check')),
                     OutlinedButton.icon(key: const Key('open-community-ai'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const CommunityAiScreen())), icon: const Icon(Icons.smart_toy_outlined), label: const Text('Community AI')),
                     OutlinedButton.icon(key: const Key('open-scheme-reach'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SchemeCoverageScreen())), icon: const Icon(Icons.account_balance_outlined), label: const Text('Scheme reach')),
