@@ -53,11 +53,26 @@ Future<bool> payForOrder(BuildContext context, WidgetRef ref, String farmerOrder
   try {
     final session = await payments.start(farmerOrderId);
     final outcome = await ref.read(paymentCheckoutProvider).open(session);
+    // Razorpay can report an error or a cancel after the money has gone through (a UPI app returning to ours).
+    // Before believing it, ask the server, which asks Razorpay.
+    Future<bool> paidAfterAll() async {
+      try {
+        if (!await payments.sync(farmerOrderId)) return false;
+      } catch (_) {
+        return false;
+      }
+      refresh();
+      say('Payment received. Thank you!');
+      return true;
+    }
+
     switch (outcome) {
       case CheckoutCancelled():
+        if (await paidAfterAll()) return true;
         say('Payment cancelled. You can pay now or when you collect.');
         return false;
       case CheckoutFailed(:final message):
+        if (await paidAfterAll()) return true;
         say(message);
         return false;
       case CheckoutPaid(:final paymentId, :final orderId, :final signature):

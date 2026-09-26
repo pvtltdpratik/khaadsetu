@@ -19,6 +19,12 @@ class PaymentsApiRepository implements PaymentsRepository {
   }
 
   @override
+  Future<bool> sync(String orderId) async {
+    final json = await _api.post('/v1/payments/orders/${Uri.encodeComponent(orderId)}/sync') as Map<String, dynamic>;
+    return json['paymentStatus'] == 'paid';
+  }
+
+  @override
   Future<void> verify({required String razorpayOrderId, required String razorpayPaymentId, required String signature}) async {
     await _api.post('/v1/payments/verify', body: {
       'razorpayOrderId': razorpayOrderId,
