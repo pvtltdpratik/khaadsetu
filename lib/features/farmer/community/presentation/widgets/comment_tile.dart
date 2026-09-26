@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../../core/network/api_client_provider.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/post_comment.dart';
@@ -77,6 +79,7 @@ class CommentTile extends StatelessWidget {
           ],
           const SizedBox(height: AppSpacing.sm),
           Text(comment.content, style: text.bodyMedium),
+          if (comment.isAiGenerated) _AiFeedback(commentId: comment.commentId),
         ],
       ),
     );
@@ -125,4 +128,45 @@ String formatAgo(DateTime time) {
   if (diff.inDays < 1) return '${diff.inHours}h ago';
   if (diff.inDays < 30) return '${diff.inDays}d ago';
   return '${time.day}/${time.month}/${time.year}';
+}
+
+/// "Was this answer helpful?" under an AI answer. One tap, and it can be changed: it tells us which answers to trust.
+class _AiFeedback extends ConsumerStatefulWidget {
+  const _AiFeedback({required this.commentId});
+
+  final String commentId;
+
+  @override
+  ConsumerState<_AiFeedback> createState() => _AiFeedbackState();
+}
+
+class _AiFeedbackState extends ConsumerState<_AiFeedback> {
+  bool? _vote;
+  bool _busy = false;
+
+  Future<void> _send(bool helpful) async {
+    setState(() => _busy = true);
+    try {
+      await ref.read(apiClientProvider).post('/v1/community/comments/${Uri.encodeComponent(widget.commentId)}/feedback', body: {'helpful': helpful});
+      if (mounted) setState(() => _vote = helpful);
+    } catch (e) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    } finally {
+      if (mounted) setState(() => _busy = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = context.colors;
+    final text = Theme.of(context).textTheme;
+    return Padding(
+      padding: const EdgeInsets.only(top: AppSpacing.sm),
+      child: Row(children: [
+        Expanded(child: Text(_vote == null ? 'Was this answer helpful?' : 'Thank you for telling us.', key: const Key('ai-feedback-label'), style: text.labelMedium?.copyWith(color: colors.textMuted))),
+        IconButton(key: const Key('ai-helpful'), tooltip: 'Helpful', visualDensity: VisualDensity.compact, onPressed: _busy ? null : () => _send(true), icon: Icon(_vote == true ? Icons.thumb_up : Icons.thumb_up_outlined, size: 20, color: _vote == true ? colors.success : null)),
+        IconButton(key: const Key('ai-not-helpful'), tooltip: 'Not helpful', visualDensity: VisualDensity.compact, onPressed: _busy ? null : () => _send(false), icon: Icon(_vote == false ? Icons.thumb_down : Icons.thumb_down_outlined, size: 20, color: _vote == false ? colors.danger : null)),
+      ]),
+    );
+  }
 }
