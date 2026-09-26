@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../own_products/my_listings_screen.dart';
+import '../../../../../core/auth/farmer_mode.dart';
 import '../../../../../core/l10n/app_locale.dart';
 import '../../../../staff/activity_log_screen.dart';
 import '../../../../own_products/own_market_screens.dart';
@@ -80,6 +81,11 @@ class ProfileScreen extends ConsumerWidget {
                   index: 3,
                   child: _Section(title: 'Sell, earn and grow', children: [
                     const LanguageTile(),
+                    if (ref.watch(farmerModeProvider))
+                      _Row(icon: Icons.storefront_outlined, title: 'Back to center mode', subtitle: 'Return to your village center dashboard', onTap: () {
+                        ref.read(farmerModeProvider.notifier).set(false);
+                        context.go(RoutePaths.operatorDashboard);
+                      }),
                     _Row(icon: Icons.history, title: 'My activity', subtitle: 'What you did in the app, and when', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const ActivityLogScreen()))),
                     _Row(icon: Icons.eco_outlined, title: 'Sell what I make', subtitle: 'Compost, vermicompost, jeevamrut: checked by a village center', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const MyListingsScreen()))),
                     _Row(icon: Icons.storefront_outlined, title: 'Farmer-made products', subtitle: 'Buy organic products from farmers near you', onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OwnMarketScreen()))),

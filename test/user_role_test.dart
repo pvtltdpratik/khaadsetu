@@ -16,6 +16,7 @@ SessionProfile _me(AppRole role, {String requested = 'farmer', String status = '
     );
 
 void main() {
+  farmerModeTests();
   group('UserRole.fromMetadata (the sign-up request)', () {
     test('reads the stored role', () {
       expect(UserRole.fromMetadata({'role': 'farmer'}), UserRole.farmer);
@@ -134,5 +135,22 @@ void main() {
 
     await tester.tap(find.text('Village Center Operator'));
     expect(picked, UserRole.operator);
+  });
+}
+
+void farmerModeTests() {
+  group('an operator in farmer mode', () {
+    test('uses the farmer screens, and only those', () {
+      final op = _me(AppRole.operator);
+      expect(redirectForSession(op, RoutePaths.operatorDashboard, farmerMode: true), RoutePaths.farmerHome);
+      expect(redirectForSession(op, RoutePaths.farmerHome, farmerMode: true), isNull);
+      expect(redirectForSession(op, RoutePaths.farmerProfile, farmerMode: true), isNull);
+    });
+
+    test('is back on the center dashboard when the mode is off, and a farmer cannot use the mode', () {
+      expect(redirectForSession(_me(AppRole.operator), RoutePaths.farmerHome), RoutePaths.operatorDashboard);
+      expect(redirectForSession(_me(AppRole.farmer), RoutePaths.operatorDashboard, farmerMode: true), RoutePaths.farmerHome);
+      expect(redirectForSession(_me(AppRole.admin), RoutePaths.farmerHome, farmerMode: true), RoutePaths.adminOverview);
+    });
   });
 }

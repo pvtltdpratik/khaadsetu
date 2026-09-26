@@ -105,7 +105,7 @@ final FutureProvider<SessionProfile?> sessionProfileProvider = FutureProvider<Se
 /// (see [AppFlavor]). The unrestricted default is what tests and plain `main.dart` use.
 ///
 /// Pure so every rule can be unit-tested without a router.
-String? redirectForSession(SessionProfile? me, String location, {AppFlavor flavor = AppFlavor.all}) {
+String? redirectForSession(SessionProfile? me, String location, {AppFlavor flavor = AppFlavor.all, bool farmerMode = false}) {
   bool within(String prefix) => location == prefix || location.startsWith('$prefix/');
 
   if (me == null) return location == RoutePaths.root ? null : RoutePaths.root;
@@ -127,6 +127,10 @@ String? redirectForSession(SessionProfile? me, String location, {AppFlavor flavo
     case AppRole.admin:
       home = RoutePaths.adminOverview;
       allowed = within(RoutePaths.adminRoot);
+    case AppRole.operator when farmerMode:
+      // The operator's own farming, on the farmer screens.
+      home = RoutePaths.farmerHome;
+      allowed = within(RoutePaths.farmerRoot);
     case AppRole.operator:
       home = RoutePaths.operatorDashboard;
       allowed = within(RoutePaths.operatorRoot);

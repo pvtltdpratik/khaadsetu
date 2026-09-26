@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import 'package:go_router/go_router.dart';
+
+import '../../core/auth/farmer_mode.dart';
 import '../../core/network/api_client_provider.dart';
+import '../../core/routing/route_paths.dart';
 import '../../core/responsive/responsive.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -152,6 +156,10 @@ class _OperatorProfileScreenState extends ConsumerState<OperatorProfileScreen> {
                 icon: Icons.agriculture_outlined,
                 child: Column(children: [
                   Text('You farm too. These use your own account as a farmer, and stay apart from the center\'s stock, sales and money. You cannot check your own vehicles or products; they go to another center.', style: text.bodySmall?.copyWith(color: colors.textMuted)),
+                  AppButton(key: const Key('switch-farmer-mode'), label: 'Switch to farmer mode', icon: Icons.agriculture_outlined, expand: true, onPressed: () {
+                    ref.read(farmerModeProvider.notifier).set(true);
+                    GoRouter.of(context).go(RoutePaths.farmerHome);
+                  }),
                   ListTile(key: const Key('op-farm'), contentPadding: EdgeInsets.zero, leading: const Icon(Icons.landscape_outlined), title: const Text('My farm'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const FarmDetailsScreen())),
                   ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.local_shipping_outlined), title: const Tx('My vehicles'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const VehiclesScreen())),
                   ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.route_outlined), title: const Tx('Deliver & Earn'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const DeliveryBoardScreen())),

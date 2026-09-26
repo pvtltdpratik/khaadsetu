@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../auth/farmer_mode.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -104,7 +105,7 @@ final appRouterProvider = Provider<GoRouter>((ref) {
       // Signed in: route by the server's word (null while it is still loading),
       // so a farmer never lands in the operator app, an operator never in the
       // admin panel, and so on.
-      return redirectForSession(ref.read(sessionProfileProvider).value, state.matchedLocation, flavor: ref.read(appFlavorProvider));
+      return redirectForSession(ref.read(sessionProfileProvider).value, state.matchedLocation, flavor: ref.read(appFlavorProvider), farmerMode: ref.read(farmerModeProvider));
     },
     routes: [
       GoRoute(
