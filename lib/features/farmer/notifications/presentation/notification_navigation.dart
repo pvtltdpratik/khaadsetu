@@ -1,9 +1,15 @@
+import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:flutter_riverpod/misc.dart' show ProviderListenable;
 
 import '../../../../core/auth/session_profile.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../delivery/presentation/providers/delivery_providers.dart';
+import '../../../own_products/own_sales_screens.dart';
+import '../../../own_products/my_listings_screen.dart';
+import '../../../staff/approvals_screen.dart';
+import '../../../vehicles/vehicles_screen.dart';
+import '../../../delivery/board/board_screen.dart';
 import '../domain/entities/app_notification.dart';
 
 /// How a provider is read: `ref.read` from a widget or from a provider works for this.
@@ -14,6 +20,7 @@ typedef ReadProvider = T Function<T>(ProviderListenable<T> provider);
 Future<void> openNotificationTarget(GoRouter router, ReadProvider read, NotificationType type, String? refId) async {
   if (refId == null || refId.isEmpty) return;
   bool isOperator() => read(sessionProfileProvider).value?.role == AppRole.operator;
+  if (openByPrefix(router, refId, operator: isOperator())) return;
 
   switch (type) {
     case NotificationType.scan:
@@ -63,4 +70,27 @@ Future<void> _openDelivery(GoRouter router, ReadProvider read, String refId, boo
     }
   }
   router.push(RoutePaths.farmerDeliver);
+}
+
+/// The newer modules give their notices an id that says what it is (veh-, osale-, own-, lreq-, post-), so the tap can go
+/// straight to the right screen. Returns whether it handled the id.
+bool openByPrefix(GoRouter router, String refId, {required bool operator}) {
+  final nav = router.routerDelegate.navigatorKey.currentState;
+  if (nav == null) return false;
+  void push(Widget screen) => nav.push(MaterialPageRoute<void>(builder: (_) => screen));
+  if (refId.startsWith('osale-')) {
+    push(OwnSaleScreen(saleId: refId));
+  } else if (refId.startsWith('own-')) {
+    // A product to check (center) or one of mine that was answered (farmer).
+    push(operator ? const ApprovalsScreen(scope: StaffScope.operator) : const MyListingsScreen());
+  } else if (refId.startsWith('veh-')) {
+    push(operator ? const ApprovalsScreen(scope: StaffScope.operator) : const VehiclesScreen());
+  } else if (refId.startsWith('lreq-')) {
+    push(operator ? const ApprovalsScreen(scope: StaffScope.operator) : const MyRequestsScreen());
+  } else if (refId.startsWith('post-')) {
+    router.push(RoutePaths.farmerCommunityPost(refId));
+  } else {
+    return false;
+  }
+  return true;
 }
