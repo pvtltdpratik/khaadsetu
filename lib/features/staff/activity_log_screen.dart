@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/api_client_provider.dart';
@@ -72,9 +73,9 @@ class _ActivityLogScreenState extends ConsumerState<ActivityLogScreen> {
             SingleChildScrollView(
               scrollDirection: Axis.horizontal,
               child: Row(children: [
-                ChoiceChip(key: const Key('role-all'), label: const Text('Everyone'), selected: _role.isEmpty, onSelected: (_) => setState(() => _role = '')),
+                ChoiceChip(key: const Key('role-all'), label: const Tx('Everyone'), selected: _role.isEmpty, onSelected: (_) => setState(() => _role = '')),
                 for (final r in const ['farmer', 'operator', 'admin']) Padding(padding: const EdgeInsets.only(left: 8), child: ChoiceChip(key: Key('role-$r'), label: Text(r), selected: _role == r, onSelected: (_) => setState(() => _role = r))),
-                Padding(padding: const EdgeInsets.only(left: 8), child: FilterChip(key: const Key('log-failed'), label: const Text('Refused only'), selected: _failed, onSelected: (v) => setState(() => _failed = v))),
+                Padding(padding: const EdgeInsets.only(left: 8), child: FilterChip(key: const Key('log-failed'), label: const Tx('Refused only'), selected: _failed, onSelected: (v) => setState(() => _failed = v))),
               ]),
             ),
             AppSpacing.gapMd,
@@ -84,7 +85,7 @@ class _ActivityLogScreenState extends ConsumerState<ActivityLogScreen> {
             loading: () => const SizedBox(height: 200, child: AppLoadingIndicator()),
             error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(activityLogProvider(q))),
             data: (rows) => rows.isEmpty
-                ? Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: Text('Nothing recorded yet.', key: const Key('log-empty'), textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: colors.textMuted)))
+                ? Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: Tx('Nothing recorded yet.', key: const Key('log-empty'), textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: colors.textMuted)))
                 : Column(children: [
                     for (final r in rows)
                       ListTile(

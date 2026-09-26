@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/responsive/responsive.dart';
@@ -61,8 +62,8 @@ Future<String?> askReason(BuildContext context, String title) {
       title: Text(title),
       content: TextField(key: const Key('reason-field'), controller: controller, autofocus: true, maxLength: 300, decoration: const InputDecoration(hintText: 'The farmer will read this')),
       actions: [
-        TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')),
-        FilledButton(key: const Key('reason-ok'), onPressed: () => Navigator.pop(context, controller.text.trim().isEmpty ? null : controller.text.trim()), child: const Text('Send')),
+        TextButton(onPressed: () => Navigator.pop(context), child: const Tx('Cancel')),
+        FilledButton(key: const Key('reason-ok'), onPressed: () => Navigator.pop(context, controller.text.trim().isEmpty ? null : controller.text.trim()), child: const Tx('Send')),
       ],
     ),
   );
@@ -84,7 +85,7 @@ class ApprovalsScreen extends ConsumerWidget {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: const Text('To check'),
+          title: const Tx('To check'),
           bottom: TabBar(tabs: [
             Tab(key: const Key('tab-vehicles'), text: 'Vehicles ($v)'),
             Tab(key: const Key('tab-long'), text: 'Long trips ($r)'),

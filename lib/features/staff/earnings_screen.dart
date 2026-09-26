@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/animation/animated_count.dart';
@@ -26,7 +27,7 @@ class OperatorEarningsScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final earnings = ref.watch(operatorEarningsProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Earnings')),
+      appBar: AppBar(title: const Tx('Earnings')),
       body: ResponsiveScope(
         child: earnings.when(
           skipLoadingOnReload: true,

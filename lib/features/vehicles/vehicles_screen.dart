@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/animation/pressable.dart';
@@ -32,7 +33,7 @@ class VehiclesScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final vehicles = ref.watch(myVehiclesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('My vehicles')),
+      appBar: AppBar(title: const Tx('My vehicles')),
       floatingActionButton: FloatingActionButton.extended(
         key: const Key('vehicle-add'),
         onPressed: () async {
@@ -42,7 +43,7 @@ class VehiclesScreen extends ConsumerWidget {
           ref.invalidate(myVehiclesProvider);
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add a vehicle'),
+        label: const Tx('Add a vehicle'),
       ),
       body: ResponsiveScope(
         child: vehicles.when(
@@ -57,7 +58,7 @@ class VehiclesScreen extends ConsumerWidget {
                   child: Column(children: [
                     Icon(Icons.local_shipping_outlined, size: 56, color: colors.textMuted),
                     AppSpacing.gapSm,
-                    Text('No vehicle yet', key: const Key('vehicles-empty'), style: text.titleMedium),
+                    Tx('No vehicle yet', key: const Key('vehicles-empty'), style: text.titleMedium),
                     const SizedBox(height: 4),
                     Text('Add a bike, pickup, tractor or truck. After a village center checks its papers, you can take deliveries with it.', textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: colors.textMuted)),
                   ]),
@@ -117,7 +118,7 @@ class VehiclesTile extends StatelessWidget {
         child: ListTile(
           key: const Key('open-vehicles'),
           leading: const Icon(Icons.local_shipping_outlined),
-          title: const Text('My vehicles'),
+          title: const Tx('My vehicles'),
           subtitle: const Text('Papers, photos and what each can carry'),
           trailing: const Icon(Icons.chevron_right),
           onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const VehiclesScreen())),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../animation/motion.dart';
+import '../l10n/app_locale.dart';
 import '../animation/pressable.dart';
 import '../theme/app_spacing.dart';
 
@@ -46,14 +47,14 @@ class AppButton extends StatelessWidget {
             ),
           )
         : icon == null
-            ? Text(label, key: const ValueKey('label'))
+            ? Tx(label, key: const ValueKey('label'))
             : Row(
                 key: const ValueKey('label'),
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Icon(icon, size: 20),
                   AppSpacing.gapSm,
-                  Flexible(child: Text(label, overflow: TextOverflow.ellipsis)),
+                  Flexible(child: Tx(label, overflow: TextOverflow.ellipsis)),
                 ],
               );
     final child = Motion.reduced(context) ? content : AnimatedSwitcher(duration: Motion.fast, child: content);

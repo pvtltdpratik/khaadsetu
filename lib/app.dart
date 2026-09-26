@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'core/l10n/app_locale.dart';
 import 'core/update/update_gate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -16,6 +18,7 @@ class ShetSamrudhiApp extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final router = ref.watch(appRouterProvider);
     final flavor = ref.watch(appFlavorProvider);
+    final language = ref.watch(localeProvider);
 
     return MaterialApp.router(
       title: flavor.title,
@@ -33,6 +36,10 @@ class ShetSamrudhiApp extends ConsumerWidget {
         );
       },
       debugShowCheckedModeBanner: false,
+      // Marathi, Hindi or English, chosen by the person (see LanguageTile) and remembered.
+      locale: language.locale,
+      supportedLocales: [for (final l in AppLocale.values) l.locale],
+      localizationsDelegates: const [GlobalMaterialLocalizations.delegate, GlobalWidgetsLocalizations.delegate, GlobalCupertinoLocalizations.delegate],
       theme: AppTheme.light,
       darkTheme: AppTheme.dark,
       themeMode: ThemeMode.system,

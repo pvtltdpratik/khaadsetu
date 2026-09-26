@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/responsive/responsive.dart';
@@ -30,7 +31,7 @@ class MyListingsScreen extends ConsumerWidget {
     final summary = ref.watch(ownSummaryProvider).value;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('My home-made products'),
+        title: const Tx('My home-made products'),
         actions: [IconButton(key: const Key('open-my-sales'), tooltip: 'Orders', icon: const Icon(Icons.receipt_long_outlined), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OwnSalesScreen())))],
       ),
       floatingActionButton: FloatingActionButton.extended(
@@ -40,7 +41,7 @@ class MyListingsScreen extends ConsumerWidget {
           ref.invalidate(myListingsProvider);
         },
         icon: const Icon(Icons.add),
-        label: const Text('Add a product'),
+        label: const Tx('Add a product'),
       ),
       body: ResponsiveScope(
         child: mine.when(

@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../animation/fade_slide_in.dart';
+import '../l10n/app_locale.dart';
 import '../network/api_client_provider.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
@@ -72,7 +73,7 @@ class StatusPill extends StatelessWidget {
         color: color.withValues(alpha: 0.14),
         borderRadius: BorderRadius.circular(AppRadius.pill),
       ),
-      child: Text(
+      child: Tx(
         text,
         style: Theme.of(context).textTheme.labelSmall?.copyWith(
           color: color,
@@ -126,7 +127,7 @@ class KitCard extends StatelessWidget {
                     AppSpacing.gapSm,
                   ],
                   Expanded(
-                    child: Text(
+                    child: Tx(
                       title!,
                       style: text.titleSmall?.copyWith(
                         fontWeight: FontWeight.w700,

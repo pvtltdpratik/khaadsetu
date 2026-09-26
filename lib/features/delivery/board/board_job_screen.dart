@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/responsive/responsive.dart';
@@ -57,7 +58,7 @@ class _BoardJobScreenState extends ConsumerState<BoardJobScreen> {
     final text = Theme.of(context).textTheme;
     final job = ref.watch(boardJobProvider(widget.jobId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Delivery job')),
+      appBar: AppBar(title: const Tx('Delivery job')),
       body: ResponsiveScope(
         child: job.when(
           loading: () => const AppLoadingIndicator(),

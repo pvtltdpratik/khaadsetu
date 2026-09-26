@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/responsive/responsive.dart';
@@ -23,7 +24,7 @@ class OwnSalesScreen extends ConsumerWidget {
     return DefaultTabController(
       length: 2,
       child: Scaffold(
-        appBar: AppBar(title: const Text('Farmer-made orders'), bottom: const TabBar(tabs: [Tab(key: Key('tab-selling'), text: 'I sold'), Tab(key: Key('tab-buying'), text: 'I bought')])),
+        appBar: AppBar(title: const Tx('Farmer-made orders'), bottom: const TabBar(tabs: [Tab(key: Key('tab-selling'), text: 'I sold'), Tab(key: Key('tab-buying'), text: 'I bought')])),
         body: ResponsiveScope(child: TabBarView(children: [_SalesList(role: 'seller'), _SalesList(role: 'buyer')])),
       ),
     );
@@ -109,7 +110,7 @@ class _OwnSaleScreenState extends ConsumerState<OwnSaleScreen> {
             Row(mainAxisAlignment: MainAxisAlignment.center, children: [for (var i = 1; i <= 5; i++) IconButton(key: Key('star-$i'), onPressed: () => set(() => stars = i), icon: Icon(i <= stars ? Icons.star : Icons.star_border, color: Colors.amber))]),
             TextField(controller: comment, maxLength: 300, decoration: const InputDecoration(hintText: 'A word about the product (optional)')),
           ]),
-          actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Later')), FilledButton(key: const Key('star-send'), onPressed: () => Navigator.pop(context, true), child: const Text('Send'))],
+          actions: [TextButton(onPressed: () => Navigator.pop(context, false), child: const Tx('Later')), FilledButton(key: const Key('star-send'), onPressed: () => Navigator.pop(context, true), child: const Tx('Send'))],
         ),
       ),
     );
@@ -124,7 +125,7 @@ class _OwnSaleScreenState extends ConsumerState<OwnSaleScreen> {
     final text = Theme.of(context).textTheme;
     final sale = ref.watch(ownSaleProvider(widget.saleId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Order')),
+      appBar: AppBar(title: const Tx('Order')),
       body: ResponsiveScope(
         child: sale.when(
           skipLoadingOnReload: true,
@@ -191,7 +192,7 @@ class _OwnSaleScreenState extends ConsumerState<OwnSaleScreen> {
                   key: const Key('sale-cancel'),
                   onPressed: _busy ? null : () => _run((api) => api.cancel(widget.saleId, reason: seller ? 'Cancelled by the seller' : 'Cancelled by the buyer')),
                   icon: Icon(Icons.close, color: colors.danger),
-                  label: Text('Cancel this order', style: TextStyle(color: colors.danger)),
+                  label: Tx('Cancel this order', style: TextStyle(color: colors.danger)),
                 ),
               if (!seller && status == 'completed' && !s.flag('reviewed'))
                 AppButton(key: const Key('sale-rate'), label: 'Rate the seller', expand: true, onPressed: _rate),

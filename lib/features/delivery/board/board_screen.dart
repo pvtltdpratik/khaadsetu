@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/responsive/responsive.dart';
@@ -59,7 +60,7 @@ class _DeliveryBoardScreenState extends ConsumerState<DeliveryBoardScreen> {
     final board = ref.watch(boardProvider(_key));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Deliver & Earn'),
+        title: const Tx('Deliver & Earn'),
         actions: [
           IconButton(
             key: const Key('board-requests'),
@@ -198,9 +199,9 @@ class _FilterSheetState extends State<_FilterSheet> {
       child: SingleChildScrollView(
         padding: const EdgeInsets.all(AppSpacing.md),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          Text('Filters', style: text.titleMedium),
+          Tx('Filters', style: text.titleMedium),
           AppSpacing.gapSm,
-          Text('Distance', style: text.labelLarge),
+          Tx('Distance', style: text.labelLarge),
           Wrap(spacing: 8, children: [
             for (final (i, b) in distanceBands.indexed)
               ChoiceChip(
@@ -216,7 +217,7 @@ class _FilterSheetState extends State<_FilterSheet> {
               ),
           ]),
           AppSpacing.gapMd,
-          Text('Sort by', style: text.labelLarge),
+          Tx('Sort by', style: text.labelLarge),
           Wrap(spacing: 8, children: [
             for (final s in const [('nearest', 'Nearest'), ('earning', 'Earning'), ('earliest', 'Earliest')])
               ChoiceChip(key: Key('sort-${s.$1}'), label: Text(s.$2), selected: (f['sort'] ?? 'nearest') == s.$1, onSelected: (_) => _put('sort', s.$1)),
@@ -284,7 +285,7 @@ class MyRequestsScreen extends ConsumerWidget {
     Tone tone(String s) => switch (s) { 'approved' => Tone.good, 'rejected' || 'expired' => Tone.bad, 'pending' || 'escalated' => Tone.warn, _ => Tone.neutral };
     String label(String s) => switch (s) { 'pending' => 'Waiting for the center', 'escalated' => 'With the admin', 'approved' => 'Approved', 'rejected' => 'Refused', 'withdrawn' => 'Withdrawn', _ => 'Expired' };
     return Scaffold(
-      appBar: AppBar(title: const Text('My requests')),
+      appBar: AppBar(title: const Tx('My requests')),
       body: ResponsiveScope(
         child: requests.when(
           loading: () => const AppLoadingIndicator(),
@@ -313,7 +314,7 @@ class MyRequestsScreen extends ConsumerWidget {
                           }
                           ref.invalidate(myBoardRequestsProvider);
                         },
-                        child: const Text('Withdraw'),
+                        child: const Tx('Withdraw'),
                       ),
                     ),
                 ]),

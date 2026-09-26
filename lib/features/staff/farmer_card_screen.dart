@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/api_client_provider.dart';
@@ -39,7 +40,7 @@ class FarmerCardScreen extends ConsumerWidget {
     final key = (scope: scope, id: farmerId);
     final card = ref.watch(farmerCardProvider(key));
     return Scaffold(
-      appBar: AppBar(title: const Text('Farmer')),
+      appBar: AppBar(title: const Tx('Farmer')),
       body: ResponsiveScope(
         child: card.when(
           skipLoadingOnReload: true,

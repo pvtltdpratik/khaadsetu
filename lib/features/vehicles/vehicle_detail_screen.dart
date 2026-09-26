@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/responsive/responsive.dart';
@@ -94,7 +95,7 @@ class _VehicleDetailScreenState extends ConsumerState<VehicleDetailScreen> {
     final text = Theme.of(context).textTheme;
     final vehicles = ref.watch(myVehiclesProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Vehicle')),
+      appBar: AppBar(title: const Tx('Vehicle')),
       body: ResponsiveScope(
         child: vehicles.when(
           skipLoadingOnReload: true,
@@ -136,7 +137,7 @@ class _VehicleDetailScreenState extends ConsumerState<VehicleDetailScreen> {
                           ref.invalidate(myVehiclesProvider);
                         },
                         icon: const Icon(Icons.edit_outlined),
-                        label: const Text('Change details'),
+                        label: const Tx('Change details'),
                       ),
                     ),
                 ]),

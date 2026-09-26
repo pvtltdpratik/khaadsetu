@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/api_client_provider.dart';
@@ -88,7 +89,7 @@ class _OperatorProfileScreenState extends ConsumerState<OperatorProfileScreen> {
     final me = ref.watch(operatorMeProvider);
     void open(Widget screen) => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => screen));
     return Scaffold(
-      appBar: AppBar(title: const Text('My profile')),
+      appBar: AppBar(title: const Tx('My profile')),
       body: ResponsiveScope(
         child: me.when(
           skipLoadingOnReload: true,
@@ -106,6 +107,7 @@ class _OperatorProfileScreenState extends ConsumerState<OperatorProfileScreen> {
                 trailing: StatusPill(center.flag('isOpen') ? 'Open' : 'Closed', tone: center.flag('isOpen') ? Tone.good : Tone.neutral),
                 child: KitRow('Village', center.str('village')),
               ),
+              const KitCard(child: LanguageTile()),
               KitCard(
                 index: 1,
                 title: 'Payout account',
@@ -151,8 +153,8 @@ class _OperatorProfileScreenState extends ConsumerState<OperatorProfileScreen> {
                 child: Column(children: [
                   Text('You farm too. These use your own account as a farmer, and stay apart from the center\'s stock, sales and money. You cannot check your own vehicles or products; they go to another center.', style: text.bodySmall?.copyWith(color: colors.textMuted)),
                   ListTile(key: const Key('op-farm'), contentPadding: EdgeInsets.zero, leading: const Icon(Icons.landscape_outlined), title: const Text('My farm'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const FarmDetailsScreen())),
-                  ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.local_shipping_outlined), title: const Text('My vehicles'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const VehiclesScreen())),
-                  ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.route_outlined), title: const Text('Deliver & Earn'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const DeliveryBoardScreen())),
+                  ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.local_shipping_outlined), title: const Tx('My vehicles'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const VehiclesScreen())),
+                  ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.route_outlined), title: const Tx('Deliver & Earn'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const DeliveryBoardScreen())),
                   ListTile(contentPadding: EdgeInsets.zero, leading: const Icon(Icons.delivery_dining_outlined), title: const Text('Deliver for others (partner)'), trailing: const Icon(Icons.chevron_right), onTap: () => open(const DeliveryHubScreen())),
                 ]),
               ),

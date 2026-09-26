@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../../core/l10n/app_locale.dart';
 import '../../../staff/activity_log_screen.dart';
 import '../../../staff/admin_insight_screens.dart';
 import '../../../staff/approvals_screen.dart';
@@ -58,6 +59,7 @@ class AdminOverviewScreen extends ConsumerWidget {
                     OutlinedButton.icon(key: const Key('open-scheme-reach'), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const SchemeCoverageScreen())), icon: const Icon(Icons.account_balance_outlined), label: const Text('Scheme reach')),
                     OutlinedButton.icon(key: const Key('open-settings'), onPressed: () => context.push(RoutePaths.adminSettings), icon: const Icon(Icons.tune_rounded), label: const Text('Tax and commission')),
                   ]),
+                  const LanguageTile(),
                   AppSpacing.gapMd,
                   overview.when(
                     data: (o) => _OverviewBody(overview: o),

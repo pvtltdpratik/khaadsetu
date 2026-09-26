@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../l10n/app_locale.dart';
 import '../theme/app_colors.dart';
 import '../theme/app_spacing.dart';
 import '../widgets/app_button.dart';
@@ -102,7 +103,7 @@ class _UpdateCard extends StatelessWidget {
         Row(children: [
           Icon(failed ? Icons.error_outline : Icons.system_update_alt_rounded, color: failed ? c.danger : c.primary),
           AppSpacing.gapSm,
-          Expanded(child: Text(downloading || failed ? 'Updating the app' : 'Restart required', style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
+          Expanded(child: Tx(downloading || failed ? 'Updating the app' : 'Restart required', style: text.titleLarge?.copyWith(fontWeight: FontWeight.w800))),
         ]),
         AppSpacing.gapSm,
         Text('Version ${info.versionName} is ${downloading ? 'downloading' : 'ready'}.', style: text.bodyLarge),
@@ -117,7 +118,7 @@ class _UpdateCard extends StatelessWidget {
           AppSpacing.gapMd,
           AppButton(key: const Key('update-retry'), label: 'Try again', expand: true, onPressed: onRetry),
         ] else ...[
-          Text(
+          Tx(
             permission
                 ? 'Allow this app to install updates on the page that opened, then come back here.'
                 : 'The app needs to restart to finish the update. Android will ask you to tap Install; then open the app again.',

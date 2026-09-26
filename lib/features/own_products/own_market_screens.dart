@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/responsive/responsive.dart';
@@ -36,7 +37,7 @@ class _OwnMarketScreenState extends ConsumerState<OwnMarketScreen> {
     final market = ref.watch(ownMarketProvider(key));
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Farmer-made products'),
+        title: const Tx('Farmer-made products'),
         actions: [IconButton(key: const Key('open-my-orders'), tooltip: 'My orders', icon: const Icon(Icons.receipt_long_outlined), onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => const OwnSalesScreen())))],
       ),
       body: ResponsiveScope(
@@ -46,13 +47,13 @@ class _OwnMarketScreenState extends ConsumerState<OwnMarketScreen> {
           SingleChildScrollView(
             scrollDirection: Axis.horizontal,
             child: Row(children: [
-              ChoiceChip(key: const Key('cat-all'), label: const Text('All'), selected: _category.isEmpty, onSelected: (_) => setState(() => _category = '')),
+              ChoiceChip(key: const Key('cat-all'), label: const Tx('All'), selected: _category.isEmpty, onSelected: (_) => setState(() => _category = '')),
               for (final e in ownCategoryLabels.entries) Padding(padding: const EdgeInsets.only(left: 8), child: ChoiceChip(key: Key('cat-${e.key}'), label: Text(e.value), selected: _category == e.key, onSelected: (_) => setState(() => _category = e.key))),
             ]),
           ),
           AppSpacing.gapSm,
           SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
-            Text('Sort', style: text.labelLarge),
+            Tx('Sort', style: text.labelLarge),
             AppSpacing.gapSm,
             for (final s in const [('nearest', 'Nearest'), ('cheapest', 'Cheapest'), ('rating', 'Best rated'), ('newest', 'Newest')])
               Padding(padding: const EdgeInsets.only(right: 6), child: ChoiceChip(key: Key('sort-${s.$1}'), label: Text(s.$2), selected: _sort == s.$1, onSelected: (_) => setState(() => _sort = s.$1))),
@@ -145,7 +146,7 @@ class _OwnDetailScreenState extends ConsumerState<OwnDetailScreen> {
     final text = Theme.of(context).textTheme;
     final detail = ref.watch(ownDetailProvider(widget.listingId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Product')),
+      appBar: AppBar(title: const Tx('Product')),
       body: ResponsiveScope(
         child: detail.when(
           loading: () => const AppLoadingIndicator(),
@@ -252,6 +253,6 @@ class _ReasonDialogState extends State<_ReasonDialog> {
   Widget build(BuildContext context) => AlertDialog(
         title: const Text('What is wrong?'),
         content: TextField(controller: _c, maxLength: 200, autofocus: true),
-        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Cancel')), FilledButton(onPressed: () => Navigator.pop(context, _c.text.trim().isEmpty ? null : _c.text.trim()), child: const Text('Send'))],
+        actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Tx('Cancel')), FilledButton(onPressed: () => Navigator.pop(context, _c.text.trim().isEmpty ? null : _c.text.trim()), child: const Tx('Send'))],
       );
 }

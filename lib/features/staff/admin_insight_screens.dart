@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/network/api_client_provider.dart';
@@ -22,7 +23,7 @@ class CommunityAiScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final data = ref.watch(communityAiOverviewProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Community AI')),
+      appBar: AppBar(title: const Tx('Community AI')),
       body: ResponsiveScope(
         child: data.when(
           loading: () => const AppLoadingIndicator(),
@@ -84,7 +85,7 @@ class SchemeCoverageScreen extends ConsumerWidget {
     final text = Theme.of(context).textTheme;
     final data = ref.watch(schemeCoverageProvider);
     return Scaffold(
-      appBar: AppBar(title: const Text('Scheme reach')),
+      appBar: AppBar(title: const Tx('Scheme reach')),
       body: ResponsiveScope(
         child: data.when(
           loading: () => const AppLoadingIndicator(),
@@ -133,7 +134,7 @@ class CenterActivityScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final data = ref.watch(centerActivityProvider(centerId));
     return Scaffold(
-      appBar: AppBar(title: const Text('Center activity')),
+      appBar: AppBar(title: const Tx('Center activity')),
       body: ResponsiveScope(
         child: data.when(
           loading: () => const AppLoadingIndicator(),
