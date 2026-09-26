@@ -22,6 +22,18 @@ class FakePaymentsRepository implements PaymentsRepository {
   Object? verifyError;
   Object? startError;
 
+  /// What the server says when asked whether the order was paid after all.
+  bool paidAfterAll = false;
+  Object? syncError;
+  final synced = <String>[];
+
+  @override
+  Future<bool> sync(String orderId) async {
+    synced.add(orderId);
+    if (syncError != null) throw syncError!;
+    return paidAfterAll;
+  }
+
   @override
   Future<PaymentConfig> config() async => PaymentConfig(enabled: enabled, keyId: enabled ? 'rzp_test_public' : '');
 
@@ -117,6 +129,42 @@ void main() {
       expect(h.payments.verified, isEmpty);
       expect(find.textContaining('Payment cancelled'), findsOneWidget);
       expect(find.byKey(const Key('pay-online')), findsOneWidget, reason: 'they can try again');
+    });
+
+    testWidgets('an error screen after the money went through is turned into "Payment received"', (tester) async {
+      final payments = FakePaymentsRepository()..paidAfterAll = true;
+      final h = await pump(tester, farmerOrder('o1'), payments: payments, outcome: const CheckoutFailed('Something went wrong'));
+      await tester.tap(find.byKey(const Key('pay-online')));
+      await tester.pumpAndSettle();
+      expect(h.payments.synced, ['o1'], reason: 'the server was asked before the error was believed');
+      expect(find.text('Payment received. Thank you!'), findsOneWidget);
+      expect(find.text('Something went wrong'), findsNothing);
+    });
+
+    testWidgets('backing out of a UPI app after paying is also checked with the server', (tester) async {
+      final payments = FakePaymentsRepository()..paidAfterAll = true;
+      final h = await pump(tester, farmerOrder('o1'), payments: payments, outcome: const CheckoutCancelled());
+      await tester.tap(find.byKey(const Key('pay-online')));
+      await tester.pumpAndSettle();
+      expect(h.payments.synced, ['o1']);
+      expect(find.text('Payment received. Thank you!'), findsOneWidget);
+      expect(find.textContaining('Payment cancelled'), findsNothing);
+    });
+
+    testWidgets('if the check itself cannot be made, the original message still shows', (tester) async {
+      final payments = FakePaymentsRepository()..syncError = 'offline';
+      await pump(tester, farmerOrder('o1'), payments: payments, outcome: const CheckoutFailed('Your bank declined the payment.'));
+      await tester.tap(find.byKey(const Key('pay-online')));
+      await tester.pumpAndSettle();
+      expect(find.text('Your bank declined the payment.'), findsOneWidget);
+    });
+
+    testWidgets('a real failure is still shown as one when the server says nothing was paid', (tester) async {
+      final h = await pump(tester, farmerOrder('o1'), outcome: const CheckoutFailed('Your bank declined the payment.'));
+      await tester.tap(find.byKey(const Key('pay-online')));
+      await tester.pumpAndSettle();
+      expect(h.payments.synced, ['o1']);
+      expect(find.text('Your bank declined the payment.'), findsOneWidget);
     });
 
     testWidgets('a failed payment shows Razorpay\'s reason', (tester) async {
