@@ -88,9 +88,9 @@ class ApiClient {
   }
 
   /// The raw bytes of a GET (a photo), for endpoints that answer with a file, not JSON.
-  Future<Uint8List> getBytes(String path) async {
+  Future<Uint8List> getBytes(String path, {Map<String, String?>? query}) async {
     final headers = await _headers();
-    final response = await _guard(() => _client.get(_uri(path), headers: headers).timeout(_timeout));
+    final response = await _guard(() => _client.get(_uri(path, query), headers: headers).timeout(_timeout));
     if (response.statusCode < 200 || response.statusCode >= 300) _decode(response); // throws the server's message
     return response.bodyBytes;
   }

@@ -22,10 +22,10 @@ class OrdersApiDataSource {
     return _parse(await _api.post('/v1/operator/orders/$orderId/ready') as Map<String, dynamic>);
   }
 
-  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp) async {
+  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp, {String paymentMode = 'cash'}) async {
     final json = await _api.post(
       '/v1/operator/orders/$orderId/verify-otp',
-      body: {'otp': enteredOtp},
+      body: {'otp': enteredOtp, 'paymentMode': paymentMode},
     ) as Map<String, dynamic>;
     return _parse(json);
   }
@@ -33,9 +33,13 @@ class OrdersApiDataSource {
   Future<Order> createWalkInOrder({
     required String customerName,
     required List<OrderLineItem> items,
+    String paymentMode = 'cash',
+    String? customerId,
   }) async {
     final json = await _api.post('/v1/operator/orders/walk-in', body: {
       'customerName': customerName,
+      'paymentMode': paymentMode,
+      'customerId': ?customerId,
       'items': [
         for (final i in items)
           {

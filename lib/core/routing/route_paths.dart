@@ -18,6 +18,9 @@ class RoutePaths {
   static const adminOverview = '/admin/overview';
   static const adminNotifications = '/admin/overview/notifications';
   static const adminNotificationSettings = '/admin/overview/notification-settings';
+  static const adminInvoices = '/admin/overview/invoices';
+  static String adminInvoice(String id) => '/admin/overview/invoices/${Uri.encodeComponent(id)}';
+  static const adminSettings = '/admin/overview/settings';
   static const adminOperators = '/admin/operators';
   static const adminFarmers = '/admin/farmers';
   static const adminCenters = '/admin/centers';
@@ -57,6 +60,8 @@ class RoutePaths {
   static String farmerSellSurplusListing(String id) => '/farmer/profile/sell/${Uri.encodeComponent(id)}';
   static const farmerWallet = '/farmer/profile/wallet';
   static const farmerNotificationSettings = '/farmer/profile/notification-settings';
+  static const farmerBills = '/farmer/profile/bills';
+  static String farmerBill(String id) => '/farmer/profile/bills/${Uri.encodeComponent(id)}';
   // The structured fertilizer log, what it earns, the yield prediction and the profit calculator.
   static const farmerLog = '/farmer/profile/log';
   static String farmerLogFertilizer(String productId) => '/farmer/profile/log/new/${Uri.encodeComponent(productId)}';
@@ -111,6 +116,11 @@ class RoutePaths {
   static const operatorRoot = '/operator';
   static const operatorDashboard = '/operator/dashboard';
   static const operatorNotificationSettings = '/operator/dashboard/notification-settings';
+  static const operatorBills = '/operator/dashboard/bills';
+  static String operatorBill(String id) => '/operator/dashboard/bills/${Uri.encodeComponent(id)}';
+  static const operatorCredit = '/operator/dashboard/credit';
+  static String operatorCreditFarmer(String id) => '/operator/dashboard/credit/${Uri.encodeComponent(id)}';
+  static const operatorClosing = '/operator/dashboard/closing';
   static const operatorNotifications = '/operator/dashboard/notifications';
 
   static const operatorOrders = '/operator/orders';

@@ -15,3 +15,13 @@ String formatRupees(double amount) {
   if (remaining.isNotEmpty) groups.insert(0, remaining);
   return '₹${groups.join(',')},$lastThree';
 }
+
+/// Like [formatRupees], but keeps the paise when there are some: 42.86 -> "₹42.86", 900 -> "₹900". For bills, where
+/// a rate or a tax amount is exact.
+String formatRupeesExact(double amount) {
+  final cents = (amount.abs() * 100).round();
+  final sign = amount < 0 && cents > 0 ? '-' : '';
+  final whole = formatRupees((cents ~/ 100).toDouble());
+  final paise = cents % 100;
+  return paise == 0 ? '$sign$whole' : '$sign$whole.${paise.toString().padLeft(2, '0')}';
+}

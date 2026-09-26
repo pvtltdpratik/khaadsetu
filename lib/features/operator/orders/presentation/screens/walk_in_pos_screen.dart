@@ -11,6 +11,9 @@ import '../../../../../core/utils/price_format.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../invoices/domain/invoice_models.dart';
+import '../../../farmers/domain/entities/farmer.dart';
+import '../../../farmers/presentation/providers/farmers_providers.dart';
 import '../../../inventory/domain/entities/inventory_item.dart';
 import '../../../inventory/presentation/providers/inventory_providers.dart';
 import '../../../surplus/domain/entities/surplus_lot.dart';
@@ -90,6 +93,10 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
   final _customerNameController = TextEditingController();
   bool _isCheckingOut = false;
 
+  /// How the customer pays. On credit the sale goes against a registered farmer, in the credit book.
+  String _mode = 'cash';
+  Farmer? _creditFarmer;
+
   @override
   void dispose() {
     _customerNameController.dispose();
@@ -115,10 +122,10 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
         return OrderLineItem(productId: s.productId, surplusLotId: s.surplusLotId, productName: s.name, quantity: entry.value, unitPrice: s.price);
       }).toList();
       final order = await ref.read(ordersRepositoryProvider).createWalkInOrder(
-            customerName: _customerNameController.text.trim().isEmpty
-                ? 'Walk-in customer'
-                : _customerNameController.text.trim(),
+            customerName: _mode == 'credit' && _creditFarmer != null ? _creditFarmer!.name : (_customerNameController.text.trim().isEmpty ? 'Walk-in customer' : _customerNameController.text.trim()),
             items: lineItems,
+            paymentMode: _mode,
+            customerId: _mode == 'credit' ? _creditFarmer?.id : null,
           );
       ref.invalidate(ordersProvider);
       refreshSurplus(ref); // the shelf and the lots just got lighter
@@ -187,6 +194,11 @@ class _WalkInPosScreenState extends ConsumerState<WalkInPosScreen> {
                           customerNameController: _customerNameController,
                           isCheckingOut: _isCheckingOut,
                           onCheckout: () => _checkout(all),
+                          mode: _mode,
+                          onMode: (m) => setState(() => _mode = m),
+                          farmers: ref.watch(farmersProvider).value ?? const [],
+                          creditFarmer: _creditFarmer,
+                          onCreditFarmer: (f) => setState(() => _creditFarmer = f),
                         ),
                       ],
                     ),
@@ -285,6 +297,11 @@ class _CartPanel extends StatelessWidget {
     required this.customerNameController,
     required this.isCheckingOut,
     required this.onCheckout,
+    required this.mode,
+    required this.onMode,
+    required this.farmers,
+    required this.creditFarmer,
+    required this.onCreditFarmer,
   });
 
   final List<Sellable> items;
@@ -292,6 +309,11 @@ class _CartPanel extends StatelessWidget {
   final TextEditingController customerNameController;
   final bool isCheckingOut;
   final VoidCallback onCheckout;
+  final String mode;
+  final ValueChanged<String> onMode;
+  final List<Farmer> farmers;
+  final Farmer? creditFarmer;
+  final ValueChanged<Farmer?> onCreditFarmer;
 
   @override
   Widget build(BuildContext context) {
@@ -315,6 +337,23 @@ class _CartPanel extends StatelessWidget {
               isDense: true,
             ),
           ),
+          AppSpacing.gapSm,
+          Wrap(spacing: AppSpacing.sm, children: [
+            for (final m in const ['cash', 'upi', 'card', 'credit'])
+              ChoiceChip(key: Key('walkin-mode-$m'), label: Text(paymentModeLabels[m]!), selected: mode == m, onSelected: (_) => onMode(m)),
+          ]),
+          if (mode == 'credit') ...[
+            AppSpacing.gapSm,
+            DropdownButtonFormField<Farmer>(
+              key: const Key('credit-customer'),
+              initialValue: creditFarmer,
+              isExpanded: true,
+              decoration: const InputDecoration(labelText: 'Which farmer owes this?', isDense: true),
+              items: [for (final f in farmers) DropdownMenuItem(value: f, child: Text('${f.name}${f.village.isEmpty ? '' : ', ${f.village}'}', overflow: TextOverflow.ellipsis))],
+              onChanged: onCreditFarmer,
+            ),
+            if (farmers.isEmpty) Padding(padding: const EdgeInsets.only(top: 4), child: Text('Credit is for farmers who have ordered from your center.', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted))),
+          ],
           AppSpacing.gapMd,
           if (cartItems.isEmpty)
             Text('No items added yet', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted))
@@ -349,7 +388,7 @@ class _CartPanel extends StatelessWidget {
             icon: Icons.point_of_sale_rounded,
             expand: true,
             isLoading: isCheckingOut,
-            onPressed: cartItems.isEmpty ? null : onCheckout,
+            onPressed: cartItems.isEmpty || (mode == 'credit' && creditFarmer == null) ? null : onCheckout,
           ),
         ],
       ),

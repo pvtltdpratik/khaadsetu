@@ -39,6 +39,11 @@ import '../../features/farmer/orders/presentation/screens/my_orders_screen.dart'
 import '../../features/farmer/community/presentation/screens/create_post_screen.dart';
 import '../../features/farmer/community/presentation/screens/post_detail_screen.dart';
 import '../../features/farmer/schemes/presentation/screens/scheme_detail_screen.dart';
+import '../../features/invoices/domain/invoice_models.dart';
+import '../../features/invoices/presentation/closing_and_settings_screens.dart';
+import '../../features/invoices/presentation/credit_screens.dart';
+import '../../features/invoices/presentation/invoice_detail_screen.dart';
+import '../../features/invoices/presentation/invoice_list_screen.dart';
 import '../../features/organic/organic_screen.dart';
 import '../../features/push/presentation/notification_settings_screen.dart';
 import '../../features/resale/presentation/admin/resale_admin_screen.dart';
@@ -292,6 +297,11 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                   GoRoute(path: 'schemes', builder: (context, state) => const SchemesScreen()),
                   GoRoute(path: 'wallet', builder: (context, state) => const FarmerWalletScreen()),
                   GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
+                  GoRoute(
+                    path: 'bills',
+                    builder: (context, state) => const InvoiceListScreen(scope: InvoiceScope.farmer),
+                    routes: [GoRoute(path: ':id', builder: (context, state) => InvoiceDetailScreen(scope: InvoiceScope.farmer, id: state.pathParameters['id']!))],
+                  ),
                   GoRoute(path: 'organic', builder: (context, state) => const OrganicCertificationScreen()),
                   GoRoute(path: 'rewards', builder: (context, state) => const RewardsScreen()),
                   GoRoute(path: 'predict/:productId', builder: (context, state) => YieldPredictionScreen(productId: state.pathParameters['productId']!)),
@@ -342,6 +352,12 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                 routes: [
                   GoRoute(path: 'notifications', builder: (context, state) => const NotificationsScreen()),
                   GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
+                  GoRoute(
+                    path: 'invoices',
+                    builder: (context, state) => const InvoiceListScreen(scope: InvoiceScope.admin),
+                    routes: [GoRoute(path: ':id', builder: (context, state) => InvoiceDetailScreen(scope: InvoiceScope.admin, id: state.pathParameters['id']!))],
+                  ),
+                  GoRoute(path: 'settings', builder: (context, state) => const PlatformSettingsScreen()),
                 ],
               ),
             ],
@@ -438,6 +454,17 @@ final appRouterProvider = Provider<GoRouter>((ref) {
                     builder: (context, state) => const NotificationsScreen(),
                   ),
                   GoRoute(path: 'notification-settings', builder: (context, state) => const NotificationSettingsScreen()),
+                  GoRoute(
+                    path: 'bills',
+                    builder: (context, state) => const InvoiceListScreen(scope: InvoiceScope.operator),
+                    routes: [GoRoute(path: ':id', builder: (context, state) => InvoiceDetailScreen(scope: InvoiceScope.operator, id: state.pathParameters['id']!))],
+                  ),
+                  GoRoute(
+                    path: 'credit',
+                    builder: (context, state) => CreditBookScreen(onOpenFarmer: (context, id) => context.push(RoutePaths.operatorCreditFarmer(id))),
+                    routes: [GoRoute(path: ':farmerId', builder: (context, state) => CreditAccountScreen(farmerId: state.pathParameters['farmerId']!))],
+                  ),
+                  GoRoute(path: 'closing', builder: (context, state) => const DailyClosingScreen()),
                   GoRoute(
                     path: 'deliver',
                     builder: (context, state) => const DeliveryHubScreen(),

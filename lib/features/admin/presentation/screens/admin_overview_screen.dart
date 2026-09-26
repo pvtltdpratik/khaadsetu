@@ -46,6 +46,11 @@ class AdminOverviewScreen extends ConsumerWidget {
                       if (!context.breakpoint.isTabletUp) const SignOutButton(),
                     ],
                   ),
+                  AppSpacing.gapSm,
+                  Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
+                    OutlinedButton.icon(key: const Key('open-invoices'), onPressed: () => context.push(RoutePaths.adminInvoices), icon: const Icon(Icons.receipt_long_outlined), label: const Text('All invoices')),
+                    OutlinedButton.icon(key: const Key('open-settings'), onPressed: () => context.push(RoutePaths.adminSettings), icon: const Icon(Icons.tune_rounded), label: const Text('Tax and commission')),
+                  ]),
                   AppSpacing.gapMd,
                   overview.when(
                     data: (o) => _OverviewBody(overview: o),

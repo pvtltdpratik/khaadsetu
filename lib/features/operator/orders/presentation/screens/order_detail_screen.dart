@@ -10,6 +10,7 @@ import '../../../../../core/utils/price_format.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../invoices/domain/invoice_models.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_providers.dart';
 import '../widgets/order_status_badge.dart';
@@ -52,6 +53,9 @@ class _OrderBodyState extends ConsumerState<_OrderBody> {
   bool _isSubmitting = false;
   String? _otpError;
 
+  /// How the farmer pays at the counter; the bill records it.
+  String _payMode = 'cash';
+
   @override
   void dispose() {
     _otpController.dispose();
@@ -78,6 +82,7 @@ class _OrderBodyState extends ConsumerState<_OrderBody> {
       await ref.read(ordersRepositoryProvider).verifyOtpAndComplete(
             widget.order.id,
             _otpController.text.trim(),
+            paymentMode: _payMode,
           );
       ref.invalidate(orderProvider(widget.order.id));
       ref.invalidate(ordersProvider);
@@ -166,6 +171,13 @@ class _OrderBodyState extends ConsumerState<_OrderBody> {
             'Ask the farmer for the OTP shown in their app to complete this handover.',
             style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),
           ),
+          AppSpacing.gapSm,
+          Text('Paid by', style: Theme.of(context).textTheme.labelMedium),
+          Wrap(spacing: AppSpacing.sm, children: [
+            for (final m in const ['cash', 'upi', 'card', 'credit'])
+              ChoiceChip(key: Key('handover-mode-$m'), label: Text(paymentModeLabels[m]!), selected: _payMode == m, onSelected: (_) => setState(() => _payMode = m)),
+          ]),
+          Text('Already paid on the phone? This is ignored.', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted)),
           AppSpacing.gapSm,
           TextField(
             controller: _otpController,

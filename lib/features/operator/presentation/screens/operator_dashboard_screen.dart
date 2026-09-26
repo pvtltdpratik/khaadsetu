@@ -60,6 +60,12 @@ class OperatorDashboardScreen extends ConsumerWidget {
               onPressed: () => context.push(RoutePaths.operatorOrdersNew),
             ),
             AppSpacing.gapSm,
+            Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.sm, children: [
+              OutlinedButton.icon(key: const Key('open-bills'), onPressed: () => context.push(RoutePaths.operatorBills), icon: const Icon(Icons.receipt_long_outlined), label: const Text('Bills')),
+              OutlinedButton.icon(key: const Key('open-credit'), onPressed: () => context.push(RoutePaths.operatorCredit), icon: const Icon(Icons.book_outlined), label: const Text('Credit book')),
+              OutlinedButton.icon(key: const Key('open-closing'), onPressed: () => context.push(RoutePaths.operatorClosing), icon: const Icon(Icons.summarize_outlined), label: const Text('Day closing')),
+            ]),
+            AppSpacing.gapSm,
             const OperatorDeliveriesTile(),
             AppSpacing.gapLg,
             ResponsiveRow(

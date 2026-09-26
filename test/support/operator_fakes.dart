@@ -121,8 +121,11 @@ class FakeOperatorOrdersRepository implements op.OrdersRepository {
   @override
   Future<List<Order>> getOrders() async => [];
 
+  /// When set, this order is what getOrderById returns for its id.
+  Order? found;
+
   @override
-  Future<Order> getOrderById(String id) async => Order(
+  Future<Order> getOrderById(String id) async => found != null && found!.id == id ? found! : Order(
         id: id,
         customerName: 'Walk-in customer',
         type: OrderType.walkIn,
@@ -135,12 +138,20 @@ class FakeOperatorOrdersRepository implements op.OrdersRepository {
   @override
   Future<Order> markReadyForPickup(String orderId) async => throw UnimplementedError();
 
-  @override
-  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp) async => throw UnimplementedError();
+  final handovers = <({String orderId, String otp, String mode})>[];
 
   @override
-  Future<Order> createWalkInOrder({required String customerName, required List<OrderLineItem> items}) async {
+  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp, {String paymentMode = 'cash'}) async {
+    handovers.add((orderId: orderId, otp: enteredOtp, mode: paymentMode));
+    return getOrderById(orderId);
+  }
+
+  final walkInPayments = <({String mode, String? customerId, String customerName})>[];
+
+  @override
+  Future<Order> createWalkInOrder({required String customerName, required List<OrderLineItem> items, String paymentMode = 'cash', String? customerId}) async {
     walkIns.add(items);
+    walkInPayments.add((mode: paymentMode, customerId: customerId, customerName: customerName));
     if (walkInError != null) throw walkInError!;
     return getOrderById('walk-1');
   }

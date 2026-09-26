@@ -18,13 +18,15 @@ class OrdersRepositoryImpl implements OrdersRepository {
       _dataSource.markReadyForPickup(orderId);
 
   @override
-  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp) =>
-      _dataSource.verifyOtpAndComplete(orderId, enteredOtp);
+  Future<Order> verifyOtpAndComplete(String orderId, String enteredOtp, {String paymentMode = 'cash'}) =>
+      _dataSource.verifyOtpAndComplete(orderId, enteredOtp, paymentMode: paymentMode);
 
   @override
   Future<Order> createWalkInOrder({
     required String customerName,
     required List<OrderLineItem> items,
+    String paymentMode = 'cash',
+    String? customerId,
   }) =>
-      _dataSource.createWalkInOrder(customerName: customerName, items: items);
+      _dataSource.createWalkInOrder(customerName: customerName, items: items, paymentMode: paymentMode, customerId: customerId);
 }
