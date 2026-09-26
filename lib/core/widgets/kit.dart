@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../animation/fade_slide_in.dart';
+import '../animation/pressable.dart';
 import '../l10n/app_locale.dart';
 import '../network/api_client_provider.dart';
 import '../theme/app_colors.dart';
@@ -150,10 +151,12 @@ class KitCard extends StatelessWidget {
         padding: const EdgeInsets.only(bottom: AppSpacing.md - 4),
         child: onTap == null
             ? body
-            : InkWell(
-                borderRadius: BorderRadius.circular(AppRadius.md),
-                onTap: onTap,
-                child: body,
+            : Pressable(
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(AppRadius.md),
+                  onTap: onTap,
+                  child: body,
+                ),
               ),
       ),
     );

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../../core/l10n/app_locale.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/animation/pop_in.dart';
 import '../../core/responsive/responsive.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
@@ -162,7 +163,7 @@ class _OwnSaleScreenState extends ConsumerState<OwnSaleScreen> {
                   title: 'Your pickup code',
                   icon: Icons.pin_outlined,
                   child: Column(children: [
-                    Text(s.str('pickupCode'), key: const Key('pickup-code'), style: text.displayMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 8, color: colors.primary)),
+                    PopIn(child: Text(s.str('pickupCode'), key: const Key('pickup-code'), style: text.displayMedium?.copyWith(fontWeight: FontWeight.w900, letterSpacing: 8, color: colors.primary))),
                     Text('Tell this code to the seller when you receive the product. Pay him in cash or UPI.', textAlign: TextAlign.center, style: text.bodyMedium),
                   ]),
                 ),

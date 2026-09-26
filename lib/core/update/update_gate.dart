@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import '../animation/pop_in.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -64,12 +66,12 @@ class _UpdateGateState extends ConsumerState<UpdateGate> with WidgetsBindingObse
         Center(
           child: Material(
             type: MaterialType.transparency,
-            child: _UpdateCard(
+            child: PopIn(child: _UpdateCard(
               state: s,
               onRestart: () => ref.read(updateControllerProvider.notifier).restartNow(),
               onLater: forced || info == null ? null : () => setState(() => _postponed = info.versionCode),
               onRetry: () => ref.read(updateControllerProvider.notifier).check(force: true),
-            ),
+            )),
           ),
         ),
       ],
