@@ -10,6 +10,8 @@ set DEFINES=--dart-define=API_BASE_URL=%API_BASE_URL%
 REM Push notifications: firebase.json (git-ignored) holds the Firebase values, see firebase.example.json.
 if exist firebase.json set DEFINES=%DEFINES% --dart-define-from-file=firebase.json
 if not "%~2"=="" set DEFINES=%DEFINES% --dart-define=API_KEY=%~2
+REM Self-update: every build sent to phones needs a higher number than the last:  set BUILD_NUMBER=7
+if not "%BUILD_NUMBER%"=="" set DEFINES=%DEFINES% --build-number=%BUILD_NUMBER%
 
 REM Gradle sometimes packs an OLD copy of the compiled app into the APK (the new code compiles, but the merged
 REM native libraries are not refreshed). Clearing these three folders forces a fresh merge every time.

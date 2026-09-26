@@ -9,6 +9,8 @@ DEFINES=("--dart-define=API_BASE_URL=${1:-https://api-proxy.khaadsetu-ec2.worker
 [ -n "${2:-}" ] && DEFINES+=("--dart-define=API_KEY=$2")
 # Push notifications: firebase.json (git-ignored) holds the Firebase values, see firebase.example.json.
 [ -f firebase.json ] && DEFINES+=("--dart-define-from-file=firebase.json")
+# Self-update: every build sent to phones needs a higher number than the last:  BUILD_NUMBER=7 ./build_all.sh
+[ -n "${BUILD_NUMBER:-}" ] && DEFINES+=("--build-number=$BUILD_NUMBER")
 
 # Gradle sometimes packs an OLD copy of the compiled app into the APK; clearing these folders forces a fresh merge.
 fresh() { rm -rf build/app/intermediates/merged_native_libs build/app/intermediates/merged_jni_libs build/app/intermediates/stripped_native_libs; }

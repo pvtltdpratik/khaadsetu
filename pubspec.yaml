@@ -7,6 +7,7 @@ environment:
   sdk: ^3.12.0
 
 dependencies:
+  crypto: ^3.0.7
   drift: ^2.34.4
   drift_flutter: ^0.3.1
   equatable: ^2.1.0

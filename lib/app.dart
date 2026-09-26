@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'core/update/update_gate.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import 'core/flavor/app_flavor.dart';
@@ -22,11 +23,13 @@ class ShetSamrudhiApp extends ConsumerWidget {
       builder: (context, child) {
         final page = child ?? const SizedBox.shrink();
         final shown = flavor.isDev ? Banner(message: 'DEV BUILD', location: BannerLocation.bottomStart, color: Colors.deepOrange, child: page) : page;
+        // Newer versions arrive straight from our server, without any app store.
+        final updating = UpdateGate(child: shown);
         // Once somebody is signed in, this phone can receive notifications even when the app is closed, and a tap on
         // one leads to what it is about.
         return PushRegistrar(
           onOpened: (data) => openNotificationTarget(router, ref.read, NotificationType.parse(data['type']), data['refId']),
-          child: shown,
+          child: updating,
         );
       },
       debugShowCheckedModeBanner: false,
