@@ -9,6 +9,13 @@ abstract class DeliveryManagementRepository {
   /// Deliveries, active ones first. [status] narrows to one state.
   Future<List<ManagedDelivery>> deliveries({DeliveryStatus? status});
 
+  /// One delivery, with the buyer's phone and email, the drop address, and (for the admin) which center it belongs to.
+  Future<ManagedDelivery> deliveryDetail(String id);
+
+  /// Every vehicle a delivery partner has sent for checking — an operator only sees this for a partner reviewed at
+  /// their own center; the admin sees it for anyone.
+  Future<List<PartnerVehicle>> vehiclesOf(String ownerId);
+
   /// Applications to deliver, waiting ones first.
   Future<List<PartnerApplication>> partners({PartnerStatus? status, String? query});
 

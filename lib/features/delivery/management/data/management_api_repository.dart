@@ -31,6 +31,13 @@ class ManagementApiRepository implements DeliveryManagementRepository {
       ];
 
   @override
+  Future<ManagedDelivery> deliveryDetail(String id) async => ManagedDelivery.fromJson(await _api.get('$_base/deliveries/${_id(id)}') as Map<String, dynamic>);
+
+  @override
+  Future<List<PartnerVehicle>> vehiclesOf(String ownerId) async =>
+      [for (final j in await _api.get('$_base/vehicles/owner/${_id(ownerId)}') as List) PartnerVehicle.fromJson(j as Map<String, dynamic>)];
+
+  @override
   Future<List<PartnerApplication>> partners({PartnerStatus? status, String? query}) async => [
         for (final j in await _api.get('$_base/delivery-partners', query: {'status': status?.name, 'q': query, 'limit': '100'}) as List)
           PartnerApplication.fromJson(j as Map<String, dynamic>),

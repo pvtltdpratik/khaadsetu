@@ -39,6 +39,15 @@ class ManagedDelivery extends Equatable {
     this.ratingAvg,
     this.createdAt,
     this.searchUntil,
+    this.requesterId,
+    this.buyerPhone,
+    this.buyerEmail,
+    this.pickupLabel,
+    this.dropLabel,
+    this.dropNote,
+    this.centerVillage,
+    this.centerDistrict,
+    this.centerPhone,
   });
 
   factory ManagedDelivery.fromJson(Map<String, dynamic> j) => ManagedDelivery(
@@ -64,6 +73,16 @@ class ManagedDelivery extends Equatable {
         ratingAvg: j['ratingAvg'] == null ? null : _d(j['ratingAvg']),
         createdAt: _t(j['createdAt']),
         searchUntil: _t(j['searchUntil']),
+        // Only carried by the one-delivery detail view (see DeliveryManagementRepository.deliveryDetail).
+        requesterId: j['requesterId'] as String?,
+        buyerPhone: j['buyerPhone'] as String?,
+        buyerEmail: j['buyerEmail'] as String?,
+        pickupLabel: j['pickupLabel'] as String?,
+        dropLabel: j['dropLabel'] as String?,
+        dropNote: j['dropNote'] as String?,
+        centerVillage: j['centerVillage'] as String?,
+        centerDistrict: j['centerDistrict'] as String?,
+        centerPhone: j['centerPhone'] as String?,
       );
 
   final String id;
@@ -94,6 +113,17 @@ class ManagedDelivery extends Equatable {
   final double? ratingAvg;
   final DateTime? createdAt;
   final DateTime? searchUntil;
+
+  /// The rest are only filled by [DeliveryManagementRepository.deliveryDetail] (the one-delivery view), not the list.
+  final String? requesterId;
+  final String? buyerPhone;
+  final String? buyerEmail;
+  final String? pickupLabel;
+  final String? dropLabel;
+  final String? dropNote;
+  final String? centerVillage;
+  final String? centerDistrict;
+  final String? centerPhone;
 
   bool get hasPartner => partnerId != null;
 
@@ -299,4 +329,47 @@ class DeliverySummary extends Equatable {
 
   @override
   List<Object?> get props => [waiting, needDriver, onTheRoad, deliveredToday, partnersPending, partnersApproved, partnersOnline, cashOwed];
+}
+
+/// One vehicle of a delivery partner's, as staff reviewing them sees it — a summary, not the full papers/photo view a
+/// vehicle's own owner gets (see `features/vehicles`).
+class PartnerVehicle extends Equatable {
+  const PartnerVehicle({
+    required this.id,
+    required this.categoryLabel,
+    required this.registrationNumber,
+    required this.capacityKg,
+    required this.status,
+    required this.isActive,
+    required this.usable,
+    this.company = '',
+    this.modelName = '',
+  });
+
+  factory PartnerVehicle.fromJson(Map<String, dynamic> j) => PartnerVehicle(
+        id: j['id'] as String,
+        categoryLabel: (j['categoryLabel'] as String?) ?? '',
+        registrationNumber: (j['registrationNumber'] as String?) ?? '',
+        capacityKg: _i(j['capacityKg']),
+        status: (j['status'] as String?) ?? 'draft',
+        isActive: (j['isActive'] as bool?) ?? false,
+        usable: (j['usable'] as bool?) ?? false,
+        company: (j['company'] as String?) ?? '',
+        modelName: (j['modelName'] as String?) ?? '',
+      );
+
+  final String id;
+  final String categoryLabel;
+  final String registrationNumber;
+  final int capacityKg;
+  final String status;
+  final bool isActive;
+  final bool usable;
+  final String company;
+  final String modelName;
+
+  String get vehicleLine => [company, modelName].where((s) => s.isNotEmpty).join(' ');
+
+  @override
+  List<Object?> get props => [id, status, isActive, usable];
 }

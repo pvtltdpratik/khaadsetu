@@ -7,6 +7,11 @@ Future<void> callPhone(BuildContext context, String phone) async {
   await _launch(context, Uri(scheme: 'tel', path: digits), "Couldn't open the phone app. The number is $phone.");
 }
 
+/// Opens the mail app addressed to [email].
+Future<void> emailPerson(BuildContext context, String email, {String subject = ''}) async {
+  await _launch(context, Uri(scheme: 'mailto', path: email, query: subject.isEmpty ? null : 'subject=${Uri.encodeComponent(subject)}'), "Couldn't open the mail app. The address is $email.");
+}
+
 /// Shows a place in the device's maps app (or the browser).
 Future<void> openInMaps(BuildContext context, {required double latitude, required double longitude}) async {
   final uri = Uri.https('www.google.com', '/maps/search/', {'api': '1', 'query': '$latitude,$longitude'});

@@ -14,6 +14,7 @@ import '../../domain/entities/delivery_models.dart';
 import '../../presentation/widgets/live_refresh.dart';
 import '../../presentation/widgets/partner_job_cards.dart';
 import '../domain/management_models.dart';
+import 'delivery_detail_screen.dart';
 import 'management_providers.dart';
 import 'partner_review_screen.dart';
 
@@ -168,7 +169,7 @@ class _DeliveriesTabState extends ConsumerState<_DeliveriesTab> {
                               for (final (i, d) in items.indexed)
                                 Padding(
                                   padding: const EdgeInsets.only(bottom: AppSpacing.sm),
-                                  child: FadeSlideIn(index: i, child: _DeliveryCard(delivery: d, operator: operator, busy: _busy, onPickDriver: () => _pickDriver(d), onHandover: () => _handover(d))),
+                                  child: FadeSlideIn(index: i, child: _DeliveryCard(scope: widget.scope, delivery: d, operator: operator, busy: _busy, onPickDriver: () => _pickDriver(d), onHandover: () => _handover(d))),
                                 ),
                             ]),
                     ),
@@ -184,8 +185,9 @@ class _DeliveriesTabState extends ConsumerState<_DeliveriesTab> {
 }
 
 class _DeliveryCard extends StatelessWidget {
-  const _DeliveryCard({required this.delivery, required this.operator, required this.busy, required this.onPickDriver, required this.onHandover});
+  const _DeliveryCard({required this.scope, required this.delivery, required this.operator, required this.busy, required this.onPickDriver, required this.onHandover});
 
+  final ManagementScope scope;
   final ManagedDelivery delivery;
   final bool operator;
   final bool busy;
@@ -209,10 +211,16 @@ class _DeliveryCard extends StatelessWidget {
     final (label, colorOf) = _badge(d.status);
     final color = colorOf(colors);
     final kg = d.weightKg == d.weightKg.roundToDouble() ? d.weightKg.toStringAsFixed(0) : d.weightKg.toStringAsFixed(1);
-    return Container(
-      key: Key('delivery-${d.id}'),
+    return Material(
+      color: colors.surface,
+      borderRadius: BorderRadius.circular(14),
+      child: InkWell(
+        key: Key('delivery-${d.id}'),
+        borderRadius: BorderRadius.circular(14),
+        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => DeliveryDetailScreen(scope: scope, id: d.id))),
+        child: Container(
       padding: const EdgeInsets.all(AppSpacing.md),
-      decoration: BoxDecoration(color: colors.surface, borderRadius: BorderRadius.circular(14), border: Border.all(color: d.needsDriver ? colors.warning : colors.border)),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(14), border: Border.all(color: d.needsDriver ? colors.warning : colors.border)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -258,6 +266,8 @@ class _DeliveryCard extends StatelessWidget {
             ]),
           ],
         ],
+      ),
+        ),
       ),
     );
   }

@@ -7,9 +7,13 @@ import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_error_view.dart';
 import '../../../../core/widgets/app_loading_indicator.dart';
 import '../../../farmer/centers/presentation/widgets/contact_actions.dart';
+import '../../../staff/approvals_screen.dart' show StaffScope;
+import '../../../staff/farmer_card_screen.dart';
 import '../../domain/entities/delivery_models.dart';
 import '../domain/management_models.dart';
 import 'management_providers.dart';
+
+StaffScope _staffScope(ManagementScope s) => s == ManagementScope.admin ? StaffScope.admin : StaffScope.operator;
 
 const _dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -141,7 +145,15 @@ class _Body extends ConsumerWidget {
         Text(p.name, style: text.headlineSmall),
         Text([if (p.village.isNotEmpty) p.village, if (p.phone.isNotEmpty) p.phone].join(' · '), style: text.bodyMedium?.copyWith(color: colors.textMuted)),
         AppSpacing.gapSm,
-        if (p.phone.isNotEmpty) Align(alignment: Alignment.centerLeft, child: OutlinedButton.icon(onPressed: () => callPhone(context, p.phone), icon: const Icon(Icons.call_rounded, size: 18), label: const Text('Call'))),
+        Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: [
+          if (p.phone.isNotEmpty) OutlinedButton.icon(onPressed: () => callPhone(context, p.phone), icon: const Icon(Icons.call_rounded, size: 18), label: const Text('Call')),
+          OutlinedButton.icon(
+            key: const Key('partner-full-profile'),
+            onPressed: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => FarmerCardScreen(scope: _staffScope(scope), farmerId: p.userId))),
+            icon: const Icon(Icons.badge_outlined, size: 18),
+            label: const Text('Full profile'),
+          ),
+        ]),
         AppSpacing.gapMd,
         _Section(title: 'Status', child: Text(switch (p.status) {
           PartnerStatus.pending => 'Waiting for your decision',
@@ -151,14 +163,14 @@ class _Body extends ConsumerWidget {
           _ => 'Not sent yet',
         }, key: const Key('partner-status'))),
         _Section(
-          title: 'Vehicle',
+          title: 'Delivery hours',
           child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('${p.vehicleType?.label ?? 'Not given'} · ${p.vehicleNumber.isEmpty ? 'no number' : p.vehicleNumber}', key: const Key('partner-vehicle')),
-            Text('Carries up to ${p.capacityKg ?? '?'} kg'),
+            Text('Carries up to ${p.capacityKg ?? '?'} kg on the application', key: const Key('partner-vehicle')),
             Text('Goes up to ${p.maxDistanceKm} km · ${days.isEmpty ? 'no days set' : days} · ${p.freeFrom} to ${p.freeUntil}'),
             if (p.deliveriesDone > 0 || p.ratingCount > 0) Text('${p.deliveriesDone} deliveries${p.ratingCount > 0 ? ' · ★ ${p.ratingAvg.toStringAsFixed(1)} (${p.ratingCount})' : ''}'),
           ]),
         ),
+        _VehiclesSection(scope: scope, userId: p.userId),
         _Section(
           title: 'Papers',
           child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -206,6 +218,47 @@ class _Body extends ConsumerWidget {
         'reactivate' || 'reactivated' => 'Let them deliver again',
         _ => action,
       };
+}
+
+/// Every vehicle this farmer has sent for checking, not only the one on the application form — a farmer with several
+/// vehicles (see `features/vehicles`) may deliver with any approved one of them.
+class _VehiclesSection extends ConsumerWidget {
+  const _VehiclesSection({required this.scope, required this.userId});
+
+  final ManagementScope scope;
+  final String userId;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final vehicles = ref.watch(partnerVehiclesProvider(PartnerKey(scope, userId)));
+    return _Section(
+      title: 'All vehicles',
+      child: vehicles.when(
+        loading: () => const SizedBox(height: 24, child: Center(child: SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2)))),
+        error: (err, _) => Text('$err', key: const Key('vehicles-error')),
+        data: (list) => list.isEmpty
+            ? const Text('No vehicle on file yet.', key: Key('vehicles-empty'))
+            : Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+                for (final v in list)
+                  Padding(
+                    padding: const EdgeInsets.only(top: AppSpacing.xs),
+                    child: Row(key: Key('vehicle-${v.id}'), children: [
+                      Expanded(child: Text('${v.categoryLabel} · ${v.registrationNumber}${v.vehicleLine.isEmpty ? '' : ' · ${v.vehicleLine}'} · ${v.capacityKg} kg')),
+                      Container(
+                        padding: const EdgeInsets.symmetric(horizontal: AppSpacing.sm, vertical: 2),
+                        decoration: BoxDecoration(color: (v.status == 'approved' ? colors.success : v.status == 'pending' ? colors.warning : colors.danger).withValues(alpha: 0.14), borderRadius: BorderRadius.circular(999)),
+                        child: Text(
+                          v.status == 'approved' ? (v.isActive ? 'On duty' : 'Off duty') : v.status,
+                          style: Theme.of(context).textTheme.labelSmall?.copyWith(color: v.status == 'approved' ? colors.success : v.status == 'pending' ? colors.warning : colors.danger, fontWeight: FontWeight.w700),
+                        ),
+                      ),
+                    ]),
+                  ),
+              ]),
+      ),
+    );
+  }
 }
 
 class _Section extends StatelessWidget {

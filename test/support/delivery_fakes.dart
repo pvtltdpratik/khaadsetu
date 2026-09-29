@@ -400,6 +400,11 @@ ManagedDelivery managedDelivery(
   String? center,
   int offers = 0,
   bool p2p = false,
+  String? requesterId,
+  String? buyerPhone,
+  String? buyerEmail,
+  String? pickupLabel,
+  String? dropLabel,
 }) =>
     ManagedDelivery(
       id: id,
@@ -421,7 +426,15 @@ ManagedDelivery managedDelivery(
       vehicleType: partner == null ? null : VehicleType.pickup,
       vehicleNumber: partner == null ? null : 'MH12AB1234',
       ratingAvg: partner == null ? null : 4.6,
+      requesterId: requesterId,
+      buyerPhone: buyerPhone,
+      buyerEmail: buyerEmail,
+      pickupLabel: pickupLabel,
+      dropLabel: dropLabel,
     );
+
+PartnerVehicle partnerVehicle(String id, {String category = 'Pickup', String plate = 'MH12CD5678', int capacityKg = 800, String status = 'approved', bool active = true, bool usable = true}) =>
+    PartnerVehicle(id: id, categoryLabel: category, registrationNumber: plate, capacityKg: capacityKg, status: status, isActive: active, usable: usable);
 
 PartnerApplication application(
   String id, {
@@ -488,6 +501,23 @@ class FakeManagementRepository implements DeliveryManagementRepository {
   Future<List<ManagedDelivery>> deliveries({DeliveryStatus? status}) async {
     deliveryFilters.add(status);
     return deliveryList.where((d) => status == null || d.status == status).toList();
+  }
+
+  ManagedDelivery Function(ManagedDelivery)? detailOverride;
+
+  @override
+  Future<ManagedDelivery> deliveryDetail(String id) async {
+    final found = deliveryList.firstWhere((d) => d.id == id);
+    return detailOverride == null ? found : detailOverride!(found);
+  }
+
+  List<PartnerVehicle> vehicleList = [];
+  final vehicleOwnerCalls = <String>[];
+
+  @override
+  Future<List<PartnerVehicle>> vehiclesOf(String ownerId) async {
+    vehicleOwnerCalls.add(ownerId);
+    return _guard('vehiclesOf', () => vehicleList);
   }
 
   List<PartnerApplication> applications = [];

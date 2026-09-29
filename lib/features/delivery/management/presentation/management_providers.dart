@@ -28,6 +28,26 @@ final managedDeliveriesProvider = FutureProvider.autoDispose.family<List<Managed
   (ref, q) => ref.watch(managementRepositoryProvider(q.scope)).deliveries(status: q.status),
 );
 
+class DeliveryKey extends Equatable {
+  const DeliveryKey(this.scope, this.id);
+
+  final ManagementScope scope;
+  final String id;
+
+  @override
+  List<Object?> get props => [scope, id];
+}
+
+/// One delivery's full detail: contact details, drop address, the center it belongs to.
+final managedDeliveryDetailProvider = FutureProvider.autoDispose.family<ManagedDelivery, DeliveryKey>(
+  (ref, k) => ref.watch(managementRepositoryProvider(k.scope)).deliveryDetail(k.id),
+);
+
+/// Every vehicle a specific delivery partner has, for the review screen and the delivery detail screen.
+final partnerVehiclesProvider = FutureProvider.autoDispose.family<List<PartnerVehicle>, PartnerKey>(
+  (ref, k) => ref.watch(managementRepositoryProvider(k.scope)).vehiclesOf(k.userId),
+);
+
 class PartnersQuery extends Equatable {
   const PartnersQuery(this.scope, this.status, [this.query = '']);
 

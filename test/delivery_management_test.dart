@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaadsetu_version1/core/routing/route_paths.dart';
@@ -7,18 +8,20 @@ import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/features/admin/domain/entities/admin_models.dart';
 import 'package:khaadsetu_version1/features/delivery/domain/entities/delivery_models.dart';
 import 'package:khaadsetu_version1/features/delivery/management/domain/management_models.dart';
+import 'package:khaadsetu_version1/features/delivery/management/presentation/delivery_detail_screen.dart';
 import 'package:khaadsetu_version1/features/delivery/management/presentation/delivery_management_screen.dart';
 import 'package:khaadsetu_version1/features/delivery/management/presentation/management_providers.dart';
 import 'package:khaadsetu_version1/features/delivery/management/presentation/operator_deliveries_tile.dart';
+import 'package:khaadsetu_version1/features/staff/farmer_card_screen.dart';
 
 import 'support/delivery_fakes.dart';
 
-Future<void> _pump(WidgetTester tester, FakeManagementRepository repo, {ManagementScope scope = ManagementScope.operator, Widget? home}) async {
+Future<void> _pump(WidgetTester tester, FakeManagementRepository repo, {ManagementScope scope = ManagementScope.operator, Widget? home, List<Override> extraOverrides = const []}) async {
   tester.view.physicalSize = const Size(430, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(ProviderScope(
-    overrides: [managementRepositoryProvider(scope).overrideWithValue(repo)],
+    overrides: [managementRepositoryProvider(scope).overrideWithValue(repo), ...extraOverrides],
     child: MaterialApp(theme: AppTheme.light, home: home ?? DeliveryManagementScreen(scope: scope)),
   ));
   await tester.pumpAndSettle();
@@ -168,9 +171,11 @@ void main() {
       await _end(tester);
     });
 
-    Future<FakeManagementRepository> openReview(WidgetTester tester, PartnerApplication app, {ManagementScope scope = ManagementScope.operator}) async {
-      final repo = FakeManagementRepository(scope: scope)..applications = [app];
-      await _pump(tester, repo, scope: scope);
+    Future<FakeManagementRepository> openReview(WidgetTester tester, PartnerApplication app, {ManagementScope scope = ManagementScope.operator, List<Override> extraOverrides = const [], List<PartnerVehicle> vehicles = const []}) async {
+      final repo = FakeManagementRepository(scope: scope)
+        ..applications = [app]
+        ..vehicleList = vehicles;
+      await _pump(tester, repo, scope: scope, extraOverrides: extraOverrides);
       await tester.tap(find.byKey(const Key('tab-partners')));
       await tester.pumpAndSettle();
       await tester.tap(find.byKey(const Key('pfilter-All')));
@@ -183,8 +188,7 @@ void main() {
     testWidgets('the review page shows the vehicle and both papers, and approving asks first', (tester) async {
       final repo = await openReview(tester, application('u1'));
       expect(find.text('Waiting for your decision'), findsOneWidget);
-      expect(find.text('Pickup / small van · MH12AB1234'), findsOneWidget);
-      expect(find.text('Carries up to 600 kg'), findsOneWidget);
+      expect(find.text('Carries up to 600 kg on the application'), findsOneWidget);
       expect(find.textContaining('Goes up to 10 km · Mon, Tue, Wed, Thu, Fri, Sat · 06:00 to 20:00'), findsOneWidget);
       expect(find.byKey(const Key('doc-image-licence')), findsOneWidget);
       expect(find.byKey(const Key('doc-image-rc')), findsOneWidget);
@@ -258,6 +262,32 @@ void main() {
       await tester.tap(find.byKey(const Key('confirm-approve')));
       await tester.pumpAndSettle();
       expect(find.text('This application is not waiting for a decision'), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('every vehicle this partner has, not only the one on the form, and a way to their full profile', (tester) async {
+      await openReview(
+        tester,
+        application('u1'),
+        extraOverrides: [farmerCardProvider.overrideWith((ref, key) async => <String, dynamic>{'name': 'Ramesh Patil'})],
+        vehicles: [partnerVehicle('v1', category: 'Pickup', plate: 'MH12AB1234', capacityKg: 800), partnerVehicle('v2', category: 'Bike', plate: 'MH12CD9999', status: 'pending')],
+      );
+      expect(find.byKey(const Key('vehicles-empty')), findsNothing);
+      expect(find.textContaining('Pickup · MH12AB1234'), findsOneWidget);
+      expect(find.textContaining('Bike · MH12CD9999'), findsOneWidget);
+      expect(find.text('On duty'), findsOneWidget);
+      expect(find.text('pending'), findsOneWidget);
+
+      await tester.tap(find.byKey(const Key('partner-full-profile')));
+      await tester.pumpAndSettle();
+      expect(find.byType(FarmerCardScreen), findsOneWidget);
+      expect(find.text('Ramesh Patil'), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('nobody has sent a vehicle for checking yet', (tester) async {
+      await openReview(tester, application('u1'));
+      expect(find.byKey(const Key('vehicles-empty')), findsOneWidget);
       await _end(tester);
     });
   });
@@ -384,6 +414,49 @@ void main() {
         'lowStockItems': 0,
       });
       expect(o.delivery, isNull);
+    });
+  });
+
+  group('the delivery detail page', () {
+    testWidgets('tapping a delivery opens its contact details, with a call and an email button', (tester) async {
+      final repo = FakeManagementRepository()
+        ..deliveryList = [
+          managedDelivery('j1', status: DeliveryStatus.inTransit, partner: 'Ganesh', requesterId: 'buyer-1', buyerPhone: '9822011111', buyerEmail: 'sita@example.com', pickupLabel: 'Shirur Kendra', dropLabel: 'Blue gate farm'),
+        ];
+      await _pump(tester, repo);
+      await tester.tap(find.byKey(const Key('delivery-j1')));
+      await tester.pumpAndSettle();
+      expect(find.byType(DeliveryDetailScreen), findsOneWidget);
+      expect(find.byKey(const Key('call-buyer')), findsOneWidget);
+      expect(find.text('9822011111'), findsOneWidget);
+      expect(find.byKey(const Key('email-buyer')), findsOneWidget);
+      expect(find.text('sita@example.com'), findsOneWidget);
+      expect(find.text('Blue gate farm'), findsOneWidget);
+      expect(find.byKey(const Key('call-partner')), findsOneWidget);
+      expect(find.byKey(const Key('buyer-full-profile')), findsOneWidget);
+      expect(find.byKey(const Key('partner-full-profile')), findsOneWidget);
+      await _end(tester);
+    });
+
+    testWidgets('a delivery with nobody assigned yet shows no partner card', (tester) async {
+      final repo = FakeManagementRepository()..deliveryList = [managedDelivery('j1', needsDriver: true)];
+      await _pump(tester, repo);
+      await tester.tap(find.byKey(const Key('delivery-j1')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('partner-full-profile')), findsNothing);
+      await _end(tester);
+    });
+
+    testWidgets('the buyer\'s full profile opens their farmer card', (tester) async {
+      final repo = FakeManagementRepository()..deliveryList = [managedDelivery('j1', requesterId: 'buyer-1')];
+      await _pump(tester, repo, extraOverrides: [farmerCardProvider.overrideWith((ref, key) async => <String, dynamic>{'name': 'Sita Buyer'})]);
+      await tester.tap(find.byKey(const Key('delivery-j1')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('buyer-full-profile')));
+      await tester.pumpAndSettle();
+      expect(find.byType(FarmerCardScreen), findsOneWidget);
+      expect(find.text('Sita Buyer'), findsOneWidget);
+      await _end(tester);
     });
   });
 }

@@ -52,6 +52,7 @@ build/
 .idea/
 .vscode/
 android/.gradle/
+android/.kotlin/
 android/local.properties
 ios/Pods/
 ios/.symlinks/
