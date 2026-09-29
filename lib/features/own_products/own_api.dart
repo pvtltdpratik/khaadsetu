@@ -6,6 +6,7 @@ import 'package:http/http.dart' as http;
 import '../../core/network/api_client.dart';
 import '../../core/network/api_client_provider.dart';
 import '../../core/widgets/kit.dart';
+import '../farmer/centers/presentation/providers/centers_providers.dart';
 
 /// Farmer-made organic products: what a farmer sells (his listings), what others sell (the market) and the orders between them.
 class OwnApi {
@@ -66,8 +67,17 @@ final ownDetailProvider = FutureProvider.autoDispose.family<Json, String>((ref, 
 final ownSalesProvider = FutureProvider.autoDispose.family<List<Json>, String>((ref, role) => ref.watch(ownApiProvider).sales(role));
 final ownSaleProvider = FutureProvider.autoDispose.family<Json, String>((ref, id) => ref.watch(ownApiProvider).sale(id));
 
-/// The market for one filter, written as text so the same filter is the same key: "category|sort|search".
+/// The market for one filter, written as text so the same filter is the same key: "category|sort|search". Sends the
+/// farmer's location when it is already known — read, not fetched, so opening this screen never itself triggers a GPS
+/// or network lookup; it just rebuilds with a real distance once another screen has resolved one.
 final ownMarketProvider = FutureProvider.autoDispose.family<List<Json>, String>((ref, key) async {
   final parts = key.split('|');
-  return ref.watch(ownApiProvider).market(category: parts[0].isEmpty ? null : parts[0], sort: parts[1], q: parts[2].isEmpty ? null : parts[2]);
+  final here = ref.watch(farmerLocationProvider).value;
+  return ref.watch(ownApiProvider).market(
+        category: parts[0].isEmpty ? null : parts[0],
+        sort: parts[1],
+        q: parts[2].isEmpty ? null : parts[2],
+        latitude: here?.latitude,
+        longitude: here?.longitude,
+      );
 });

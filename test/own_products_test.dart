@@ -4,10 +4,18 @@ import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/core/widgets/kit.dart';
+import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/nearby_center.dart';
+import 'package:khaadsetu_version1/features/farmer/centers/presentation/providers/centers_providers.dart';
 import 'package:khaadsetu_version1/features/own_products/my_listings_screen.dart';
 import 'package:khaadsetu_version1/features/own_products/own_api.dart';
 import 'package:khaadsetu_version1/features/own_products/own_market_screens.dart';
 import 'package:khaadsetu_version1/features/own_products/own_sales_screens.dart';
+
+/// A settled location, so the market never tries a real GPS or network lookup in a test.
+class _NoLocation extends FarmerLocationNotifier {
+  @override
+  Future<FarmerLocation?> build() async => null;
+}
 
 class FakeOwn implements OwnApi {
   final marketAsked = <String?>[];
@@ -49,7 +57,11 @@ Future<void> pump(WidgetTester tester, Widget home, FakeOwn fake) async {
   tester.view.physicalSize = const Size(430, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
-  final List<Override> overrides = [ownApiProvider.overrideWithValue(fake), apiImageProvider.overrideWith((ref, path) async => throw 'no photos in tests')];
+  final List<Override> overrides = [
+    ownApiProvider.overrideWithValue(fake),
+    apiImageProvider.overrideWith((ref, path) async => throw 'no photos in tests'),
+    farmerLocationProvider.overrideWith(_NoLocation.new),
+  ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: MaterialApp(theme: AppTheme.light, home: home)));
   await tester.pumpAndSettle();
 }

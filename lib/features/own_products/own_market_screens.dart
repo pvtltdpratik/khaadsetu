@@ -12,6 +12,7 @@ import '../../core/widgets/app_loading_indicator.dart';
 import '../../core/widgets/kit.dart';
 import '../farmer/centers/presentation/providers/centers_providers.dart';
 import 'own_api.dart';
+import 'own_product_tile.dart';
 import 'own_sales_screens.dart';
 
 const ownCategoryLabels = {'compost': 'Compost', 'vermicompost': 'Vermicompost', 'liquid': 'Liquid', 'bio_fertilizer': 'Bio-fertilizer', 'other': 'Other'};
@@ -44,20 +45,21 @@ class _OwnMarketScreenState extends ConsumerState<OwnMarketScreen> {
         child: ListView(padding: context.pagePadding, children: [
           TextField(key: const Key('market-search'), decoration: const InputDecoration(prefixIcon: Icon(Icons.search), hintText: 'Search compost, vermicompost, village…'), onSubmitted: (v) => setState(() => _search = v.trim().replaceAll('|', ' '))),
           AppSpacing.gapSm,
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            child: Row(children: [
-              ChoiceChip(key: const Key('cat-all'), label: const Tx('All'), selected: _category.isEmpty, onSelected: (_) => setState(() => _category = '')),
-              for (final e in ownCategoryLabels.entries) Padding(padding: const EdgeInsets.only(left: 8), child: ChoiceChip(key: Key('cat-${e.key}'), label: Text(e.value), selected: _category == e.key, onSelected: (_) => setState(() => _category = e.key))),
-            ]),
-          ),
+          Wrap(spacing: 8, runSpacing: 8, children: [
+            ChoiceChip(key: const Key('cat-all'), label: const Tx('All'), selected: _category.isEmpty, onSelected: (_) => setState(() => _category = '')),
+            for (final e in ownCategoryLabels.entries) ChoiceChip(key: Key('cat-${e.key}'), label: Text(e.value), selected: _category == e.key, onSelected: (_) => setState(() => _category = e.key)),
+          ]),
           AppSpacing.gapSm,
-          SingleChildScrollView(scrollDirection: Axis.horizontal, child: Row(children: [
+          Row(children: [
             Tx('Sort', style: text.labelLarge),
             AppSpacing.gapSm,
-            for (final s in const [('nearest', 'Nearest'), ('cheapest', 'Cheapest'), ('rating', 'Best rated'), ('newest', 'Newest')])
-              Padding(padding: const EdgeInsets.only(right: 6), child: ChoiceChip(key: Key('sort-${s.$1}'), label: Text(s.$2), selected: _sort == s.$1, onSelected: (_) => setState(() => _sort = s.$1))),
-          ])),
+            Expanded(
+              child: Wrap(spacing: 6, runSpacing: 6, children: [
+                for (final s in const [('nearest', 'Nearest'), ('cheapest', 'Cheapest'), ('rating', 'Best rated'), ('newest', 'Newest')])
+                  ChoiceChip(key: Key('sort-${s.$1}'), label: Text(s.$2), selected: _sort == s.$1, onSelected: (_) => setState(() => _sort = s.$1)),
+              ]),
+            ),
+          ]),
           AppSpacing.gapMd,
           market.when(
             skipLoadingOnReload: true,
@@ -65,25 +67,23 @@ class _OwnMarketScreenState extends ConsumerState<OwnMarketScreen> {
             error: (err, _) => AppErrorView(message: '$err', onRetry: () => ref.invalidate(ownMarketProvider(key))),
             data: (items) => items.isEmpty
                 ? Padding(padding: const EdgeInsets.all(AppSpacing.lg), child: Text('Nothing here yet. Farmers near you will list what they make.', key: const Key('market-empty'), textAlign: TextAlign.center, style: text.bodyMedium?.copyWith(color: colors.textMuted)))
-                : Column(children: [
-                    for (final (i, l) in items.indexed)
-                      KitCard(
-                        index: i,
-                        onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => OwnDetailScreen(listingId: l.str('id')))),
-                        child: Row(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                          ApiImage('/v1/own/listings/${l.str('id')}/photos/0', height: 84, width: 84, zoomable: false),
-                          AppSpacing.gapMd,
-                          Expanded(
-                            child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-                              Row(children: [Expanded(child: Text(l.str('name'), key: Key('listing-${l.str('id')}'), style: text.titleSmall?.copyWith(fontWeight: FontWeight.w800))), const StatusPill('Farmer-made', tone: Tone.good)]),
-                              Text('${formatRupeesExact(l.num_('pricePerUnit'))} per ${l.str('unit')}  ·  ${l.num_('quantityAvailable').toStringAsFixed(0)} ${l.str('unit')} left', style: text.bodyMedium),
-                              Text('${l.str('sellerName')}, ${l.str('village')}${l['distanceKm'] == null ? '' : '  ·  ${l.num_('distanceKm').toStringAsFixed(1)} km'}', style: text.bodySmall?.copyWith(color: colors.textMuted)),
-                              if (l.int_('ratingCount') > 0) Text('★ ${l.num_('ratingAvg').toStringAsFixed(1)} (${l.int_('ratingCount')})', style: text.bodySmall),
-                            ]),
-                          ),
-                        ]),
-                      ),
-                  ]),
+                : LayoutBuilder(
+                    builder: (context, constraints) {
+                      final columns = context.breakpoint.isTabletUp ? context.gridColumns : 2;
+                      final cardWidth = (constraints.maxWidth - AppSpacing.sm * (columns - 1)) / columns;
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: items.length,
+                        // A picture (1.25 wide to 1 high) plus room for the name, the seller line, the rating and the price.
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: columns, crossAxisSpacing: AppSpacing.sm, mainAxisSpacing: AppSpacing.sm, mainAxisExtent: cardWidth / 1.25 + 150),
+                        itemBuilder: (context, i) {
+                          final l = items[i];
+                          return OwnProductTile(key: Key('listing-${l.str('id')}'), item: l, onTap: () => Navigator.of(context).push(MaterialPageRoute<void>(builder: (_) => OwnDetailScreen(listingId: l.str('id')))));
+                        },
+                      );
+                    },
+                  ),
           ),
         ]),
       ),

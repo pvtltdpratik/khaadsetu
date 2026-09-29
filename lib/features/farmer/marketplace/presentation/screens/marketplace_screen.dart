@@ -11,6 +11,7 @@ import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/price_format.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../own_products/farmer_made_strip.dart';
 import '../../../home/presentation/widgets/home_header.dart';
 import '../../../soil_health/domain/entities/nutrient_reading.dart';
 import '../../domain/entities/product.dart';
@@ -144,6 +145,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           PromoBanner(title: 'Not sure what to buy?', subtitle: 'Ask the farming assistant about your crop and soil', icon: Icons.smart_toy_rounded, onTap: () => context.push(RoutePaths.farmerAssistant)),
                         ]),
                       ),
+                      const SliverToBoxAdapter(child: FarmerMadeStrip()),
                       SliverPersistentHeader(
                         pinned: true,
                         delegate: _PinnedBar(
