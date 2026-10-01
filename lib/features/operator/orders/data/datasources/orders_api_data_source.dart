@@ -86,6 +86,8 @@ class OrdersApiDataSource {
           .toList(),
       createdAt: DateTime.parse(json['createdAt'] as String).toLocal(),
       pickupOtp: json['pickupOtp'] as String?,
+      customerPhone: json['customerPhone'] as String?,
+      customerEmail: json['customerEmail'] as String?,
     );
   }
 }

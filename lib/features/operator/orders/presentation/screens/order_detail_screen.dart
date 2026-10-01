@@ -10,6 +10,7 @@ import '../../../../../core/utils/price_format.dart';
 import '../../../../../core/widgets/app_button.dart';
 import '../../../../../core/widgets/app_error_view.dart';
 import '../../../../../core/widgets/app_loading_indicator.dart';
+import '../../../../farmer/centers/presentation/widgets/contact_actions.dart';
 import '../../../../invoices/domain/invoice_models.dart';
 import '../../domain/entities/order.dart';
 import '../providers/orders_providers.dart';
@@ -130,6 +131,25 @@ class _OrderBodyState extends ConsumerState<_OrderBody> {
             ),
           ],
         ),
+        if ((order.customerPhone ?? '').isNotEmpty || (order.customerEmail ?? '').isNotEmpty) ...[
+          AppSpacing.gapSm,
+          Wrap(spacing: AppSpacing.sm, runSpacing: AppSpacing.xs, children: [
+            if ((order.customerPhone ?? '').isNotEmpty)
+              OutlinedButton.icon(
+                key: const Key('call-customer'),
+                onPressed: () => callPhone(context, order.customerPhone!),
+                icon: const Icon(Icons.call_rounded, size: 18),
+                label: Text(order.customerPhone!),
+              ),
+            if ((order.customerEmail ?? '').isNotEmpty)
+              OutlinedButton.icon(
+                key: const Key('email-customer'),
+                onPressed: () => emailPerson(context, order.customerEmail!),
+                icon: const Icon(Icons.mail_outline_rounded, size: 18),
+                label: Text(order.customerEmail!),
+              ),
+          ]),
+        ],
         AppSpacing.gapLg,
         Text('Items', style: Theme.of(context).textTheme.titleMedium),
         AppSpacing.gapSm,

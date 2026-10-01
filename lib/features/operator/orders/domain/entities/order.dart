@@ -42,6 +42,8 @@ class Order extends Equatable {
     required this.items,
     required this.createdAt,
     required this.pickupOtp,
+    this.customerPhone,
+    this.customerEmail,
   });
 
   final String id;
@@ -55,6 +57,10 @@ class Order extends Equatable {
   /// completed, and never set for walk-in sales.
   final String? pickupOtp;
 
+  /// From the farmer's profile; null for a walk-in sale (no account) or when they never set it.
+  final String? customerPhone;
+  final String? customerEmail;
+
   double get totalAmount => items.fold(0, (sum, item) => sum + item.subtotal);
   int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
 
@@ -67,10 +73,12 @@ class Order extends Equatable {
       items: items,
       createdAt: createdAt,
       pickupOtp: pickupOtp ?? this.pickupOtp,
+      customerPhone: customerPhone,
+      customerEmail: customerEmail,
     );
   }
 
   @override
   List<Object?> get props =>
-      [id, customerName, type, status, items, createdAt, pickupOtp];
+      [id, customerName, type, status, items, createdAt, pickupOtp, customerPhone, customerEmail];
 }

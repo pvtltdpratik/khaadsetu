@@ -135,7 +135,7 @@ void main() {
       tester.view.devicePixelRatio = 1;
       addTearDown(tester.view.reset);
       final orders = FakeOperatorOrdersRepository()
-        ..found = Order(id: 'order-9', customerName: 'Ramesh', type: OrderType.appOrder, status: OrderStatus.readyForPickup, items: const [OrderLineItem(productName: 'Neem Cake', quantity: 2, unitPrice: 450)], createdAt: DateTime(2026, 9, 26), pickupOtp: '4821');
+        ..found = Order(id: 'order-9', customerName: 'Ramesh', type: OrderType.appOrder, status: OrderStatus.readyForPickup, items: const [OrderLineItem(productName: 'Neem Cake', quantity: 2, unitPrice: 450)], createdAt: DateTime(2026, 9, 26), pickupOtp: '4821', customerPhone: '9822011111', customerEmail: 'ramesh@example.com');
       await tester.pumpWidget(ProviderScope(
         overrides: [op.ordersRepositoryProvider.overrideWithValue(orders)],
         child: MaterialApp(theme: AppTheme.light, home: const Scaffold(body: OrderDetailScreen(orderId: 'order-9'))),
@@ -144,6 +144,14 @@ void main() {
       return orders;
     }
   
+    testWidgets('the center sees the farmer\'s phone and email, and can call or email from here', (tester) async {
+      await handover(tester);
+      expect(find.byKey(const Key('call-customer')), findsOneWidget);
+      expect(find.text('9822011111'), findsOneWidget);
+      expect(find.byKey(const Key('email-customer')), findsOneWidget);
+      expect(find.text('ramesh@example.com'), findsOneWidget);
+    });
+
     testWidgets('the farmer pays in cash unless the operator says otherwise, and the choice goes with the code', (tester) async {
       final orders = await handover(tester);
       await tester.enterText(find.byType(TextField), '4821');
