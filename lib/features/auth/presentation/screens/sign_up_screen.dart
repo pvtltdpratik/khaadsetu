@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -9,6 +11,8 @@ import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
 import '../../../../core/widgets/app_button.dart';
+import '../../../delivery/presentation/providers/document_picker.dart';
+import '../../../farmer/profile/presentation/providers/profile_providers.dart';
 import '../widgets/auth_scaffold.dart';
 import '../widgets/role_selector.dart';
 
@@ -26,8 +30,27 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   final _password = TextEditingController();
   final _confirm = TextEditingController();
   UserRole? _role;
+  Uint8List? _photo;
   bool _isSubmitting = false;
   String? _error;
+
+  Future<void> _pickPhoto() async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: const Text('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
+        ListTile(leading: const Icon(Icons.photo_library_outlined), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
+        if (_photo != null) ListTile(leading: const Icon(Icons.delete_outline), title: const Text('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
+      ])),
+    );
+    if (choice == null) return;
+    if (choice == 'remove') {
+      setState(() => _photo = null);
+      return;
+    }
+    final doc = await ref.read(documentPickerProvider).pick(camera: choice == 'camera');
+    if (doc != null) setState(() => _photo = doc.bytes);
+  }
 
   @override
   void dispose() {
@@ -62,6 +85,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           content: Text('Account created. Check your email to confirm it, then sign in.'),
         ));
         context.go(RoutePaths.signIn);
+      } else if (_photo != null) {
+        // A session exists now: send the photo they chose, but never let a failure here undo the account that was just made.
+        try {
+          await ref.read(profileRepositoryProvider).uploadPhoto(_photo!);
+        } catch (_) {
+          // They can add it later from their profile.
+        }
       }
       // Otherwise a session exists and the router's redirect takes over.
     } catch (err) {
@@ -83,6 +113,23 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
+              Center(
+                child: GestureDetector(
+                  key: const Key('signup-photo'),
+                  onTap: _isSubmitting ? null : _pickPhoto,
+                  child: Stack(children: [
+                    CircleAvatar(
+                      radius: 36,
+                      backgroundColor: colors.surfaceSunken,
+                      backgroundImage: _photo == null ? null : MemoryImage(_photo!),
+                      child: _photo == null ? Icon(Icons.person_outline, size: 36, color: colors.textMuted) : null,
+                    ),
+                    Positioned(right: -2, bottom: -2, child: CircleAvatar(radius: 12, backgroundColor: colors.primary, child: const Icon(Icons.camera_alt, size: 14, color: Colors.white))),
+                  ]),
+                ),
+              ),
+              Center(child: Text('Add a photo (optional)', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted))),
+              AppSpacing.gapMd,
               Text('I am a', style: Theme.of(context).textTheme.labelLarge),
               AppSpacing.gapSm,
               RoleSelector(
@@ -145,7 +192,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Text('Already have an account?', style: Theme.of(context).textTheme.bodyMedium),
+          Flexible(child: Text('Already have an account?', style: Theme.of(context).textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
           TextButton(onPressed: () => context.go(RoutePaths.signIn), child: const Text('Sign in')),
         ],
       ),

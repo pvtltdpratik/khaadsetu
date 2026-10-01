@@ -15,6 +15,7 @@ import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../delivery/presentation/providers/document_picker.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../providers/profile_providers.dart';
 
@@ -152,11 +153,7 @@ class _Header extends StatelessWidget {
         bottom: false,
         child: Row(
           children: [
-            CircleAvatar(
-              radius: 32,
-              backgroundColor: colors.onPrimary.withValues(alpha: 0.2),
-              child: Text(name.characters.first.toUpperCase(), style: text.headlineMedium?.copyWith(color: colors.onPrimary)),
-            ),
+            _ProfilePhoto(name: name),
             const SizedBox(width: AppSpacing.md),
             Expanded(
               child: Column(
@@ -180,6 +177,62 @@ class _Header extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+}
+
+/// The farmer's own photo if they set one, else their initial. Tapping it offers to take or choose one,
+/// or remove it: entirely optional, so there is never a wrong state here.
+class _ProfilePhoto extends ConsumerWidget {
+  const _ProfilePhoto({required this.name});
+
+  final String name;
+
+  Future<void> _change(BuildContext context, WidgetRef ref, bool hasPhoto) async {
+    final choice = await showModalBottomSheet<String>(
+      context: context,
+      builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
+        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: const Text('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
+        ListTile(leading: const Icon(Icons.photo_library_outlined), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
+        if (hasPhoto) ListTile(leading: const Icon(Icons.delete_outline), title: const Text('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
+      ])),
+    );
+    if (choice == null) return;
+    try {
+      if (choice == 'remove') {
+        await ref.read(profileRepositoryProvider).removePhoto();
+      } else {
+        final doc = await ref.read(documentPickerProvider).pick(camera: choice == 'camera');
+        if (doc == null) return;
+        await ref.read(profileRepositoryProvider).uploadPhoto(doc.bytes);
+      }
+      ref.invalidate(farmerPhotoProvider);
+    } catch (e) {
+      if (context.mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final colors = context.colors;
+    final text = Theme.of(context).textTheme;
+    final photo = ref.watch(farmerPhotoProvider).value;
+    return GestureDetector(
+      key: const Key('profile-photo'),
+      onTap: () => _change(context, ref, photo != null),
+      child: Stack(children: [
+        CircleAvatar(
+          radius: 32,
+          backgroundColor: colors.onPrimary.withValues(alpha: 0.2),
+          backgroundImage: photo == null ? null : MemoryImage(photo),
+          child: photo == null ? Text(name.characters.first.toUpperCase(), style: text.headlineMedium?.copyWith(color: colors.onPrimary)) : null,
+        ),
+        Positioned(
+          right: -2,
+          bottom: -2,
+          child: CircleAvatar(radius: 12, backgroundColor: colors.onPrimary, child: Icon(Icons.camera_alt, size: 14, color: colors.primary)),
+        ),
+      ]),
     );
   }
 }

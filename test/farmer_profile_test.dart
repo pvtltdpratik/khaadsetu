@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
@@ -5,8 +7,11 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:khaadsetu_version1/core/location/place_namer.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
+import 'package:khaadsetu_version1/features/delivery/presentation/providers/document_picker.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/repositories/centers_repository.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/presentation/providers/centers_providers.dart';
+import 'package:khaadsetu_version1/features/farmer/home/domain/entities/farmer_profile.dart';
+import 'package:khaadsetu_version1/features/farmer/home/presentation/providers/home_providers.dart';
 import 'package:khaadsetu_version1/features/farmer/home/presentation/widgets/home_header.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/domain/profile_models.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/presentation/providers/profile_providers.dart';
@@ -15,7 +20,9 @@ import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/
 import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/contact_screen.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/farm_details_screen.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/my_activity_screen.dart';
+import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/profile_screen.dart';
 
+import 'resale_farmer_test.dart' show FakePhotoPicker;
 import 'support/farmer_fakes.dart';
 import 'support/profile_fakes.dart';
 
@@ -187,6 +194,46 @@ void main() {
       expect(find.text('Enter a 6-digit PIN'), findsOneWidget);
       expect(find.text('Enter the address'), findsOneWidget);
       expect(repo.stored, isEmpty);
+    });
+  });
+
+  group('profile photo', () {
+    final profile = const FarmerProfile(name: 'Asha Patil', village: 'Shirur', unreadNotificationCount: 0, landHoldingHectares: 1);
+
+    testWidgets('with nothing set yet, the initial is shown instead', (tester) async {
+      await pump(tester, const Scaffold(body: ProfileScreen()), extra: [farmerProfileProvider.overrideWith((ref) async => profile)]);
+      expect(find.text('A'), findsOneWidget);
+    });
+
+    testWidgets('taking a photo uploads it and shows it in place of the initial', (tester) async {
+      final repo = FakeProfileRepository();
+      final picker = FakePhotoPicker();
+      await pump(tester, const Scaffold(body: ProfileScreen()), repo: repo, extra: [
+        farmerProfileProvider.overrideWith((ref) async => profile),
+        documentPickerProvider.overrideWithValue(picker),
+      ]);
+      expect(find.text('A'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('profile-photo')));
+      await tester.pumpAndSettle();
+      expect(find.text('Remove photo'), findsNothing, reason: 'nothing set yet, so nothing to remove');
+      await tester.tap(find.text('Take a photo'));
+      await tester.pumpAndSettle();
+      expect(picker.calls, 1);
+      expect(repo.photoBytes, isNotNull);
+      expect(find.text('A'), findsNothing, reason: 'the photo is shown now, not the initial');
+    });
+
+    testWidgets('once a photo is set, it can be removed', (tester) async {
+      // A real, decodable 1x1 PNG, so the avatar's image can actually render.
+      final png = Uint8List.fromList([137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82, 0, 0, 0, 1, 0, 0, 0, 1, 8, 6, 0, 0, 0, 31, 21, 196, 137, 0, 0, 0, 13, 73, 68, 65, 84, 120, 156, 99, 248, 255, 255, 63, 0, 5, 254, 2, 254, 167, 53, 129, 132, 0, 0, 0, 0, 73, 69, 78, 68, 174, 66, 96, 130]);
+      final repo = FakeProfileRepository()..photoBytes = png;
+      await pump(tester, const Scaffold(body: ProfileScreen()), repo: repo, extra: [farmerProfileProvider.overrideWith((ref) async => profile)]);
+      await tester.tap(find.byKey(const Key('profile-photo')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Remove photo'));
+      await tester.pumpAndSettle();
+      expect(repo.photoBytes, isNull);
+      expect(find.text('A'), findsOneWidget);
     });
   });
 

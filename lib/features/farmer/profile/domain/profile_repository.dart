@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'profile_models.dart';
 
 /// Everything on the farmer's profile page. One interface so screens can be tested with a fake.
@@ -8,6 +10,11 @@ abstract class ProfileRepository {
   Future<ContactInfo> saveContact({String? email, String? phone});
 
   Future<String> saveName(String name);
+
+  /// Null when nothing has been set yet: optional, so this is never an error.
+  Future<Uint8List?> photo();
+  Future<void> uploadPhoto(Uint8List bytes);
+  Future<void> removePhoto();
 
   /// The total land the farmer works, in hectares (schemes cap benefits by it).
   Future<void> saveLandHolding(double hectares);

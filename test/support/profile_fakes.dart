@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:khaadsetu_version1/core/location/place_namer.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/domain/profile_models.dart';
 import 'package:khaadsetu_version1/features/farmer/profile/domain/profile_repository.dart';
@@ -37,10 +39,20 @@ class FakeProfileRepository implements ProfileRepository {
   Map<String, dynamic> answers;
   String? name;
   double? land;
+  Uint8List? photoBytes;
   var _next = 100;
 
   @override
   Future<ContactInfo> contact() async => contactInfo;
+
+  @override
+  Future<Uint8List?> photo() async => photoBytes;
+
+  @override
+  Future<void> uploadPhoto(Uint8List bytes) async => photoBytes = bytes;
+
+  @override
+  Future<void> removePhoto() async => photoBytes = null;
 
   @override
   Future<ContactInfo> saveContact({String? email, String? phone}) async =>

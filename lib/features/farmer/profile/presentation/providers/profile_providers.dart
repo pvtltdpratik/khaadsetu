@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../../core/network/api_client_provider.dart';
@@ -8,6 +10,8 @@ import '../../domain/profile_repository.dart';
 final profileRepositoryProvider = Provider<ProfileRepository>((ref) => ProfileApiRepository(ref.watch(apiClientProvider)));
 
 final contactProvider = FutureProvider.autoDispose<ContactInfo>((ref) => ref.watch(profileRepositoryProvider).contact());
+
+final farmerPhotoProvider = FutureProvider.autoDispose<Uint8List?>((ref) => ref.watch(profileRepositoryProvider).photo());
 
 final addressesProvider = FutureProvider.autoDispose<List<SavedAddress>>((ref) => ref.watch(profileRepositoryProvider).addresses());
 

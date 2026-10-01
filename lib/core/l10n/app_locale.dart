@@ -77,27 +77,30 @@ class LanguageTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final current = ref.watch(localeProvider);
-    return ListTile(
-      key: const Key('language-tile'),
-      leading: const Icon(Icons.translate),
-      title: const Tx('Language'),
-      subtitle: Text(current.label),
-      trailing: const Icon(Icons.chevron_right),
-      onTap: () => showModalBottomSheet<void>(
-        context: context,
-        builder: (sheet) => SafeArea(
-          child: Column(mainAxisSize: MainAxisSize.min, children: [
-            for (final l in AppLocale.values)
-              ListTile(
-                key: Key('language-${l.code}'),
-                title: Text(l.label),
-                trailing: l == current ? const Icon(Icons.check) : null,
-                onTap: () {
-                  ref.read(localeProvider.notifier).choose(l);
-                  Navigator.pop(sheet);
-                },
-              ),
-          ]),
+    return Material(
+      type: MaterialType.transparency,
+      child: ListTile(
+        key: const Key('language-tile'),
+        leading: const Icon(Icons.translate),
+        title: const Tx('Language'),
+        subtitle: Text(current.label),
+        trailing: const Icon(Icons.chevron_right),
+        onTap: () => showModalBottomSheet<void>(
+          context: context,
+          builder: (sheet) => SafeArea(
+            child: Column(mainAxisSize: MainAxisSize.min, children: [
+              for (final l in AppLocale.values)
+                ListTile(
+                  key: Key('language-${l.code}'),
+                  title: Text(l.label),
+                  trailing: l == current ? const Icon(Icons.check) : null,
+                  onTap: () {
+                    ref.read(localeProvider.notifier).choose(l);
+                    Navigator.pop(sheet);
+                  },
+                ),
+            ]),
+          ),
         ),
       ),
     );

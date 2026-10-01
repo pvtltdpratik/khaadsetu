@@ -1,3 +1,7 @@
+import 'dart:typed_data';
+
+import 'package:http/http.dart' as http;
+
 import '../../../../core/network/api_client.dart';
 import '../domain/profile_models.dart';
 import '../domain/profile_repository.dart';
@@ -9,6 +13,26 @@ class ProfileApiRepository implements ProfileRepository {
 
   @override
   Future<ContactInfo> contact() async => ContactInfo.fromJson(await _api.get('/v1/farmer/contact') as Map<String, dynamic>);
+
+  @override
+  Future<Uint8List?> photo() async {
+    try {
+      return await _api.getBytes('/v1/farmer/photo');
+    } on ApiException catch (e) {
+      if (e.statusCode == 404) return null;
+      rethrow;
+    }
+  }
+
+  @override
+  Future<void> uploadPhoto(Uint8List bytes) async {
+    await _api.postMultipart('/v1/farmer/photo', fields: const {}, files: [http.MultipartFile.fromBytes('file', bytes, filename: 'profile.jpg')]);
+  }
+
+  @override
+  Future<void> removePhoto() async {
+    await _api.delete('/v1/farmer/photo');
+  }
 
   @override
   Future<ContactInfo> saveContact({String? email, String? phone}) async =>
