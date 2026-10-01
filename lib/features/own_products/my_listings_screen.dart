@@ -162,16 +162,9 @@ class _ListingEditorScreenState extends ConsumerState<ListingEditorScreen> {
     });
   }
 
+  // Camera only, never the gallery: a buyer trusts that this is a real photo of this batch, taken just now.
   Future<void> _photo(int position) => _run(() async {
-        final camera = await showModalBottomSheet<bool>(
-          context: context,
-          builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
-            ListTile(leading: const Icon(Icons.photo_camera_outlined), title: const Text('Take a photo'), onTap: () => Navigator.pop(context, true)),
-            ListTile(leading: const Icon(Icons.photo_library_outlined), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(context, false)),
-          ])),
-        );
-        if (camera == null) return;
-        final doc = await ref.read(documentPickerProvider).pick(camera: camera);
+        final doc = await ref.read(documentPickerProvider).pick(camera: true);
         if (doc == null) return;
         await ref.read(ownApiProvider).uploadPhoto(_id!, position, doc.bytes);
         ref.invalidate(apiImageProvider('/v1/own/listings/$_id/photos/$position'));
@@ -204,7 +197,7 @@ class _ListingEditorScreenState extends ConsumerState<ListingEditorScreen> {
               Expanded(child: TextFormField(key: const Key('listing-price'), controller: _price, enabled: !_locked, keyboardType: const TextInputType.numberWithOptions(decimal: true), decoration: const InputDecoration(labelText: 'Price (₹)'), validator: (v) => (double.tryParse((v ?? '').trim()) ?? 0) <= 0 ? 'Enter a price' : null)),
               AppSpacing.gapSm,
               SizedBox(
-                width: 110,
+                width: 150,
                 child: DropdownButtonFormField<String>(initialValue: _unit, decoration: const InputDecoration(labelText: 'per'), items: const [DropdownMenuItem(value: 'kg', child: Text('kg')), DropdownMenuItem(value: 'litre', child: Text('litre')), DropdownMenuItem(value: 'bag', child: Text('bag'))], onChanged: _locked ? null : (v) => setState(() => _unit = v ?? 'kg')),
               ),
             ]),

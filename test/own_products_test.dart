@@ -1,15 +1,20 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/core/widgets/kit.dart';
+import 'package:khaadsetu_version1/features/delivery/presentation/providers/document_picker.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/entities/nearby_center.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/presentation/providers/centers_providers.dart';
 import 'package:khaadsetu_version1/features/own_products/my_listings_screen.dart';
 import 'package:khaadsetu_version1/features/own_products/own_api.dart';
 import 'package:khaadsetu_version1/features/own_products/own_market_screens.dart';
 import 'package:khaadsetu_version1/features/own_products/own_sales_screens.dart';
+
+import 'resale_farmer_test.dart' show FakePhotoPicker;
 
 /// A settled location, so the market never tries a real GPS or network lookup in a test.
 class _NoLocation extends FarmerLocationNotifier {
@@ -20,6 +25,7 @@ class _NoLocation extends FarmerLocationNotifier {
 class FakeOwn implements OwnApi {
   final marketAsked = <String?>[];
   final calls = <String>[];
+  final uploadedPhotos = <int>[];
   Json saleData = {'id': 's1', 'role': 'buyer', 'status': 'placed', 'listingName': 'Vermicompost', 'quantity': 10, 'unit': 'kg', 'unitPrice': 20, 'total': 200, 'fulfilment': 'farm_pickup', 'sellerName': 'Ganesh', 'sellerPhone': '9822000002', 'pickupCode': '4821', 'reviewed': false};
 
   @override
@@ -50,10 +56,15 @@ class FakeOwn implements OwnApi {
   }
 
   @override
+  Future<void> uploadPhoto(String id, int position, Uint8List bytes) async {
+    uploadedPhotos.add(position);
+  }
+
+  @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
 
-Future<void> pump(WidgetTester tester, Widget home, FakeOwn fake) async {
+Future<void> pump(WidgetTester tester, Widget home, FakeOwn fake, {List<Override> extra = const []}) async {
   tester.view.physicalSize = const Size(430, 2400);
   tester.view.devicePixelRatio = 1;
   addTearDown(tester.view.reset);
@@ -61,6 +72,7 @@ Future<void> pump(WidgetTester tester, Widget home, FakeOwn fake) async {
     ownApiProvider.overrideWithValue(fake),
     apiImageProvider.overrideWith((ref, path) async => throw 'no photos in tests'),
     farmerLocationProvider.overrideWith(_NoLocation.new),
+    ...extra,
   ];
   await tester.pumpWidget(ProviderScope(overrides: overrides, child: MaterialApp(theme: AppTheme.light, home: home)));
   await tester.pumpAndSettle();
@@ -85,6 +97,20 @@ void main() {
     expect(find.text('On sale'), findsOneWidget);
     expect(find.textContaining('Photos are blurry'), findsOneWidget);
     expect(find.text('₹1,500'), findsOneWidget);
+  });
+
+  testWidgets('a product photo always comes from the camera, never the gallery', (tester) async {
+    final picker = FakePhotoPicker();
+    await pump(
+      tester,
+      ListingEditorScreen(existing: const {'id': 'l1', 'name': 'Vermicompost', 'status': 'draft', 'pricePerUnit': 20, 'unit': 'kg', 'quantityAvailable': 50, 'minOrder': 1, 'category': 'compost', 'photoCount': 0}),
+      FakeOwn(),
+      extra: [documentPickerProvider.overrideWithValue(picker)],
+    );
+    await tester.tap(find.byKey(const Key('lphoto-0')));
+    await tester.pumpAndSettle();
+    expect(find.text('Choose from gallery'), findsNothing);
+    expect(picker.calls, 1);
   });
 
   testWidgets('the buyer sees the pickup code and can cancel; the seller side has no code shown', (tester) async {
