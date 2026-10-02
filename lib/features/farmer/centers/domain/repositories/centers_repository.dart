@@ -12,6 +12,9 @@ abstract class CentersRepository {
 
   Future<List<Village>> villages(String query);
 
+  /// Real villages and towns near a GPS point, nearest first. Empty when none are known there.
+  Future<List<Village>> nearbyVillages({required double latitude, required double longitude});
+
   /// The location saved on the farmer's profile, or failing that the village
   /// they registered with. Null when neither is known.
   Future<FarmerLocation?> savedLocation();

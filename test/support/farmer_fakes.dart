@@ -120,6 +120,15 @@ class FakeCentersRepository implements CentersRepository {
   Future<List<Village>> villages(String query) async =>
       villageList.where((v) => query.isEmpty || v.name.toLowerCase().contains(query.toLowerCase())).toList();
 
+  List<Village> nearbyList = const [];
+  final nearbyVillageCalls = <(double, double)>[];
+
+  @override
+  Future<List<Village>> nearbyVillages({required double latitude, required double longitude}) async {
+    nearbyVillageCalls.add((latitude, longitude));
+    return nearbyList;
+  }
+
   @override
   Future<FarmerLocation?> savedLocation() async => saved;
 

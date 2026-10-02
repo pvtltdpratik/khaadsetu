@@ -49,6 +49,12 @@ class CentersApiRepository implements CentersRepository {
   }
 
   @override
+  Future<List<Village>> nearbyVillages({required double latitude, required double longitude}) async {
+    final list = await _api.get('/v1/centers/villages/nearby', query: {'latitude': '$latitude', 'longitude': '$longitude'}) as List;
+    return list.map((e) => Village.fromJson(e as Map<String, dynamic>)).toList();
+  }
+
+  @override
   Future<FarmerLocation?> savedLocation() async {
     final profile = await _api.get('/v1/farmer/profile') as Map<String, dynamic>;
     final lat = profile['latitude'] as num?;

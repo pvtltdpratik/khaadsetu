@@ -289,7 +289,7 @@ void main() {
     });
   });
 
-  testWidgets('village picker: searches, and choosing one sets and saves the location', (tester) async {
+  testWidgets('village picker: searches, and choosing one sets and saves the location, then shows centers near it', (tester) async {
     tester.view.physicalSize = const Size(420, 900);
     tester.view.devicePixelRatio = 1;
     addTearDown(tester.view.reset);
@@ -323,11 +323,44 @@ void main() {
 
     await tester.tap(find.text('Paithan'));
     await tester.pumpAndSettle();
-    expect(find.text('open picker'), findsOneWidget, reason: 'the picker closed itself');
     final location = container.read(farmerLocationProvider).value!;
     expect(location.label, 'Paithan');
     expect(location.source, LocationSource.village);
     expect(repo.savedLocations.single.latitude, 19.4772);
+    // The farmer sees what serves the village they just chose, right there.
+    expect(find.text('open picker'), findsNothing, reason: 'the picker has not closed itself yet');
+    expect(find.text('Village centers near Paithan, Aurangabad'), findsOneWidget);
+    expect(find.text('Center a'), findsOneWidget);
+
+    await tester.tap(find.byKey(const Key('village-done')));
+    await tester.pumpAndSettle();
+    expect(find.text('open picker'), findsOneWidget, reason: 'Done closes the picker');
+  });
+
+  Future<void> pumpPicker(WidgetTester tester, {required FakeCentersRepository repo, required FakeDeviceLocation gps}) async {
+    tester.view.physicalSize = const Size(420, 900);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.reset);
+    await tester.pumpWidget(ProviderScope(
+      overrides: [centersRepositoryProvider.overrideWithValue(repo), deviceLocationProvider.overrideWithValue(gps)],
+      child: const MaterialApp(home: VillagePickerScreen()),
+    ));
+    await tester.pumpAndSettle();
+  }
+
+  testWidgets('village picker: real places near the GPS fix are offered before anything is typed', (tester) async {
+    final repo = FakeCentersRepository()..nearbyList = const [Village(name: 'Kasarwadi', district: 'Pune', latitude: 18.6, longitude: 73.9)];
+    await pumpPicker(tester, repo: repo, gps: FakeDeviceLocation(result: shirur));
+    expect(find.text('Near you'), findsOneWidget);
+    expect(find.text('Kasarwadi'), findsOneWidget);
+    expect(repo.nearbyVillageCalls.single, (shirur.latitude, shirur.longitude));
+  });
+
+  testWidgets('village picker: with no GPS, the picker just searches, same as before', (tester) async {
+    final repo = FakeCentersRepository(villageList: const [Village(name: 'Shirur', district: 'Pune', latitude: 18.8284, longitude: 74.376)]);
+    await pumpPicker(tester, repo: repo, gps: FakeDeviceLocation(error: const LocationUnavailable('off')));
+    expect(find.text('Near you'), findsNothing);
+    expect(find.text('Shirur'), findsOneWidget);
   });
 }
 
