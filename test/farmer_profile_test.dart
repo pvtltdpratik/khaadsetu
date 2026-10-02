@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
@@ -5,8 +6,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
+import 'package:http/http.dart' as http;
+import 'package:http/testing.dart';
+import 'package:khaadsetu_version1/core/device/device_id_provider.dart';
 import 'package:khaadsetu_version1/core/location/place_namer.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
+import 'package:khaadsetu_version1/core/update/update_controller.dart';
+import 'package:khaadsetu_version1/core/update/update_platform.dart';
+import 'package:khaadsetu_version1/core/update/update_service.dart';
 import 'package:khaadsetu_version1/features/delivery/presentation/providers/document_picker.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/domain/repositories/centers_repository.dart';
 import 'package:khaadsetu_version1/features/farmer/centers/presentation/providers/centers_providers.dart';
@@ -25,6 +32,20 @@ import 'package:khaadsetu_version1/features/farmer/profile/presentation/screens/
 import 'resale_farmer_test.dart' show FakePhotoPicker;
 import 'support/farmer_fakes.dart';
 import 'support/profile_fakes.dart';
+
+class _FixedUpdatePlatform implements UpdatePlatform {
+  const _FixedUpdatePlatform();
+  @override
+  bool get supported => true;
+  @override
+  Future<({int code, String name})> installedVersion() async => (code: 1, name: '1.0');
+  @override
+  Future<bool> canInstall() async => true;
+  @override
+  Future<void> openInstallSettings() async {}
+  @override
+  Future<void> install(String apkPath) async {}
+}
 
 Future<void> pump(
   WidgetTester tester,
@@ -234,6 +255,31 @@ void main() {
       await tester.pumpAndSettle();
       expect(repo.photoBytes, isNull);
       expect(find.text('A'), findsOneWidget);
+    });
+  });
+
+  group('check for updates', () {
+    final profile = const FarmerProfile(name: 'Asha Patil', village: 'Shirur', unreadNotificationCount: 0, landHoldingHectares: 1);
+
+    testWidgets('tapping it asks the server, and says so when there is nothing newer', (tester) async {
+      await pump(tester, const Scaffold(body: ProfileScreen()), extra: [
+        farmerProfileProvider.overrideWith((ref) async => profile),
+        updatePlatformProvider.overrideWithValue(const _FixedUpdatePlatform()),
+        updateServiceProvider.overrideWithValue(UpdateService(
+          baseUrl: 'https://x.test',
+          client: MockClient((req) async => http.Response(jsonEncode({'updateAvailable': false}), 200)),
+        )),
+        deviceIdProvider.overrideWith((ref) async => 'phone'),
+      ]);
+      await tester.ensureVisible(find.byKey(const Key('profile-check-for-updates')));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byKey(const Key('profile-check-for-updates')));
+      // The check awaits real HTTP and SharedPreferences work, which pumpAndSettle alone does not drive.
+      for (var i = 0; i < 50 && find.text("You're already on the latest version").evaluate().isEmpty; i++) {
+        await tester.runAsync(() => Future<void>.delayed(const Duration(milliseconds: 20)));
+        await tester.pump();
+      }
+      expect(find.text("You're already on the latest version"), findsOneWidget);
     });
   });
 

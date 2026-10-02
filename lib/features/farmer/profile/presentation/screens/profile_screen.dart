@@ -17,6 +17,7 @@ import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
+import '../../../../../core/update/update_controller.dart';
 import '../../../../delivery/presentation/providers/document_picker.dart';
 import '../../../home/presentation/providers/home_providers.dart';
 import '../providers/profile_providers.dart';
@@ -110,6 +111,19 @@ class ProfileScreen extends ConsumerWidget {
                     _Row(icon: Icons.smart_toy_outlined, title: 'Farming assistant', subtitle: 'Ask in Marathi, Hindi or English', onTap: () => context.push(RoutePaths.farmerAssistant)),
                     _Row(icon: Icons.notifications_outlined, title: 'Notifications', onTap: () => context.push(RoutePaths.farmerNotifications)),
                     _Row(icon: Icons.history_outlined, title: 'Soil scan history', onTap: () => context.push(RoutePaths.farmerSoilScanHistory)),
+                    _Row(
+                      key: const Key('profile-check-for-updates'),
+                      icon: Icons.system_update_alt_rounded,
+                      title: 'Check for updates',
+                      subtitle: 'See if a newer version is ready to install',
+                      onTap: () async {
+                        final messenger = ScaffoldMessenger.of(context);
+                        await ref.read(updateControllerProvider.notifier).check(force: true);
+                        if (ref.read(updateControllerProvider).phase == UpdatePhase.idle) {
+                          messenger.showSnackBar(const SnackBar(content: Text("You're already on the latest version")));
+                        }
+                      },
+                    ),
                   ]),
                 ),
                 AppSpacing.gapMd,
@@ -308,7 +322,7 @@ class _Section extends StatelessWidget {
 }
 
 class _Row extends StatelessWidget {
-  const _Row({required this.icon, required this.title, required this.onTap, this.subtitle});
+  const _Row({super.key, required this.icon, required this.title, required this.onTap, this.subtitle});
 
   final IconData icon;
   final String title;
