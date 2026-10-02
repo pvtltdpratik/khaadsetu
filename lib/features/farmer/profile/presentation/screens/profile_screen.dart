@@ -192,9 +192,9 @@ class _ProfilePhoto extends ConsumerWidget {
     final choice = await showModalBottomSheet<String>(
       context: context,
       builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: const Text('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
-        ListTile(leading: const Icon(Icons.photo_library_outlined), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
-        if (hasPhoto) ListTile(leading: const Icon(Icons.delete_outline), title: const Text('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
+        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: Tx('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
+        ListTile(leading: const Icon(Icons.photo_library_outlined), title: Tx('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
+        if (hasPhoto) ListTile(leading: const Icon(Icons.delete_outline), title: Tx('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
       ])),
     );
     if (choice == null) return;

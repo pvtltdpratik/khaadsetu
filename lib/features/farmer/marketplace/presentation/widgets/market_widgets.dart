@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../../../core/animation/pressable.dart';
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/utils/price_format.dart';
@@ -24,7 +25,7 @@ class MarketSearchBar extends StatelessWidget {
       onChanged: onChanged,
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
-        hintText: 'Search fertilizers, seeds, neem, vermicompost…',
+        hintText: context.t('Search fertilizers, seeds, neem, vermicompost…'),
         prefixIcon: Icon(Icons.search_rounded, color: colors.primary),
         suffixIcon: controller.text.isEmpty
             ? null
@@ -75,7 +76,7 @@ class CategoryStrip extends StatelessWidget {
                 child: Icon(icon, color: color),
               ),
               const SizedBox(height: AppSpacing.xs),
-              Text(label, maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: on ? FontWeight.w700 : FontWeight.w500)),
+              Text(context.t(label), maxLines: 1, overflow: TextOverflow.ellipsis, style: Theme.of(context).textTheme.labelSmall?.copyWith(fontWeight: on ? FontWeight.w700 : FontWeight.w500)),
             ]),
           ),
         );
@@ -158,9 +159,9 @@ class _PromoCarouselState extends State<PromoCarousel> {
                       child: Row(children: [
                         Expanded(
                           child: Column(mainAxisAlignment: MainAxisAlignment.center, crossAxisAlignment: CrossAxisAlignment.start, children: [
-                            Text(b.title, style: text.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
+                            Text(context.t(b.title), style: text.titleMedium?.copyWith(color: Colors.white, fontWeight: FontWeight.w800), maxLines: 1, overflow: TextOverflow.ellipsis),
                             const SizedBox(height: 2),
-                            Text(b.subtitle, style: text.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.92)), maxLines: 2, overflow: TextOverflow.ellipsis),
+                            Text(context.t(b.subtitle), style: text.bodySmall?.copyWith(color: Colors.white.withValues(alpha: 0.92)), maxLines: 2, overflow: TextOverflow.ellipsis),
                           ]),
                         ),
                         Icon(b.icon, size: 46, color: Colors.white.withValues(alpha: 0.85)),
@@ -211,13 +212,13 @@ class SortFilterBar extends StatelessWidget {
           style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 36)),
           onPressed: onSort,
           icon: const Icon(Icons.swap_vert_rounded, size: 18),
-          label: Text(query.sort.shortLabel),
+          label: Text(context.t(query.sort.shortLabel)),
         ),
         const SizedBox(width: AppSpacing.xs),
         Badge(
           isLabelVisible: query.activeFilterCount > 0,
           label: Text('${query.activeFilterCount}'),
-          child: OutlinedButton.icon(key: const Key('filter-button'), style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 36)), onPressed: onFilter, icon: const Icon(Icons.tune_rounded, size: 18), label: const Text('Filter')),
+          child: OutlinedButton.icon(key: const Key('filter-button'), style: OutlinedButton.styleFrom(visualDensity: VisualDensity.compact, padding: const EdgeInsets.symmetric(horizontal: 10), minimumSize: const Size(0, 36)), onPressed: onFilter, icon: const Icon(Icons.tune_rounded, size: 18), label: Text(context.t('Filter'))),
         ),
       ]),
     );
@@ -279,7 +280,7 @@ class ProductCard extends StatelessWidget {
                       key: const Key('soil-ribbon'),
                       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                       decoration: BoxDecoration(color: colors.success, borderRadius: const BorderRadius.horizontal(right: Radius.circular(6))),
-                      child: Text('Matches your soil', style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
+                      child: Text(context.t('Matches your soil'), style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
                     ),
                   ),
                 if (compareMode)
@@ -317,7 +318,7 @@ class ProductCard extends StatelessWidget {
                   Expanded(child: Text('/ ${product.unitLabel}', style: text.labelSmall?.copyWith(color: colors.textMuted), maxLines: 1, overflow: TextOverflow.ellipsis)),
                 ]),
                 const SizedBox(height: 2),
-                Text('Pickup at your village center', style: text.labelSmall?.copyWith(color: colors.success)),
+                Text(context.t('Pickup at your village center'), style: text.labelSmall?.copyWith(color: colors.success)),
               ]),
             ),
           ]),

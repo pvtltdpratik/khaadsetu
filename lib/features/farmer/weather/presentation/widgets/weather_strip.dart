@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -83,7 +84,7 @@ class _DayTile extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            isToday ? 'Today' : _weekdayLabel(day.date),
+            isToday ? context.t('Today') : context.t(_weekdayLabel(day.date)),
             style: Theme.of(context).textTheme.labelSmall,
           ),
           Icon(_iconFor(day.condition), color: _colorFor(day.condition, colors), size: 26),

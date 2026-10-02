@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/animation/fade_slide_in.dart';
+import '../../../core/l10n/app_locale.dart';
 import '../../../core/theme/app_colors.dart';
 import '../../../core/theme/app_spacing.dart';
 import '../domain/assistant_models.dart';
@@ -61,10 +62,10 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Farming assistant'),
+        title: Tx('Farming assistant'),
         actions: [
           if (chat.messages.isNotEmpty)
-            IconButton(key: const Key('clear-chat'), tooltip: 'New chat', icon: const Icon(Icons.refresh_rounded), onPressed: () => ref.read(chatControllerProvider.notifier).clear()),
+            IconButton(key: const Key('clear-chat'), tooltip: context.t('New chat'), icon: const Icon(Icons.refresh_rounded), onPressed: () => ref.read(chatControllerProvider.notifier).clear()),
         ],
       ),
       body: SafeArea(
@@ -101,7 +102,7 @@ class _AssistantScreenState extends ConsumerState<AssistantScreen> {
                       maxLength: 2000,
                       textInputAction: TextInputAction.send,
                       onSubmitted: (_) => _send(),
-                      decoration: const InputDecoration(hintText: 'Ask about crops, soil, schemes…', counterText: ''),
+                      decoration: InputDecoration(hintText: context.t('Ask about crops, soil, schemes…'), counterText: ''),
                     ),
                   ),
                   const SizedBox(width: AppSpacing.xs),
@@ -126,9 +127,9 @@ class _Off extends StatelessWidget {
           child: Column(mainAxisSize: MainAxisSize.min, children: [
             Icon(Icons.smart_toy_outlined, size: 56, color: context.colors.textMuted),
             AppSpacing.gapMd,
-            Text('The assistant is not available right now', style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
+            Text(context.t('The assistant is not available right now'), style: Theme.of(context).textTheme.titleMedium, textAlign: TextAlign.center),
             const SizedBox(height: AppSpacing.xs),
-            Text('You can still ask other farmers in the Community tab.', textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted)),
+            Text(context.t('You can still ask other farmers in the Community tab.'), textAlign: TextAlign.center, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.colors.textMuted)),
           ]),
         ),
       );
@@ -149,9 +150,9 @@ class _Welcome extends StatelessWidget {
         AppSpacing.gapLg,
         Center(child: CircleAvatar(radius: 34, backgroundColor: colors.primaryContainer, child: Icon(Icons.smart_toy_outlined, size: 36, color: colors.primary))),
         AppSpacing.gapMd,
-        Text('नमस्कार! How can I help your farm today?', textAlign: TextAlign.center, style: text.titleMedium),
+        Text(context.t('नमस्कार! How can I help your farm today?'), textAlign: TextAlign.center, style: text.titleMedium),
         const SizedBox(height: AppSpacing.xs),
-        Text('Ask in Marathi, Hindi or English. I know your land, crops and soil scan from your profile.', textAlign: TextAlign.center, style: text.bodySmall?.copyWith(color: colors.textMuted)),
+        Text(context.t('Ask in Marathi, Hindi or English. I know your land, crops and soil scan from your profile.'), textAlign: TextAlign.center, style: text.bodySmall?.copyWith(color: colors.textMuted)),
         AppSpacing.gapLg,
         for (var i = 0; i < _suggestions.length; i++)
           Padding(
@@ -167,7 +168,7 @@ class _Welcome extends StatelessWidget {
             ),
           ),
         AppSpacing.gapSm,
-        Text('The assistant can make mistakes. For serious crop or animal problems, also ask your Taluka Agriculture Officer or call the Kisan Call Center on 1800-180-1551.', textAlign: TextAlign.center, style: text.labelSmall?.copyWith(color: colors.textMuted)),
+        Text(context.t('The assistant can make mistakes. For serious crop or animal problems, also ask your Taluka Agriculture Officer or call the Kisan Call Center on 1800-180-1551.'), textAlign: TextAlign.center, style: text.labelSmall?.copyWith(color: colors.textMuted)),
       ],
     );
   }
@@ -203,7 +204,7 @@ class _Bubble extends StatelessWidget {
         ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(message.text, style: text.bodyMedium?.copyWith(color: fg)),
-          if (onRetry != null) TextButton(key: const Key('chat-retry'), onPressed: onRetry, child: const Text('Try again')),
+          if (onRetry != null) TextButton(key: const Key('chat-retry'), onPressed: onRetry, child: Tx('Try again')),
         ]),
       ),
     );

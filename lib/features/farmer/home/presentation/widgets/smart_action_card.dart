@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../../../../core/widgets/app_button.dart';
@@ -36,7 +37,7 @@ class SmartActionCard extends StatelessWidget {
               Icon(_iconFor(recommendation.category), color: colors.onPrimary),
               const SizedBox(width: AppSpacing.sm),
               Text(
-                'Suggested for you',
+                context.t('Suggested for you'),
                 style: Theme.of(context)
                     .textTheme
                     .labelMedium

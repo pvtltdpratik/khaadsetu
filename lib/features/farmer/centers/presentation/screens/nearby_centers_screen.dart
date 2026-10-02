@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -34,7 +35,7 @@ class NearbyCentersScreen extends ConsumerWidget {
 
     return ResponsiveScope(
       child: Scaffold(
-        appBar: AppBar(title: Text(args.pick ? 'Choose a center' : 'Village centers near you')),
+        appBar: AppBar(title: Text(context.t(args.pick ? 'Choose a center' : 'Village centers near you'))),
         body: SafeArea(
           child: RefreshIndicator(
             onRefresh: () async {
@@ -52,7 +53,7 @@ class NearbyCentersScreen extends ConsumerWidget {
                       AppSpacing.gapMd,
                       if (args.cart.lines.isNotEmpty) ...[
                         Text(
-                          args.pick ? 'Pick where you will collect your order.' : 'Stock shown is for the item you are looking at.',
+                          context.t(args.pick ? 'Pick where you will collect your order.' : 'Stock shown is for the item you are looking at.'),
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted),
                         ),
                         AppSpacing.gapSm,
@@ -92,7 +93,7 @@ class _Results extends StatelessWidget {
             Icon(Icons.location_off_outlined, size: 40, color: colors.textMuted),
             AppSpacing.gapSm,
             Text(
-              'No village centers within ${result!.radiusKm} km yet.',
+              '${context.t('No village centers within')} ${result!.radiusKm} km ${context.t('yet.')}',
               textAlign: TextAlign.center,
               style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted),
             ),
@@ -103,7 +104,7 @@ class _Results extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Text('Within ${result!.radiusKm} km · best match first', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.textMuted)),
+        Text('${context.t('Within')} ${result!.radiusKm} km · ${context.t('best match first')}', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: colors.textMuted)),
         AppSpacing.gapSm,
         for (final (i, n) in result!.centers.indexed) ...[
           FadeSlideIn(
@@ -119,7 +120,7 @@ class _Results extends StatelessWidget {
           if (args.pick && args.cart.lines.isNotEmpty && n.inventory.status != InventoryStatus.all)
             Padding(
               padding: const EdgeInsets.only(top: AppSpacing.xs),
-              child: Text('This center cannot fill your whole order.', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted)),
+              child: Text(context.t('This center cannot fill your whole order.'), style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.textMuted)),
             ),
           AppSpacing.gapMd,
         ],

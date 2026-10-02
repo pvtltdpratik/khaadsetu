@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -61,15 +62,14 @@ class SoilHealthSummaryCard extends StatelessWidget {
                   Text(
                     summary.hasScan
                         ? summary.note
-                        : 'Scan your soil to get a health score and '
-                            'fertilizer guidance.',
+                        : context.t('Scan your soil to get a health score and fertilizer guidance.'),
                     maxLines: 3,
                     overflow: TextOverflow.ellipsis,
                     style: Theme.of(context).textTheme.bodyMedium,
                   ),
                   const SizedBox(height: AppSpacing.sm),
                   AppButton(
-                    label: summary.hasScan ? 'View details' : 'Scan soil now',
+                    label: context.t(summary.hasScan ? 'View details' : 'Scan soil now'),
                     icon: summary.hasScan ? null : Icons.camera_alt_outlined,
                     variant: AppButtonVariant.outlined,
                     onPressed: summary.hasScan ? onViewDetails : onScanPressed,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/location/place_namer.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../centers/domain/entities/nearby_center.dart';
@@ -28,7 +29,7 @@ class HomeHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
-                'Namaste, ${profile.name.split(' ').first}',
+                '${context.t('Namaste')}, ${profile.name.split(' ').first}',
                 style: Theme.of(context).textTheme.headlineSmall,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -141,7 +142,7 @@ class CurrentLocationLine extends ConsumerWidget {
           children: [
             Icon(icon, size: 16, color: colors.textMuted),
             const SizedBox(width: AppSpacing.xxs),
-            Flexible(child: Text(label, overflow: TextOverflow.ellipsis, style: style)),
+            Flexible(child: Text(context.t(label), overflow: TextOverflow.ellipsis, style: style)),
           ],
         ),
       ),

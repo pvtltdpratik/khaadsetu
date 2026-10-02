@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/auth/user_role.dart';
+import '../../../../core/l10n/app_locale.dart';
 import '../../../../core/routing/route_paths.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_spacing.dart';
@@ -38,9 +39,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
     final choice = await showModalBottomSheet<String>(
       context: context,
       builder: (_) => SafeArea(child: Column(mainAxisSize: MainAxisSize.min, children: [
-        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: const Text('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
-        ListTile(leading: const Icon(Icons.photo_library_outlined), title: const Text('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
-        if (_photo != null) ListTile(leading: const Icon(Icons.delete_outline), title: const Text('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
+        ListTile(leading: const Icon(Icons.photo_camera_outlined), title: Tx('Take a photo'), onTap: () => Navigator.pop(context, 'camera')),
+        ListTile(leading: const Icon(Icons.photo_library_outlined), title: Tx('Choose from gallery'), onTap: () => Navigator.pop(context, 'gallery')),
+        if (_photo != null) ListTile(leading: const Icon(Icons.delete_outline), title: Tx('Remove photo'), onTap: () => Navigator.pop(context, 'remove')),
       ])),
     );
     if (choice == null) return;
@@ -105,8 +106,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   Widget build(BuildContext context) {
     final colors = context.colors;
     return AuthScaffold(
-      title: 'Create your account',
-      subtitle: 'Join ShetSamrudhi in a minute',
+      title: context.t('Create your account'),
+      subtitle: context.t('Join ShetSamrudhi in a minute'),
       form: Form(
         key: _formKey,
         child: AutofillGroup(
@@ -128,9 +129,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                   ]),
                 ),
               ),
-              Center(child: Text('Add a photo (optional)', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted))),
+              Center(child: Tx('Add a photo (optional)', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted))),
               AppSpacing.gapMd,
-              Text('I am a', style: Theme.of(context).textTheme.labelLarge),
+              Tx('I am a', style: Theme.of(context).textTheme.labelLarge),
               AppSpacing.gapSm,
               RoleSelector(
                 selected: _role,
@@ -147,9 +148,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.name],
                 validator: (v) => (v == null || v.trim().length < 2) ? 'Enter your name' : null,
-                decoration: const InputDecoration(
-                  labelText: 'Full name',
-                  prefixIcon: Icon(Icons.person_outline_rounded),
+                decoration: InputDecoration(
+                  labelText: context.t('Full name'),
+                  prefixIcon: const Icon(Icons.person_outline_rounded),
                 ),
               ),
               AppSpacing.gapMd,
@@ -159,9 +160,9 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 textInputAction: TextInputAction.next,
                 autofillHints: const [AutofillHints.email],
                 validator: validateEmail,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  prefixIcon: Icon(Icons.mail_outline_rounded),
+                decoration: InputDecoration(
+                  labelText: context.t('Email'),
+                  prefixIcon: const Icon(Icons.mail_outline_rounded),
                 ),
               ),
               AppSpacing.gapMd,
@@ -184,7 +185,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 Text(_error!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: colors.danger)),
               ],
               AppSpacing.gapLg,
-              AppButton(label: 'Create account', expand: true, isLoading: _isSubmitting, onPressed: _submit),
+              AppButton(label: context.t('Create account'), expand: true, isLoading: _isSubmitting, onPressed: _submit),
             ],
           ),
         ),
@@ -192,8 +193,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
       footer: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Flexible(child: Text('Already have an account?', style: Theme.of(context).textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
-          TextButton(onPressed: () => context.go(RoutePaths.signIn), child: const Text('Sign in')),
+          Flexible(child: Text(context.t('Already have an account?'), style: Theme.of(context).textTheme.bodyMedium, overflow: TextOverflow.ellipsis)),
+          TextButton(onPressed: () => context.go(RoutePaths.signIn), child: Text(context.t('Sign in'))),
         ],
       ),
     );

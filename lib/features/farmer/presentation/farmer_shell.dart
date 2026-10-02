@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/l10n/app_locale.dart';
 import '../../../core/responsive/responsive.dart';
 import '../../../core/widgets/sign_out_button.dart';
 
@@ -76,7 +77,7 @@ class FarmerShell extends StatelessWidget {
                     NavigationDestination(
                       icon: Icon(d.icon),
                       selectedIcon: Icon(d.selectedIcon),
-                      label: d.label,
+                      label: context.t(d.label),
                     ),
                 ],
               ),
@@ -106,7 +107,7 @@ class FarmerShell extends StatelessWidget {
                         NavigationRailDestination(
                           icon: Icon(d.icon),
                           selectedIcon: Icon(d.selectedIcon),
-                          label: Text(d.label),
+                          label: Tx(d.label),
                         ),
                     ],
                   ),

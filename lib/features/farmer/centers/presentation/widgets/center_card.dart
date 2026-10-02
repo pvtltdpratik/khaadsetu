@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
 import '../../domain/entities/nearby_center.dart';
@@ -51,7 +52,7 @@ class CenterCard extends StatelessWidget {
                   const SizedBox(width: AppSpacing.sm),
                   Expanded(
                     child: Text(
-                      nearby.recommendationReason == null ? 'Recommended center' : 'Recommended: ${nearby.recommendationReason}',
+                      nearby.recommendationReason == null ? context.t('Recommended center') : '${context.t('Recommended')}: ${nearby.recommendationReason}',
                       style: text.labelLarge?.copyWith(color: colors.primary),
                     ),
                   ),
@@ -68,7 +69,7 @@ class CenterCard extends StatelessWidget {
                 AppSpacing.gapSm,
                 _Line(
                   icon: Icons.directions_walk_rounded,
-                  child: Text('${nearby.distanceKm.toStringAsFixed(1)} km away · about ${_travel(nearby.estimatedTravelMinutes)}', style: text.bodyMedium),
+                  child: Text('${nearby.distanceKm.toStringAsFixed(1)} km ${context.t('away')} · ${context.t('about')} ${_travel(nearby.estimatedTravelMinutes)}', style: text.bodyMedium),
                 ),
                 if (nearby.inventory.label != null)
                   _Line(icon: Icons.inventory_2_outlined, color: stockColor, child: Text(nearby.inventory.label!, style: text.bodyMedium?.copyWith(color: stockColor, fontWeight: FontWeight.w600))),
@@ -76,26 +77,26 @@ class CenterCard extends StatelessWidget {
                   icon: nearby.hours.isOpenNow ? Icons.store_rounded : Icons.storefront_outlined,
                   color: nearby.hours.isOpenNow ? colors.success : colors.textMuted,
                   child: Text(
-                    '${nearby.hours.isOpenNow ? 'Open' : 'Closed'} · ${nearby.hours.label} (${nearby.hours.opensAt}–${nearby.hours.closesAt})',
+                    '${context.t(nearby.hours.isOpenNow ? 'Open' : 'Closed')} · ${nearby.hours.label} (${nearby.hours.opensAt}–${nearby.hours.closesAt})',
                     style: text.bodyMedium,
                   ),
                 ),
                 if (nearby.pendingPickups > 0)
-                  _Line(icon: Icons.hourglass_bottom_rounded, child: Text('${nearby.pendingPickups} pickup${nearby.pendingPickups == 1 ? '' : 's'} waiting', style: text.bodySmall?.copyWith(color: colors.textMuted))),
-                if (c.operatorName.isNotEmpty) _Line(icon: Icons.person_outline_rounded, child: Text('Run by ${c.operatorName}', style: text.bodyMedium)),
+                  _Line(icon: Icons.hourglass_bottom_rounded, child: Text('${nearby.pendingPickups} ${context.t(nearby.pendingPickups == 1 ? 'pickup waiting' : 'pickups waiting')}', style: text.bodySmall?.copyWith(color: colors.textMuted))),
+                if (c.operatorName.isNotEmpty) _Line(icon: Icons.person_outline_rounded, child: Text('${context.t('Run by')} ${c.operatorName}', style: text.bodyMedium)),
                 AppSpacing.gapSm,
                 Wrap(
                   spacing: AppSpacing.sm,
                   runSpacing: AppSpacing.xs,
                   children: [
                     if (c.hasPhone)
-                      OutlinedButton.icon(onPressed: () => callPhone(context, c.phone), icon: const Icon(Icons.call_rounded, size: 18), label: const Text('Call')),
+                      OutlinedButton.icon(onPressed: () => callPhone(context, c.phone), icon: const Icon(Icons.call_rounded, size: 18), label: Text(context.t('Call'))),
                     OutlinedButton.icon(
                       onPressed: () => openInMaps(context, latitude: c.latitude, longitude: c.longitude),
                       icon: const Icon(Icons.map_outlined, size: 18),
-                      label: const Text('Open in Maps'),
+                      label: Text(context.t('Open in Maps')),
                     ),
-                    if (onChoose != null) FilledButton(onPressed: onChoose, child: Text(chooseLabel)),
+                    if (onChoose != null) FilledButton(onPressed: onChoose, child: Text(context.t(chooseLabel))),
                   ],
                 ),
               ],

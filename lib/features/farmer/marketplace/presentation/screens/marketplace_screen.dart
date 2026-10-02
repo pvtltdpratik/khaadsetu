@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../../core/animation/fade_slide_in.dart';
 import '../../../../../core/animation/pressable.dart';
+import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/routing/route_paths.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -66,7 +67,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
         return;
       }
       if (_selectedForCompare.length >= 2) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('You can only compare 2 products at a time')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(context.t('You can only compare 2 products at a time'))));
         return;
       }
       _selectedForCompare.add(productId);
@@ -79,11 +80,11 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
       showDragHandle: true,
       builder: (context) => SafeArea(
         child: Column(mainAxisSize: MainAxisSize.min, children: [
-          Padding(padding: const EdgeInsets.all(AppSpacing.md), child: Align(alignment: Alignment.centerLeft, child: Text('Sort by', style: Theme.of(context).textTheme.titleMedium))),
+          Padding(padding: const EdgeInsets.all(AppSpacing.md), child: Align(alignment: Alignment.centerLeft, child: Text(context.t('Sort by'), style: Theme.of(context).textTheme.titleMedium))),
           for (final s in ProductSort.values)
             ListTile(
               key: Key('sort-${s.name}'),
-              title: Text(s.label),
+              title: Text(context.t(s.label)),
               trailing: _query.sort == s ? Icon(Icons.check_circle_rounded, color: context.colors.primary) : const Icon(Icons.radio_button_unchecked),
               onTap: () => Navigator.pop(context, s),
             ),
@@ -131,7 +132,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                           padding: const EdgeInsets.fromLTRB(AppSpacing.md, AppSpacing.sm, AppSpacing.xs, 0),
                           child: Row(children: [
                             Expanded(child: MarketSearchBar(controller: _search, onChanged: (v) => setState(() => _query = _query.copyWith(text: v)))),
-                            IconButton(tooltip: 'My orders', onPressed: () => context.push(RoutePaths.farmerOrders), icon: const Icon(Icons.receipt_long_outlined)),
+                            IconButton(tooltip: context.t('My orders'), onPressed: () => context.push(RoutePaths.farmerOrders), icon: const Icon(Icons.receipt_long_outlined)),
                           ]),
                         ),
                       ),
@@ -140,9 +141,9 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                       SliverToBoxAdapter(child: CategoryStrip(selected: _query.category, onChanged: (c) => setState(() => _query = _query.copyWith(category: c)))),
                       SliverToBoxAdapter(
                         child: PromoCarousel(banners: [
-                          PromoBanner(title: 'Surplus deals near you', subtitle: 'Farmers\' unused fertilizer, inspected at your center, at a lower price', icon: Icons.sell_rounded, onTap: () => context.push(RoutePaths.farmerSurplus)),
-                          PromoBanner(title: 'Find a village center', subtitle: 'See who has your product in stock and how far it is', icon: Icons.location_on_rounded, onTap: () => context.push(RoutePaths.farmerCenters)),
-                          PromoBanner(title: 'Not sure what to buy?', subtitle: 'Ask the farming assistant about your crop and soil', icon: Icons.smart_toy_rounded, onTap: () => context.push(RoutePaths.farmerAssistant)),
+                          PromoBanner(title: context.t('Surplus deals near you'), subtitle: context.t('Farmers\' unused fertilizer, inspected at your center, at a lower price'), icon: Icons.sell_rounded, onTap: () => context.push(RoutePaths.farmerSurplus)),
+                          PromoBanner(title: context.t('Find a village center'), subtitle: context.t('See who has your product in stock and how far it is'), icon: Icons.location_on_rounded, onTap: () => context.push(RoutePaths.farmerCenters)),
+                          PromoBanner(title: context.t('Not sure what to buy?'), subtitle: context.t('Ask the farming assistant about your crop and soil'), icon: Icons.smart_toy_rounded, onTap: () => context.push(RoutePaths.farmerAssistant)),
                         ]),
                       ),
                       const SliverToBoxAdapter(child: FarmerMadeStrip()),
@@ -166,7 +167,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                                 padding: const EdgeInsets.only(right: AppSpacing.sm),
                                 child: IconButton(
                                   key: const Key('compare-toggle'),
-                                  tooltip: _compareMode ? 'Stop comparing' : 'Compare products',
+                                  tooltip: context.t(_compareMode ? 'Stop comparing' : 'Compare products'),
                                   onPressed: _toggleCompareMode,
                                   icon: Icon(_compareMode ? Icons.close_rounded : Icons.compare_arrows_rounded),
                                 ),
@@ -229,7 +230,7 @@ class _MarketplaceScreenState extends ConsumerState<MarketplaceScreen> {
                   context.push(RoutePaths.farmerMarketplaceCompare(ids[0], ids[1]));
                 },
                 icon: const Icon(Icons.compare_arrows_rounded),
-                label: const Text('Compare selected products'),
+                label: Text(context.t('Compare selected products')),
               ),
             ),
         ]),
@@ -277,11 +278,11 @@ class _NoResults extends StatelessWidget {
         child: Column(mainAxisSize: MainAxisSize.min, children: [
           Icon(Icons.search_off_rounded, size: 52, color: colors.textMuted),
           AppSpacing.gapSm,
-          Text('No products match', style: Theme.of(context).textTheme.titleMedium),
+          Text(context.t('No products match'), style: Theme.of(context).textTheme.titleMedium),
           const SizedBox(height: AppSpacing.xs),
-          Text('Try a different word or remove a filter.', style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted)),
+          Text(context.t('Try a different word or remove a filter.'), style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: colors.textMuted)),
           AppSpacing.gapSm,
-          TextButton(key: const Key('clear-filters'), onPressed: onClear, child: const Text('Clear search and filters')),
+          TextButton(key: const Key('clear-filters'), onPressed: onClear, child: Text(context.t('Clear search and filters'))),
         ]),
       ),
     );
@@ -313,16 +314,16 @@ class _FilterSheetState extends State<_FilterSheet> {
       child: SafeArea(
         child: SingleChildScrollView(
           child: Column(mainAxisSize: MainAxisSize.min, crossAxisAlignment: CrossAxisAlignment.start, children: [
-            Text('Filter', style: text.titleMedium),
+            Text(context.t('Filter'), style: text.titleMedium),
             AppSpacing.gapMd,
-            Text('Customer rating', style: text.labelLarge),
+            Text(context.t('Customer rating'), style: text.labelLarge),
             const SizedBox(height: AppSpacing.xs),
             Wrap(spacing: AppSpacing.sm, children: [
               for (final r in const [0.0, 3.0, 4.0])
-                ChoiceChip(key: Key('rating-$r'), label: Text(r == 0 ? 'Any' : '${r.toStringAsFixed(0)}★ & up'), selected: _minRating == r, onSelected: (_) => setState(() => _minRating = r)),
+                ChoiceChip(key: Key('rating-$r'), label: Text(r == 0 ? context.t('Any') : '${r.toStringAsFixed(0)}★ & up'), selected: _minRating == r, onSelected: (_) => setState(() => _minRating = r)),
             ]),
             AppSpacing.gapMd,
-            Text('Price up to ${formatRupees(_maxPrice)}', key: const Key('price-label'), style: text.labelLarge),
+            Text('${context.t('Price up to')} ${formatRupees(_maxPrice)}', key: const Key('price-label'), style: text.labelLarge),
             Slider(
               key: const Key('price-slider'),
               value: _maxPrice.clamp(100, widget.ceiling),
@@ -334,8 +335,8 @@ class _FilterSheetState extends State<_FilterSheet> {
             SwitchListTile(
               key: const Key('soil-switch'),
               contentPadding: EdgeInsets.zero,
-              title: const Text('Matches my soil'),
-              subtitle: Text(widget.hasSoilScan ? 'Only products for the nutrients your latest scan found low' : 'Scan your soil first to use this', style: text.bodySmall?.copyWith(color: colors.textMuted)),
+              title: Text(context.t('Matches my soil')),
+              subtitle: Text(context.t(widget.hasSoilScan ? 'Only products for the nutrients your latest scan found low' : 'Scan your soil first to use this'), style: text.bodySmall?.copyWith(color: colors.textMuted)),
               value: _soil,
               onChanged: widget.hasSoilScan ? (v) => setState(() => _soil = v) : null,
             ),
@@ -345,7 +346,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                 child: OutlinedButton(
                   key: const Key('filter-clear'),
                   onPressed: () => Navigator.pop(context, widget.initial.copyWith(minRating: 0, soilMatchOnly: false, maxPrice: null)),
-                  child: const Text('Clear'),
+                  child: Text(context.t('Clear')),
                 ),
               ),
               const SizedBox(width: AppSpacing.sm),
@@ -356,7 +357,7 @@ class _FilterSheetState extends State<_FilterSheet> {
                     context,
                     widget.initial.copyWith(minRating: _minRating, soilMatchOnly: _soil, maxPrice: _maxPrice >= widget.ceiling ? null : _maxPrice),
                   ),
-                  child: const Text('Apply'),
+                  child: Text(context.t('Apply')),
                 ),
               ),
             ]),
