@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -34,7 +36,7 @@ class QuickActionsRow extends StatelessWidget {
         mainAxisSpacing: AppSpacing.sm,
         childAspectRatio: context.responsive(mobile: 2.6, tablet: 1.3),
       ),
-      itemBuilder: (context, i) => _QuickActionTile(action: actions[i]),
+      itemBuilder: (context, i) => FadeSlideIn(index: i, child: _QuickActionTile(action: actions[i])),
     );
   }
 }
@@ -47,31 +49,33 @@ class _QuickActionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
-    return Material(
-      color: colors.surface,
-      borderRadius: BorderRadius.circular(14),
-      child: InkWell(
+    return Pressable(
+      child: Material(
+        color: colors.surface,
         borderRadius: BorderRadius.circular(14),
-        onTap: action.onTap,
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            border: Border.all(color: colors.border),
-          ),
-          child: Row(
-            children: [
-              Icon(action.icon, color: colors.primary),
-              const SizedBox(width: AppSpacing.sm),
-              Flexible(
-                child: Text(
-                  context.t(action.label),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.labelLarge,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: action.onTap,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              border: Border.all(color: colors.border),
+            ),
+            child: Row(
+              children: [
+                Icon(action.icon, color: colors.primary),
+                const SizedBox(width: AppSpacing.sm),
+                Flexible(
+                  child: Text(
+                    context.t(action.label),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: Theme.of(context).textTheme.labelLarge,
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),

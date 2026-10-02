@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/responsive/responsive.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -173,8 +175,13 @@ class _VillageList extends StatelessWidget {
     return ListView(
       children: [
         if (title != null) Padding(padding: const EdgeInsets.symmetric(vertical: AppSpacing.xs), child: Text(context.t(title!), style: Theme.of(context).textTheme.labelMedium?.copyWith(color: context.colors.textMuted))),
-        for (final v in villages) ...[
-          ListTile(leading: const Icon(Icons.place_outlined), title: Text(v.name), subtitle: Text(v.district), onTap: () => onPick(v)),
+        for (final (i, v) in villages.indexed) ...[
+          FadeSlideIn(
+            index: i,
+            child: Pressable(
+              child: ListTile(leading: const Icon(Icons.place_outlined), title: Text(v.name), subtitle: Text(v.district), onTap: () => onPick(v)),
+            ),
+          ),
           const Divider(height: 1),
         ],
       ],
@@ -212,7 +219,10 @@ class _CentersNearChosen extends StatelessWidget {
                 child: Center(child: Text('${context.t('No village centers near')} ${village.display} ${context.t('yet.')}', textAlign: TextAlign.center, style: TextStyle(color: colors.textMuted))),
               );
             }
-            return Column(children: [for (final n in list) Padding(padding: const EdgeInsets.only(bottom: AppSpacing.md), child: CenterCard(nearby: n))]);
+            return Column(children: [
+              for (final (i, n) in list.indexed)
+                Padding(padding: const EdgeInsets.only(bottom: AppSpacing.md), child: FadeSlideIn(index: i, child: CenterCard(nearby: n))),
+            ]);
           },
         ),
       ],

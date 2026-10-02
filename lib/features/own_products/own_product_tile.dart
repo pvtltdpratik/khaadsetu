@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../core/animation/pop_in.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/theme/app_spacing.dart';
 import '../../core/utils/price_format.dart';
@@ -43,15 +44,18 @@ class OwnProductTile extends StatelessWidget {
                 Positioned(
                   left: 0,
                   top: 8,
-                  child: Container(
-                    key: const Key('farmer-made-ribbon'),
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                    decoration: BoxDecoration(color: colors.success, borderRadius: const BorderRadius.horizontal(right: Radius.circular(6))),
-                    child: Row(mainAxisSize: MainAxisSize.min, children: [
-                      Icon(Icons.eco_rounded, size: 12, color: colors.onSuccess),
-                      const SizedBox(width: 3),
-                      Text('Farmer-made', style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
-                    ]),
+                  child: PopIn(
+                    from: 0.4,
+                    child: Container(
+                      key: const Key('farmer-made-ribbon'),
+                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                      decoration: BoxDecoration(color: colors.success, borderRadius: const BorderRadius.horizontal(right: Radius.circular(6))),
+                      child: Row(mainAxisSize: MainAxisSize.min, children: [
+                        Icon(Icons.eco_rounded, size: 12, color: colors.onSuccess),
+                        const SizedBox(width: 3),
+                        Text('Farmer-made', style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
+                      ]),
+                    ),
                   ),
                 ),
               ]),

@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/animation/motion.dart';
+import '../../../../core/animation/pressable.dart';
 import '../../../../core/auth/auth_providers.dart';
 import '../../../../core/auth/auth_service.dart';
 import '../../../../core/auth/user_role.dart';
@@ -118,15 +120,24 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 child: GestureDetector(
                   key: const Key('signup-photo'),
                   onTap: _isSubmitting ? null : _pickPhoto,
-                  child: Stack(children: [
-                    CircleAvatar(
-                      radius: 36,
-                      backgroundColor: colors.surfaceSunken,
-                      backgroundImage: _photo == null ? null : MemoryImage(_photo!),
-                      child: _photo == null ? Icon(Icons.person_outline, size: 36, color: colors.textMuted) : null,
-                    ),
-                    Positioned(right: -2, bottom: -2, child: CircleAvatar(radius: 12, backgroundColor: colors.primary, child: const Icon(Icons.camera_alt, size: 14, color: Colors.white))),
-                  ]),
+                  child: Pressable(
+                    enabled: !_isSubmitting,
+                    child: Stack(children: [
+                      AnimatedSwitcher(
+                        duration: Motion.medium,
+                        switchInCurve: Motion.pop,
+                        transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child)),
+                        child: CircleAvatar(
+                          key: ValueKey(_photo?.lengthInBytes ?? 0),
+                          radius: 36,
+                          backgroundColor: colors.surfaceSunken,
+                          backgroundImage: _photo == null ? null : MemoryImage(_photo!),
+                          child: _photo == null ? Icon(Icons.person_outline, size: 36, color: colors.textMuted) : null,
+                        ),
+                      ),
+                      Positioned(right: -2, bottom: -2, child: CircleAvatar(radius: 12, backgroundColor: colors.primary, child: const Icon(Icons.camera_alt, size: 14, color: Colors.white))),
+                    ]),
+                  ),
                 ),
               ),
               Center(child: Tx('Add a photo (optional)', style: Theme.of(context).textTheme.labelSmall?.copyWith(color: colors.textMuted))),

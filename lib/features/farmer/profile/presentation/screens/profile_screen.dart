@@ -8,6 +8,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../../core/animation/fade_slide_in.dart';
+import '../../../../../core/animation/motion.dart';
+import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/auth/auth_providers.dart';
 import '../../../../../core/auth/session_profile.dart';
 import '../../../../../core/location/place_namer.dart';
@@ -220,19 +222,27 @@ class _ProfilePhoto extends ConsumerWidget {
     return GestureDetector(
       key: const Key('profile-photo'),
       onTap: () => _change(context, ref, photo != null),
-      child: Stack(children: [
-        CircleAvatar(
-          radius: 32,
-          backgroundColor: colors.onPrimary.withValues(alpha: 0.2),
-          backgroundImage: photo == null ? null : MemoryImage(photo),
-          child: photo == null ? Text(name.characters.first.toUpperCase(), style: text.headlineMedium?.copyWith(color: colors.onPrimary)) : null,
-        ),
-        Positioned(
-          right: -2,
-          bottom: -2,
-          child: CircleAvatar(radius: 12, backgroundColor: colors.onPrimary, child: Icon(Icons.camera_alt, size: 14, color: colors.primary)),
-        ),
-      ]),
+      child: Pressable(
+        child: Stack(children: [
+          AnimatedSwitcher(
+            duration: Motion.medium,
+            switchInCurve: Motion.pop,
+            transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: FadeTransition(opacity: animation, child: child)),
+            child: CircleAvatar(
+              key: ValueKey(photo?.lengthInBytes ?? 0),
+              radius: 32,
+              backgroundColor: colors.onPrimary.withValues(alpha: 0.2),
+              backgroundImage: photo == null ? null : MemoryImage(photo),
+              child: photo == null ? Text(name.characters.first.toUpperCase(), style: text.headlineMedium?.copyWith(color: colors.onPrimary)) : null,
+            ),
+          ),
+          Positioned(
+            right: -2,
+            bottom: -2,
+            child: CircleAvatar(radius: 12, backgroundColor: colors.onPrimary, child: Icon(Icons.camera_alt, size: 14, color: colors.primary)),
+          ),
+        ]),
+      ),
     );
   }
 }

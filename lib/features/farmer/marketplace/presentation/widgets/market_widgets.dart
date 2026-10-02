@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/animation/pop_in.dart';
 import '../../../../../core/animation/pressable.dart';
 import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/theme/app_colors.dart';
@@ -276,11 +277,14 @@ class ProductCard extends StatelessWidget {
                   Positioned(
                     left: 0,
                     top: 8,
-                    child: Container(
-                      key: const Key('soil-ribbon'),
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(color: colors.success, borderRadius: const BorderRadius.horizontal(right: Radius.circular(6))),
-                      child: Text(context.t('Matches your soil'), style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
+                    child: PopIn(
+                      from: 0.4,
+                      child: Container(
+                        key: const Key('soil-ribbon'),
+                        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                        decoration: BoxDecoration(color: colors.success, borderRadius: const BorderRadius.horizontal(right: Radius.circular(6))),
+                        child: Text(context.t('Matches your soil'), style: text.labelSmall?.copyWith(color: colors.onSuccess, fontSize: 10, fontWeight: FontWeight.w700)),
+                      ),
                     ),
                   ),
                 if (compareMode)

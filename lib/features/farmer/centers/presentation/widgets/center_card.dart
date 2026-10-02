@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../../../core/animation/pop_in.dart';
 import '../../../../../core/l10n/app_locale.dart';
 import '../../../../../core/theme/app_colors.dart';
 import '../../../../../core/theme/app_spacing.dart';
@@ -39,24 +40,26 @@ class CenterCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if (nearby.isRecommended)
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
-              decoration: BoxDecoration(
-                color: colors.primaryContainer,
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-              ),
-              child: Row(
-                children: [
-                  Icon(Icons.thumb_up_alt_rounded, size: 16, color: colors.primary),
-                  const SizedBox(width: AppSpacing.sm),
-                  Expanded(
-                    child: Text(
-                      nearby.recommendationReason == null ? context.t('Recommended center') : '${context.t('Recommended')}: ${nearby.recommendationReason}',
-                      style: text.labelLarge?.copyWith(color: colors.primary),
+            PopIn(
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(horizontal: AppSpacing.md, vertical: AppSpacing.sm),
+                decoration: BoxDecoration(
+                  color: colors.primaryContainer,
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                ),
+                child: Row(
+                  children: [
+                    Icon(Icons.thumb_up_alt_rounded, size: 16, color: colors.primary),
+                    const SizedBox(width: AppSpacing.sm),
+                    Expanded(
+                      child: Text(
+                        nearby.recommendationReason == null ? context.t('Recommended center') : '${context.t('Recommended')}: ${nearby.recommendationReason}',
+                        style: text.labelLarge?.copyWith(color: colors.primary),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           Padding(
