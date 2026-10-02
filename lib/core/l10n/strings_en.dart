@@ -70,6 +70,9 @@ const enPhrases = <String>[
   'नमस्कार! How can I help your farm today?',
   'Ask in Marathi, Hindi or English. I know your land, crops and soil scan from your profile.',
   'The assistant can make mistakes. For serious crop or animal problems, also ask your Taluka Agriculture Officer or call the Kisan Call Center on 1800-180-1551.',
+  // Assistant navigation (screen labels)
+  'Addresses', 'Farm & scheme details', 'Schemes', 'Sell surplus fertilizer', 'My wallet', 'My fertilizer log',
+  'My bills', 'Notification settings', 'Organic certification', 'Profit calculator', 'Soil scan history', 'Rewards',
   // Center card / nearby centers
   'Call', 'Choose this center', 'No village centers within', 'Open in Maps', 'Open', 'Closed', 'pickup waiting',
   'pickups waiting', 'Pick where you will collect your order.', 'Recommended', 'Recommended center', 'Run by',

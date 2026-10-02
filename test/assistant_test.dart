@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:khaadsetu_version1/core/theme/app_theme.dart';
 import 'package:khaadsetu_version1/features/assistant/domain/assistant_models.dart';
 import 'package:khaadsetu_version1/features/assistant/presentation/assistant_providers.dart';
@@ -12,18 +13,21 @@ class FakeAssistant implements AssistantRepository {
   final bool on;
   final asked = <({String message, List<ChatMessage> history})>[];
   final replies = <Object>['Use vermicompost, 2 quintal per acre.'];
+  ChatAction? nextAction;
   Future<void>? hold;
 
   @override
   Future<bool> enabled() async => on;
 
   @override
-  Future<String> ask(String message, List<ChatMessage> history) async {
+  Future<ChatAnswer> ask(String message, List<ChatMessage> history) async {
     asked.add((message: message, history: history));
     if (hold != null) await hold;
     final next = replies.length > 1 ? replies.removeAt(0) : replies.first;
     if (next is Exception) throw next;
-    return next as String;
+    final action = nextAction;
+    nextAction = null;
+    return ChatAnswer(text: next as String, action: action);
   }
 }
 
@@ -139,6 +143,30 @@ void main() {
       await pump(tester, assistant: FakeAssistant(on: false));
       expect(find.text('The assistant is not available right now'), findsOneWidget);
       expect(find.byKey(const Key('chat-input')), findsNothing);
+    });
+
+    testWidgets('a "where is X" answer offers a button that goes straight to that screen', (tester) async {
+      tester.view.physicalSize = const Size(430, 1600);
+      tester.view.devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      final fake = FakeAssistant()
+        ..replies[0] = 'You\'ll find that under "My Orders". Tap below to go there.'
+        ..nextAction = const ChatAction(label: 'My Orders', route: '/farmer/marketplace/orders');
+      final router = GoRouter(routes: [
+        GoRoute(path: '/', builder: (context, _) => const AssistantScreen()),
+        GoRoute(path: '/farmer/marketplace/orders', builder: (context, _) => const Text('orders screen')),
+      ]);
+      await tester.pumpWidget(ProviderScope(
+        overrides: [assistantRepositoryProvider.overrideWithValue(fake)],
+        child: MaterialApp.router(theme: AppTheme.light, routerConfig: router),
+      ));
+      await tester.pumpAndSettle();
+      await ask(tester, 'where are my orders');
+      expect(find.byKey(const Key('chat-action')), findsOneWidget);
+      expect(find.text('My Orders'), findsOneWidget);
+      await tester.tap(find.byKey(const Key('chat-action')));
+      await tester.pumpAndSettle();
+      expect(find.text('orders screen'), findsOneWidget);
     });
   });
 

@@ -39,8 +39,8 @@ class ChatController extends Notifier<ChatState> {
     final history = [for (final m in state.messages) if (!m.isError) m];
     state = state.copyWith(messages: [...state.messages, ChatMessage(fromUser: true, text: message)], sending: true);
     try {
-      final reply = await ref.read(assistantRepositoryProvider).ask(message, history.length > historyLimit ? history.sublist(history.length - historyLimit) : history);
-      state = state.copyWith(messages: [...state.messages, ChatMessage(fromUser: false, text: reply)], sending: false);
+      final answer = await ref.read(assistantRepositoryProvider).ask(message, history.length > historyLimit ? history.sublist(history.length - historyLimit) : history);
+      state = state.copyWith(messages: [...state.messages, ChatMessage(fromUser: false, text: answer.text, action: answer.action)], sending: false);
     } catch (err) {
       state = state.copyWith(messages: [...state.messages, ChatMessage(fromUser: false, text: '$err', isError: true)], sending: false);
     }

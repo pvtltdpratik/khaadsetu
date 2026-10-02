@@ -2,6 +2,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../../core/animation/fade_slide_in.dart';
 import '../../../core/l10n/app_locale.dart';
@@ -205,6 +206,17 @@ class _Bubble extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           SelectableText(message.text, style: text.bodyMedium?.copyWith(color: fg)),
           if (onRetry != null) TextButton(key: const Key('chat-retry'), onPressed: onRetry, child: Tx('Try again')),
+          if (message.action != null)
+            Padding(
+              padding: const EdgeInsets.only(top: AppSpacing.xs),
+              child: OutlinedButton.icon(
+                key: const Key('chat-action'),
+                style: OutlinedButton.styleFrom(foregroundColor: fg, side: BorderSide(color: fg.withValues(alpha: 0.4))),
+                onPressed: () => context.push(message.action!.route),
+                icon: const Icon(Icons.arrow_forward_rounded, size: 16),
+                label: Text(context.t(message.action!.label)),
+              ),
+            ),
         ]),
       ),
     );

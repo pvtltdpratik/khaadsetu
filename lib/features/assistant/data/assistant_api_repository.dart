@@ -14,11 +14,12 @@ class AssistantApiRepository implements AssistantRepository {
   }
 
   @override
-  Future<String> ask(String message, List<ChatMessage> history) async {
+  Future<ChatAnswer> ask(String message, List<ChatMessage> history) async {
     final json = await _api.post('/v1/assistant/chat', body: {
       'message': message,
       'history': [for (final m in history) m.toHistory()],
     }) as Map<String, dynamic>;
-    return json['reply'] as String;
+    final action = json['action'] as Map<String, dynamic>?;
+    return ChatAnswer(text: json['reply'] as String, action: action == null ? null : ChatAction.fromJson(action));
   }
 }
