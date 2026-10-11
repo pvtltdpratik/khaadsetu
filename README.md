@@ -11,7 +11,7 @@ The idea is simple - most farmers don't have proper access to soil testing or co
 - Has a village center side too - basically an app for the local shop owner who helps farmers who aren't comfortable with tech
 - Pulls weather info and mandi prices so farmer doesn't need to switch apps
 - Govt scheme matching (PM-KISAN, PKVY etc) based on farmer's land and crop details
-- Works offline for the village center part since network in rural areas is not great, syncs later when connection is back
+- Works offline for the village center part since network in rural areas is not great, syncs later when connection is back.
 
 ### Tech stack
 
@@ -26,3 +26,5 @@ Open to suggestions if anyone's worked on agri-tech stuff before, would genuinel
 ---
 
 Want me to also give you a matching commit message style or a basic README.md file to go along with this repo description?
+
+
